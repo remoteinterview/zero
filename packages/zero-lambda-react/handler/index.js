@@ -5,7 +5,7 @@ require('babel-register')({
     'babel-preset-react',
     'babel-preset-env',
   ].map(require.resolve),
-  plugins: ['add-module-exports']
+  plugins: ['babel-plugin-add-module-exports'].map(require.resolve)
 })
 
 const http = require('http')

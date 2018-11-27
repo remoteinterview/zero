@@ -1,6 +1,10 @@
 {
-  "name": "root",
+  "name": "zero",
   "private": true,
+  "scripts": {
+    "bootstrap": "lerna bootstrap",
+    "example": "cd example && zero"
+  },
   "devDependencies": {
     "lerna": "^3.4.3"
   }

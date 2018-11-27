@@ -1,0 +1,20 @@
+{
+  "name": "zerojs",
+  "version": "0.0.1",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "example": "cd example && zero"
+  },
+  "bin": {
+    "zero": "./bin/zero"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "zero-static": "0.0.1",
+    "zero-lambda-js": "0.0.1",
+    "zero-lambda-react": "0.0.1",
+    "glob": "^7.1.3"
+  }
+}
