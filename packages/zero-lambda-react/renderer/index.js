@@ -1,5 +1,7 @@
+//process.env.NODE_PATH = require("path").join(__dirname, "../node_modules")
 require("babel-polyfill")
 require('babel-register')({
+  //options: {cwd: __dirname},
   presets: [
     'babel-preset-stage-0',
     'babel-preset-react',
@@ -24,15 +26,15 @@ global.fetch = require('@zeit/fetch')()
 
 var BUNDLECACHE = {}
 
-async function generateComponent(req, res, endpointData){
+async function generateComponent(req, res, componentPath){
   try {
-    const App = require(endpointData[1])
+    const App = require(componentPath)
     const props = Object.assign({}, { req })
 
   
-    if (!BUNDLECACHE[endpointData[1]]){
-      BUNDLECACHE[endpointData[1]] = await bundle(endpointData[1])
-      console.log("bundle size", BUNDLECACHE[endpointData[1]].length/1024)
+    if (!BUNDLECACHE[componentPath]){
+      BUNDLECACHE[componentPath] = await bundle(componentPath)
+      console.log("bundle size", BUNDLECACHE[componentPath].length/1024)
     }
 
   
@@ -46,7 +48,7 @@ async function generateComponent(req, res, endpointData){
     res.write(html)
     const json = jsonStringify(props)
     res.write(`<script id='initial_props' type='application/json'>${json}</script>`)
-    res.write(`<script>${BUNDLECACHE[endpointData[1]]}</script>`)
+    res.write(`<script>${BUNDLECACHE[componentPath]}</script>`)
     res.write('</div>')
   }
   catch(error){
@@ -86,7 +88,7 @@ async function generateComponent(req, res, endpointData){
   stream.on('end', async () => {
     const json = jsonStringify(props)
     res.write(`<script id='initial_props' type='application/json'>${json}</script>`)
-    res.write(`<script>${BUNDLECACHE[endpointData[1]]}</script>`)
+    res.write(`<script>${BUNDLECACHE[componentPath]}</script>`)
     res.write('</div>')
     res.end()
   })
