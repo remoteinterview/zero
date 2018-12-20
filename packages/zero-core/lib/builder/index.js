@@ -8,7 +8,7 @@ var validators = {
 
 async function getFiles(baseSrc) {
   return new Promise((resolve, reject)=>{
-    glob(baseSrc + '/**/*', {nodir: true}, (err, res)=>{
+    glob(baseSrc + '/**/*', {nodir: true, dot: true}, (err, res)=>{
       if (err) return reject(err)
       resolve(res)
     });
@@ -17,8 +17,10 @@ async function getFiles(baseSrc) {
 
 async function buildManifest(basePath){
   basePath = basePath.endsWith("/")? basePath : (basePath + "/")
+  var date = Date.now()
   var files = await getFiles(basePath)
   files = files.filter((f)=>f.indexOf("node_modules")===-1)
+  
   //console.log(basePath, files)
   var json = files.map((file)=>{
     // check if js file is a js lambda function
@@ -53,6 +55,8 @@ async function buildManifest(basePath){
     return false // static is catch-all so no need to save it as entry in our manifest
     //return [file, 'static']
   })
+
+  // console.log("elaps", (Date.now() - date)/1000 )
 
   
   return json

@@ -12,10 +12,12 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "del": "^3.0.0",
     "glob": "^7.1.3",
     "konan": "^1.2.1",
     "mkdirp": "^0.5.1",
     "ncp": "^2.0.0",
+    "npmi": "^4.0.0",
     "npminstall": "^3.17.0",
     "recursive-copy": "^2.0.9",
     "rimraf": "^2.6.2",

@@ -29,7 +29,7 @@ async function build(){
   await prepareBuildFolder(process.cwd())
   Manifest = await buildManifest(process.cwd())
   console.log(Manifest)
-  installPackages( path.join( process.cwd(), ".zero" ) )
+  installPackages( path.join( process.cwd(), ".zero" ), Manifest )
 }
 
 build()
