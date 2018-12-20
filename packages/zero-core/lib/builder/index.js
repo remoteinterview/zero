@@ -1,5 +1,6 @@
 var glob = require("glob")
-var { spawnSync } = require("child_process")
+//var { spawnSync } = require("child_process")
+var spawnAsync = require("./spawn-async")
 
 var validators = {
   js: require.resolve("zero-lambda-js/validate.js"),
@@ -19,25 +20,25 @@ async function buildManifest(basePath){
   basePath = basePath.endsWith("/")? basePath : (basePath + "/")
   var date = Date.now()
   var files = await getFiles(basePath)
-  files = files.filter((f)=>f.indexOf("node_modules")===-1)
+  files = files.filter((f)=>f.indexOf("node_modules")===-1 && f.indexOf(".zero")===-1)
   
   //console.log(basePath, files)
-  var json = files.map((file)=>{
+  var json = await Promise.all( files.map(async (file)=>{
     // check if js file is a js lambda function
     if (file.endsWith(".js")){
       
-      var output = spawnSync(validators["js"], [file])
-      //console.log(file, output.stdout)
-      if (output.status===0){
+      var statusCode = await spawnAsync(validators["js"], [file])
+      console.log(file, statusCode)
+      if (statusCode===0){
         return [file, 'lambda:js']
       }
     }
 
     // check if a react component
     if (file.endsWith(".js") || file.endsWith(".jsx")){
-      var output = spawnSync(validators["react"], [file])
-      //console.log(file, output.stdout)
-      if (output.status===0){
+      var statusCode = await spawnAsync(validators["react"], [file])
+      console.log(file, statusCode)
+      if (statusCode===0){
         return [file, 'lambda:react']
       }
     }
@@ -55,8 +56,9 @@ async function buildManifest(basePath){
     return false // static is catch-all so no need to save it as entry in our manifest
     //return [file, 'static']
   })
+  )
 
-  // console.log("elaps", (Date.now() - date)/1000 )
+  console.log("elaps", (Date.now() - date)/1000 )
 
   
   return json
