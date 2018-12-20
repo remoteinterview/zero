@@ -6,26 +6,13 @@ var copy = require('recursive-copy');
 const del = require('del');
 
 
-async function prepareBuildFolder(basePath) {
-  basePath = basePath || process.cwd()
-  var buildPath = path.join(basePath, "./.zero")
+async function prepareBuildFolder(basePath, buildPath) {
+  //basePath = basePath || process.cwd()
+  //var buildPath = path.join(basePath, "./.zero")
   // await rimraf(buildPath)
   await del([path.join(buildPath, "/**"), '!' + buildPath, '!'+path.join(buildPath, '/node_modules/**') ]);
   mkdirp.sync(buildPath)
   await copy(basePath, buildPath, { filter: ['**/*', "!.zero"] })
 }
 
-function rimraf(dir) {
-  return new Promise(function (resolve, reject) {
-    if (fs.existsSync(dir)) {
-      _rimraf(dir, function (err) {
-        if (err) reject(err)
-        else resolve()
-      })
-    }
-    else {
-      resolve()
-    }
-  })
-}
 module.exports = prepareBuildFolder

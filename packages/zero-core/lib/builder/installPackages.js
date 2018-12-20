@@ -71,6 +71,8 @@ function writePackageJSON(buildPath, deps){
     "name": "zeroapp",
     "private": true,
     "dependencies": {
+      "react": "*",
+      "react-dom": "*"
     }
   }
   deps.forEach((dep)=>{

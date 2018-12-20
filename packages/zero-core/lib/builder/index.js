@@ -16,8 +16,9 @@ async function getFiles(baseSrc) {
   })
 }
 
-async function buildManifest(basePath){
+async function buildManifest(basePath, buildPath){
   basePath = basePath.endsWith("/")? basePath : (basePath + "/")
+  buildPath = buildPath.endsWith("/")? buildPath : (buildPath + "/")
   var date = Date.now()
   var files = await getFiles(basePath)
   files = files.filter((f)=>f.indexOf("node_modules")===-1 && f.indexOf(".zero")===-1)
@@ -62,12 +63,15 @@ async function buildManifest(basePath){
 
   
   return json
+  // remove empty elements
   .filter((endpoint)=>{
     return endpoint !== false
   })
+  // add endpoint path at 0 position for each lambda
   .map((endpoint)=>{
     var trimmedPath = endpoint[0].replace(basePath, "/")
-    trimmedPath = trimmedPath.split('.').slice(0, -1).join('.')
+    trimmedPath = trimmedPath.split('.').slice(0, -1).join('.') // remove extension
+    endpoint[0] = endpoint[0].replace(basePath, buildPath)
     endpoint.unshift(trimmedPath)
     return endpoint
   })

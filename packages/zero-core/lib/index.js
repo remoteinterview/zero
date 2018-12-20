@@ -26,10 +26,11 @@ server.listen(process.env.PORT || 3000, () => {
 
 
 async function build(){
-  await prepareBuildFolder(process.cwd())
-  Manifest = await buildManifest(process.cwd())
+  const buildPath = path.join( process.cwd(), ".zero" )
+  await prepareBuildFolder(process.cwd(), buildPath)
+  Manifest = await buildManifest(process.cwd(), buildPath)
   console.log(Manifest)
-  installPackages( path.join( process.cwd(), ".zero" ), Manifest )
+  installPackages( buildPath, Manifest)
 }
 
 build()
