@@ -27,14 +27,15 @@ const browser = (filename, code) => {
     browserify(stream, {
       basedir: dirname
     })
-      //.transform("babelify", { presets: ["babel-preset-env", "babel-preset-stage-0", "babel-preset-react"] })
-      .bundle((err, res) => {
-        if (err) reject(err)
-        else {
-          const script = res.toString()
-          resolve(script)
-        }
-      })
+    .transform("babelify", { presets: ["babel-preset-env", "babel-preset-stage-0", "babel-preset-react"] })
+    .bundle((err, res) => {
+      console.log("bundle", err)
+      if (err) reject(err)
+      else {
+        const script = res.toString()
+        resolve(script)
+      }
+    })
   })
 }
 

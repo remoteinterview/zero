@@ -18,12 +18,12 @@ async function getFiles(baseSrc) {
 
 async function installPackages(buildPath, manifest){
   buildPath = buildPath || process.cwd()
-  // const files = await getFiles(buildPath)
+  var files = await getFiles(buildPath)
+  files = files.filter((f)=>f.indexOf("node_modules")===-1)
+  var deps = []
 
   // build a list of packages required by all js files
-  var deps = []
-  manifest.forEach(lambda => {
-    const file = lambda[1]
+  files.forEach((file)=>{
     if (file.endsWith(".js") || file.endsWith(".jsx")){
       var imports = konan(fs.readFileSync(file, 'utf8'))
       // only strings for now.
@@ -33,6 +33,18 @@ async function installPackages(buildPath, manifest){
       })
     }
   })
+  
+  // manifest.forEach(lambda => {
+  //   const file = lambda[1]
+  //   if (file.endsWith(".js") || file.endsWith(".jsx")){
+  //     var imports = konan(fs.readFileSync(file, 'utf8'))
+  //     // only strings for now.
+  //     imports.strings.forEach((imp)=> {
+  //       // skip relative imports
+  //       if (!imp.startsWith(".")) deps.push(imp)
+  //     })
+  //   }
+  // })
 
   deps = deps.filter(function(item, pos) {
     return deps.indexOf(item) == pos;
@@ -72,7 +84,16 @@ function writePackageJSON(buildPath, deps){
     "private": true,
     "dependencies": {
       "react": "*",
-      "react-dom": "*"
+      "react-dom": "*",
+      "babel-core": "^6.26.0",
+      "babel-plugin-add-module-exports": "^1.0.0",
+      "babel-polyfill": "^6.26.0",
+      "babel-preset-env": "^1.6.1",
+      "babel-preset-react": "^6.24.1",
+      "babel-preset-stage-0": "^6.24.1",
+      "babel-register": "^6.26.0",
+      "browserify": "^14.5.0",
+      "babelify": "8"
     }
   }
   deps.forEach((dep)=>{

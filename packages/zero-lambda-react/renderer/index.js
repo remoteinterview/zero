@@ -28,9 +28,10 @@ var BUNDLECACHE = {}
 
 async function generateComponent(req, res, componentPath){
   try {
+    
     const App = require(componentPath)
     const props = Object.assign({}, { req })
-
+    // console.log("imported", App)
   
     if (!BUNDLECACHE[componentPath]){
       BUNDLECACHE[componentPath] = await bundle(componentPath)

@@ -1,5 +1,9 @@
-const React = require('react')
+import React from 'react'
+import Heading from "./heading"
 
 module.exports = () => (
-  <div>Hello, Index</div>
+  <div>
+    <title>React</title>
+    <Heading name="World1"/>
+  </div>
 )
