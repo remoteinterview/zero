@@ -1,6 +1,8 @@
 const handlers = require("./handlers")
 const http = require('http');
 const buildManifest = require('./builder');
+const prepareBuildFolder = require("./builder/clone")
+const installPackages = require("./builder/installPackages")
 const path = require("path");
 var Manifest = []
 
@@ -23,11 +25,15 @@ server.listen(process.env.PORT || 3000, () => {
 });
 
 
-console.log("Building Manifest")
-buildManifest( path.join(process.cwd()) ).then((json)=>{
-  Manifest = json
-  console.log(json)
-})
+async function build(){
+  await prepareBuildFolder(process.cwd())
+  Manifest = await buildManifest(process.cwd())
+  console.log(Manifest)
+  installPackages( path.join( process.cwd(), ".zero" ) )
+}
+
+build()
+
 
 const stripTrailingSlash = (str) => {
   return str.replace(/^(.+?)\/*?$/, "$1");
@@ -39,7 +45,7 @@ function matchPathWithDictionary(path){
     // first see if endpoint starts with given path
     return endpoint[0].startsWith(path)
     // exact match
-      && endpoint[0] === path
+      && (endpoint[0] === path || endpoint[0] === path+"/index")
   })
 
   //match.find()

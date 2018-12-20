@@ -7,5 +7,9 @@
   },
   "devDependencies": {
     "lerna": "^3.4.3"
+  },
+  "dependencies": {
+    "react": "^16.6.3",
+    "underscore": "^1.9.1"
   }
 }

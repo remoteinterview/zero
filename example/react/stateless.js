@@ -15,6 +15,6 @@ const React = require('react')
 
 // module.exports =HelloWorld
 
-export default () => (
+module.exports = () => (
   <div>Hello, World</div>
 )

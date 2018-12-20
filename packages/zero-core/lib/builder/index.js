@@ -18,9 +18,9 @@ async function getFiles(baseSrc) {
 async function buildManifest(basePath){
   basePath = basePath.endsWith("/")? basePath : (basePath + "/")
   var files = await getFiles(basePath)
+  files = files.filter((f)=>f.indexOf("node_modules")===-1)
   //console.log(basePath, files)
   var json = files.map((file)=>{
-    
     // check if js file is a js lambda function
     if (file.endsWith(".js")){
       
