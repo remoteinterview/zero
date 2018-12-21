@@ -4,6 +4,12 @@ const { Readable } = require('stream')
 const babel = require('babel-core')
 const browserify = require('browserify')
 const { minify } = require('uglify-es')
+const Bundler = require('parcel-bundler');
+
+const crypto = require("crypto");
+function sha1(data) {
+    return crypto.createHash("sha1").update(data, "binary").digest("hex");
+}
 
 const parse = (filename, raw) => babel.transform(raw, {
   filename,
@@ -27,7 +33,7 @@ const parse = (filename, raw) => babel.transform(raw, {
   minified: true,
   comments: false,
 }).code
-
+/*
 const browser = (filename, code) => {
   const stream = new Readable
   stream.push(code)
@@ -38,7 +44,7 @@ const browser = (filename, code) => {
     browserify(stream, {
       basedir: dirname
     })
-    .transform("babelify", { 
+    .transform("babelify", {
       presets: ["babel-preset-env", "babel-preset-stage-0", "babel-preset-react"],
       plugins: [
         [
@@ -62,15 +68,41 @@ const browser = (filename, code) => {
     })
   })
 }
+*/
 
 const bundle = async filename => {
-  process.env.NODE_ENV = 'production'
+  //process.env.NODE_ENV = 'production'
   const raw = fs.readFileSync(filename)
   const component = parse(filename, raw) // transform just the component file in browser friendly version
   const entry = createEntry(component) // wrap the component with entry and loader
-  const script = await browser(filename, entry) // transform and pack all the imported packages and modules 
-  const min = minify(script).code
-  return min
+
+  // save entry code in a file and feed it to parceljs
+  var entryFileName = path.join(path.dirname(filename), "/"+ sha1(filename) + ".js")
+  var outputFileName = sha1(filename) + ".out.js"
+  var outputFileNameCss = sha1(filename) + ".out.css"
+  fs.writeFileSync(entryFileName, entry, 'utf8')
+  const bundler = new Bundler(entryFileName, {
+    outDir: path.dirname(filename),
+    outFile: outputFileName,
+    sourceMaps: false,
+    cache: false
+  })
+  const bundle = await bundler.bundle()
+  
+  // remove temporary files and return output file
+  fs.unlinkSync(entryFileName)
+  var outputJS = fs.readFileSync(path.join(path.dirname(filename), outputFileName), 'utf8')
+  fs.unlinkSync(path.join(path.dirname(filename), outputFileName))
+  var outputCss = false
+  if (fs.existsSync( path.join(path.dirname(filename), outputFileNameCss) ) ){
+    outputCss = fs.readFileSync(path.join(path.dirname(filename), outputFileNameCss), 'utf8')
+    fs.unlinkSync(path.join(path.dirname(filename), outputFileNameCss))
+  }
+  return {js: outputJS, css: outputCss}
+
+  // const script = await browser(filename, entry) // transform and pack all the imported packages and modules 
+  // const min = minify(script).code
+  // return min
 }
 
 function replaceAll(str, find, replace) {
@@ -85,6 +117,7 @@ const createEntry = component => {
 component = "var ZeroAppContainer;" + replaceAll(component, "module.exports", "ZeroAppContainer")
 component = replaceAll(component, "exports.default", "ZeroAppContainer")
 return(`
+require("babel-polyfill");
 var React = require("react")
 ${component}
 const { hydrate } = require('react-dom')

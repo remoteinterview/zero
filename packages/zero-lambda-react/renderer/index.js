@@ -9,6 +9,7 @@ require('babel-register')({
   ].map(require.resolve),
   plugins: ['babel-plugin-add-module-exports'].map(require.resolve)
 })
+require('ignore-styles') // ignore css/scss imports on server side.
 
 const http = require('http')
 const url = require('url')
@@ -45,11 +46,14 @@ async function generateComponent(req, res, componentPath){
 
     
     const html = renderToString(el)
+    if (BUNDLECACHE[componentPath].css){
+      res.write(`<style>${BUNDLECACHE[componentPath].css}</style>`)
+    }
     res.write('<div id="_react_root">')
     res.write(html)
     const json = jsonStringify(props)
     res.write(`<script id='initial_props' type='application/json'>${json}</script>`)
-    res.write(`<script>${BUNDLECACHE[componentPath]}</script>`)
+    res.write(`<script>${BUNDLECACHE[componentPath].js}</script>`)
     res.write('</div>')
   }
   catch(error){

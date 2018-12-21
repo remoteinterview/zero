@@ -102,6 +102,12 @@ function writePackageJSON(buildPath, deps){
   })
 
   fs.writeFileSync(path.join(buildPath, "/package.json"), JSON.stringify(json), 'utf8')
+
+  // // write .babelrc
+  // var babeljson = {
+  //   "plugins": ["babel-plugin-transform-runtime"]
+  // }
+  // fs.writeFileSync(path.join(buildPath, "/.babel.rc"), JSON.stringify(babeljson), 'utf8')
 }
 
 module.exports = installPackages

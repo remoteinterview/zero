@@ -14,7 +14,7 @@ module.exports = async (req, res)=>{
   var list = await getStories()
   
   var stories = await getStoryDetails(list.slice(0, 10))
-  console.log(stories)
+  //console.log(stories)
   res.write(JSON.stringify(stories))
   res.end()
 }
