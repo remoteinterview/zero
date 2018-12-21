@@ -58,6 +58,12 @@ const browser = (filename, code) => {
         ]
       ]
     })
+    .transform('browserify-css', {
+      autoInject: true,
+      autoInjectOptions: {
+        "insertAt": "bottom"
+      }
+    })
     .bundle((err, res) => {
       console.log("bundle", err)
       if (err) reject(err)

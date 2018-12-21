@@ -36,7 +36,7 @@ async function generateComponent(req, res, componentPath){
   
     if (!BUNDLECACHE[componentPath]){
       BUNDLECACHE[componentPath] = await bundle(componentPath)
-      console.log("bundle size", BUNDLECACHE[componentPath].length/1024)
+      console.log("bundle size", BUNDLECACHE[componentPath].js.length/1024)
     }
 
   

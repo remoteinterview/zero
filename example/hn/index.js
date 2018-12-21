@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-// import "./style.css"
+import "./style.css"
 // import "./heading.css"
 
 class ClassTypeComponent extends Component {
@@ -17,7 +17,7 @@ class ClassTypeComponent extends Component {
 
   render() {
     return <div>
-      <p>Class Type Component</p>
+      <h1>Class Type Component</h1>
       <b>Count: {this.state.count}</b><br/>
       <button onClick={(e)=>{this.setState({count: this.state.count+1})}}>Add</button>
     </div>

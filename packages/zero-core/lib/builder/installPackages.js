@@ -94,6 +94,7 @@ function writePackageJSON(buildPath, deps){
       "babel-plugin-transform-runtime": "^6.23.0",
       "babel-register": "^6.26.0",
       "browserify": "^14.5.0",
+      "browserify-css": "^0.14.0",
       "babelify": "8"
     }
   }
