@@ -12,6 +12,17 @@ const parse = (filename, raw) => babel.transform(raw, {
     require('babel-preset-stage-0'),
     require('babel-preset-react')
   ],
+  /*plugins: [
+    [
+      require("babel-plugin-transform-runtime"),
+      {
+        "corejs": false,
+        "helpers": true,
+        "regenerator": true,
+        "useESModules": false
+      }
+    ]
+  ],*/
   compact: true,
   minified: true,
   comments: false,
@@ -27,7 +38,20 @@ const browser = (filename, code) => {
     browserify(stream, {
       basedir: dirname
     })
-    .transform("babelify", { presets: ["babel-preset-env", "babel-preset-stage-0", "babel-preset-react"] })
+    .transform("babelify", { 
+      presets: ["babel-preset-env", "babel-preset-stage-0", "babel-preset-react"],
+      plugins: [
+        [
+          "babel-plugin-transform-runtime",
+          {
+            "corejs": false,
+            "helpers": true,
+            "regenerator": true,
+            "useESModules": false
+          }
+        ]
+      ]
+    })
     .bundle((err, res) => {
       console.log("bundle", err)
       if (err) reject(err)
@@ -42,10 +66,9 @@ const browser = (filename, code) => {
 const bundle = async filename => {
   process.env.NODE_ENV = 'production'
   const raw = fs.readFileSync(filename)
-  const component = parse(filename, raw)
-  const entry = createEntry(component)
-  const script = await browser(filename, entry)
-  //return script
+  const component = parse(filename, raw) // transform just the component file in browser friendly version
+  const entry = createEntry(component) // wrap the component with entry and loader
+  const script = await browser(filename, entry) // transform and pack all the imported packages and modules 
   const min = minify(script).code
   return min
 }

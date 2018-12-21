@@ -91,6 +91,7 @@ function writePackageJSON(buildPath, deps){
       "babel-preset-env": "^1.6.1",
       "babel-preset-react": "^6.24.1",
       "babel-preset-stage-0": "^6.24.1",
+      "babel-plugin-transform-runtime": "^6.23.0",
       "babel-register": "^6.26.0",
       "browserify": "^14.5.0",
       "babelify": "8"
