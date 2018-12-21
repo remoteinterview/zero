@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
-import "./style.css"
-import "./heading.css"
+// import "./style.css"
+// import "./heading.css"
 
 class ClassTypeComponent extends Component {
   constructor(){

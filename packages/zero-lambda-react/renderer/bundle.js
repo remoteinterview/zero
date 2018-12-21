@@ -33,7 +33,7 @@ const parse = (filename, raw) => babel.transform(raw, {
   minified: true,
   comments: false,
 }).code
-/*
+
 const browser = (filename, code) => {
   const stream = new Readable
   stream.push(code)
@@ -68,7 +68,7 @@ const browser = (filename, code) => {
     })
   })
 }
-*/
+
 
 const bundle = async filename => {
   //process.env.NODE_ENV = 'production'
@@ -76,6 +76,11 @@ const bundle = async filename => {
   const component = parse(filename, raw) // transform just the component file in browser friendly version
   const entry = createEntry(component) // wrap the component with entry and loader
 
+  const script = await browser(filename, entry) // transform and pack all the imported packages and modules 
+  const min = minify(script).code
+  return {js: min }
+
+  /*
   // save entry code in a file and feed it to parceljs
   var entryFileName = path.join(path.dirname(filename), "/"+ sha1(filename) + ".js")
   var outputFileName = sha1(filename) + ".out.js"
@@ -85,6 +90,7 @@ const bundle = async filename => {
     outDir: path.dirname(filename),
     outFile: outputFileName,
     sourceMaps: false,
+    watch: false,
     cache: false
   })
   const bundle = await bundler.bundle()
@@ -99,10 +105,8 @@ const bundle = async filename => {
     fs.unlinkSync(path.join(path.dirname(filename), outputFileNameCss))
   }
   return {js: outputJS, css: outputCss}
-
-  // const script = await browser(filename, entry) // transform and pack all the imported packages and modules 
-  // const min = minify(script).code
-  // return min
+  */
+  
 }
 
 function replaceAll(str, find, replace) {
