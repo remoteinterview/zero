@@ -60,6 +60,7 @@ const browser = (filename, code) => {
     })
     .transform('browserify-css', {
       autoInject: true,
+      global: true,
       autoInjectOptions: {
         "insertAt": "bottom"
       }

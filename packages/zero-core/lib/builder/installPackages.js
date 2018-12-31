@@ -28,6 +28,8 @@ async function installPackages(buildPath, manifest){
       var imports = konan(fs.readFileSync(file, 'utf8'))
       // only strings for now.
       imports.strings.forEach((imp)=> {
+        // trim submodule imports and install main package (ie. 'bootstrap' for: import 'bootstrap/dist/css/bootstrap.min.css')
+        imp = imp.split("/")[0]
         // skip relative imports
         if (!imp.startsWith(".")) deps.push(imp)
       })

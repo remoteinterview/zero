@@ -53,7 +53,7 @@ async function generateComponent(req, res, componentPath){
     }
     
     // console.log("imported", App)
-  
+    //delete BUNDLECACHE[componentPath] // temp
     if (!BUNDLECACHE[componentPath]){
       BUNDLECACHE[componentPath] = await bundle(componentPath)
       console.log("bundle size", BUNDLECACHE[componentPath].js.length/1024)

@@ -1,7 +1,3 @@
-// module.exports = (request, response, endpointData)=>{
-//   return require(endpointData[1])(request, response)
-// }
-
 const http = require('http')
 // const renderer = require("./renderer")
 const path = require("path")
