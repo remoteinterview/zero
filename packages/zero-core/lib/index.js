@@ -20,7 +20,8 @@ const server = http.createServer((request, response) => {
   return handlers.static(request, response, endpointData)
 })
 
-server.listen(process.env.PORT || 3000, () => {
+process.env.PORT = process.env.PORT || 3000
+server.listen(process.env.PORT, () => {
   console.log('Running at http://localhost:3000');
 });
 

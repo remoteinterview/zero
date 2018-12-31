@@ -22,16 +22,36 @@ const {
 } = require('react-dom/server')
 const jsonStringify = require('json-stringify-safe')
 const bundle = require('./bundle')
+const fetch = require('@zeit/fetch')()
 
-global.fetch = require('@zeit/fetch')()
+function ssrFetch(uri, options){
+  // fix relative path when running on server side.
+  if (uri && uri.startsWith("/")){
+    // TODO: figure out what happens when each lambda is running on multiple servers.
+    // TODO: figure out how to forward cookies (idea: run getInitialProps in a VM with modified global.fetch that has 'req' access and thus to cookies too)
+    uri = url.resolve("http://localhost:"+process.env.PORT, uri)
+  }
+  //console.log("fetch", uri)
+  return fetch(uri, options)
+}
+global.fetch = ssrFetch
 
 var BUNDLECACHE = {}
 
 async function generateComponent(req, res, componentPath){
   try {
-    
     const App = require(componentPath)
-    const props = Object.assign({}, { req })
+    //var props = Object.assign({}, { req })
+    var props = {}
+    if (App && App.getInitialProps && typeof App.getInitialProps === "function"){
+      try{
+      props = await App.getInitialProps({req}) || {}
+      }
+      catch(e){
+        console.log(e)
+      }
+    }
+    
     // console.log("imported", App)
   
     if (!BUNDLECACHE[componentPath]){

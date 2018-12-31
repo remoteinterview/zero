@@ -3,23 +3,21 @@ import "./style.css"
 // import "./heading.css"
 
 class ClassTypeComponent extends Component {
-  constructor(){
-    super()
-    this.state = {
-      count: 0
-    }
-  }
-  async componentDidMount(){
+  static async getInitialProps({ req }){
     var stories = await fetch("/hn/api/stories").then((resp) => resp.json())
-    this.setState({data: stories.message})
-    console.log(stories)
+    // console.log("stories", stories)
+    return {data: stories}
   }
 
   render() {
     return <div>
-      <h1>Class Type Component</h1>
-      <b>Count: {this.state.count}</b><br/>
-      <button onClick={(e)=>{this.setState({count: this.state.count+1})}}>Add</button>
+      <h1>HackerNews</h1>
+      <b>Count: {this.props.data.length}</b><br/>
+      <table>
+        {this.props.data.map((story)=>{
+          return <tr key={story.id}><a>{story.title}</a></tr>
+        })}
+      </table>
     </div>
   }
 }
