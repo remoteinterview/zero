@@ -21,7 +21,6 @@
     "parcel-bundler": "^1.11.0",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
-    "uglify-es": "^3.2.2",
-    "youch": "^2.0.10"
+    "uglify-es": "^3.2.2"
   }
 }

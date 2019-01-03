@@ -1,12 +1,14 @@
 const staticHandler = require("zero-static").handler
 const http = require('http');
-const buildManifest = require('./builder');
-const prepareBuildFolder = require("./builder/clone")
-const installPackages = require("./builder/installPackages")
+const build = require("./builder")
 const path = require("path");
 const fetch = require('node-fetch')
 var Manifest = []
 
+
+build().then((manifest)=>{
+  Manifest = manifest
+})
 
 const server = http.createServer((request, response) => {
   //console.log(request.url)
@@ -70,7 +72,7 @@ function startLambdaServer(endpointData){
       stdio: [ 'pipe', 'pipe', 'pipe', 'ipc' ]
     };
 
-    console.log("lambdaServerINIT", endpointData[0], program)
+    //console.log("lambdaServerINIT", endpointData[0], program)
 
     const child = fork(program, parameters, options);
     
@@ -107,16 +109,6 @@ server.listen(process.env.PORT, () => {
   console.log('Running at http://localhost:3000');
 });
 
-
-async function build(){
-  const buildPath = path.join( process.cwd(), ".zero" )
-  await prepareBuildFolder(process.cwd(), buildPath)
-  Manifest = await buildManifest(process.cwd(), buildPath)
-  console.log(Manifest)
-  installPackages( buildPath, Manifest)
-}
-
-build()
 
 
 const stripTrailingSlash = (str) => {

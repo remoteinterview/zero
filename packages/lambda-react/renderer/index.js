@@ -39,63 +39,43 @@ global.fetch = ssrFetch
 var BUNDLECACHE = {}
 
 async function generateComponent(req, res, componentPath){
-  try {
-    const App = require(componentPath)
-    //var props = Object.assign({}, { req })
-    var props = {}
-    if (App && App.getInitialProps && typeof App.getInitialProps === "function"){
-      try{
-      props = await App.getInitialProps({req}) || {}
-      }
-      catch(e){
-        console.log(e)
-      }
+  
+  const App = require(componentPath)
+  //var props = Object.assign({}, { req })
+  var props = {}
+  if (App && App.getInitialProps && typeof App.getInitialProps === "function"){
+    try{
+    props = await App.getInitialProps({req}) || {}
     }
-    
-    // console.log("imported", App)
-    //delete BUNDLECACHE[componentPath] // temp
-    if (!BUNDLECACHE[componentPath]){
-      BUNDLECACHE[componentPath] = await bundle(componentPath)
-      console.log("bundle size", BUNDLECACHE[componentPath].js.length/1024)
+    catch(e){
+      console.log(e)
     }
+  }
+  
+  // console.log("imported", App)
+  //delete BUNDLECACHE[componentPath] // temp
+  if (!BUNDLECACHE[componentPath]){
+    BUNDLECACHE[componentPath] = await bundle(componentPath)
+    console.log("bundle size", BUNDLECACHE[componentPath].js.length/1024)
+  }
+
+
+  const el = isAsync(App)
+    ? await createAsyncElement(App, props)
+    : React.createElement(App, props)
 
   
-    const el = isAsync(App)
-      ? await createAsyncElement(App, props)
-      : React.createElement(App, props)
+  const html = renderToString(el)
+  if (BUNDLECACHE[componentPath].css){
+    res.write(`<style>${BUNDLECACHE[componentPath].css}</style>`)
+  }
+  res.write('<div id="_react_root">')
+  res.write(html)
+  const json = jsonStringify(props)
+  res.write(`<script id='initial_props' type='application/json'>${json}</script>`)
+  res.write(`<script>${BUNDLECACHE[componentPath].js}</script>`)
+  res.write('</div>')
 
-    
-    const html = renderToString(el)
-    if (BUNDLECACHE[componentPath].css){
-      res.write(`<style>${BUNDLECACHE[componentPath].css}</style>`)
-    }
-    res.write('<div id="_react_root">')
-    res.write(html)
-    const json = jsonStringify(props)
-    res.write(`<script id='initial_props' type='application/json'>${json}</script>`)
-    res.write(`<script>${BUNDLECACHE[componentPath].js}</script>`)
-    res.write('</div>')
-  }
-  catch(error){
-    //res.write("ERROR")
-    console.log("e",error)
-    const youch = new Youch(error, req)
-    
-    var html = await 
-    youch.addLink(({ message }) => {
-      var style = `text-decoration: none; border: 1px solid #dcdcdc; padding: 9px 12px;`
-      const urlStack = `https://stackoverflow.com/search?q=${encodeURIComponent(`${message}`)}`
-      const urlGoogle = `https://www.google.com/search?q=${encodeURIComponent(`${message}`)}`
-      return `
-      <a style="${style}" href="${urlGoogle}" target="_blank" title="Search on Google">Search Google</a>
-      <a style="${style}" href="${urlStack}" target="_blank" title="Search on StackOverflow">Search StackOverflow</a>
-      
-      `
-    }).toHTML()
-    res.writeHead(200, {'content-type': 'text/html'})
-    res.write(html)
-    
-  }
 
   res.end()
 
