@@ -19,7 +19,8 @@ const start = async (entryFilePath) => {
   lambdaToPortMap[entryFilePath] = server.address().port
   return server.address().port
 }
-
+module.exports = renderer
+return;
 
 module.exports = async (req, res, endpointData)=>{
   const port = await start(endpointData[1])

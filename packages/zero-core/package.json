@@ -17,6 +17,7 @@
     "konan": "^1.2.1",
     "mkdirp": "^0.5.1",
     "ncp": "^2.0.0",
+    "node-fetch": "^2.3.0",
     "npmi": "^4.0.0",
     "npminstall": "^3.17.0",
     "recursive-copy": "^2.0.9",

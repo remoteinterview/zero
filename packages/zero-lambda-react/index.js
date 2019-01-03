@@ -1,3 +1,3 @@
 module.exports = {
-  handler: require("./handler")
+  handler: require("./renderer")
 }
