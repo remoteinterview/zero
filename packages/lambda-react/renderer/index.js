@@ -14,7 +14,6 @@ require('ignore-styles') // ignore css/scss imports on server side.
 const http = require('http')
 const url = require('url')
 const React = require('react')
-const Youch = require('youch')
 const {
   renderToNodeStream,
   renderToStaticNodeStream,

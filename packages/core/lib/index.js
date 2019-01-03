@@ -2,6 +2,7 @@ const staticHandler = require("zero-static").handler
 const http = require('http');
 const build = require("./builder")
 const path = require("path");
+const url = require("url");
 const fetch = require('node-fetch')
 var Manifest = []
 
@@ -30,7 +31,7 @@ var lambdaToPortMap = {}
 async function proxyLambdaRequest(req, res, endpointData){
   const port = await startLambdaServer(endpointData)
   // console.log("req", endpointData[1], port)
-  const proxyRes = await fetch("http://127.0.0.1:"+port, {
+  const proxyRes = await fetch("http://127.0.0.1:"+port + req.url, {
     method: req.method,
     headers: Object.assign({ 'x-forwarded-host': req.headers.host }, req.headers),
     body: req.body,
@@ -116,8 +117,11 @@ const stripTrailingSlash = (str) => {
 };
 
 function matchPathWithDictionary(path){
+  path = url.parse(path).pathname
   path = stripTrailingSlash(path)
+
   var match = Manifest.find((endpoint)=>{
+    console.log("matching", path, endpoint[0])
     // first see if endpoint starts with given path
     return endpoint[0].startsWith(path)
     // exact match
