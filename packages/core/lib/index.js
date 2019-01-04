@@ -59,6 +59,10 @@ async function proxyLambdaRequest(req, res, endpointData){
   req.on('abort', () => {
     proxyRes.body.destroy()
   })
+
+  // req.on('end', ()=>{
+  //   console.log("closed")
+  // })
 }
 
 function startLambdaServer(endpointData){
@@ -68,7 +72,7 @@ function startLambdaServer(endpointData){
     if (lambdaToPortMap[entryFilePath]) return resolve(lambdaToPortMap[entryFilePath])
     const fork = require('child_process').fork;
     const program = path.resolve(path.join(__dirname, "handlers/server-process.js"));
-    const parameters = [];
+    const parameters = [endpointData[1], endpointData[2], process.env.PORT];
     const options = {
       stdio: [ 'pipe', 'pipe', 'pipe', 'ipc' ]
     };
@@ -78,10 +82,10 @@ function startLambdaServer(endpointData){
     const child = fork(program, parameters, options);
     
     child.on('message', message => {
-      console.log('message from child:', message);
-      if (message==="ready"){
-        return child.send(JSON.stringify(endpointData))
-      }
+      // console.log('message from child:', message);
+      // if (message==="ready"){
+      //   return child.send(JSON.stringify(endpointData))
+      // }
       lambdaToPortMap[entryFilePath] = parseInt(message)
       // child.send('Hi');
       resolve(lambdaToPortMap[entryFilePath])

@@ -112,6 +112,7 @@ function dependancyTree(buildPath, file){
           var baseName = path.join(path.dirname(file), imp)
           if ( fs.existsSync( baseName + ".js") ) deps.push(baseName + ".js")
           else if ( fs.existsSync( baseName + ".jsx") ) deps.push(baseName + ".jsx")
+          else if ( fs.existsSync( baseName + ".json") ) deps.push(baseName + ".json")
         }
       }
     })

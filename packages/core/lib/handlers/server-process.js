@@ -1,14 +1,29 @@
 // child process to run given lambda server
-
+var dt = Date.now()
+function log(str){ console.log (str, Date.now()-dt); dt = Date.now()}
 const path = require("path"),
       http = require("http"),
+      url = require("url"),
       handlers = require("./index"),
       Youch = require('youch')
+const FETCH = require('@zeit/fetch')()
 
-if (process.send) {
-  process.send("ready");
-}
+log("imports")
+// if (process.send) {
+//   process.send("ready");
+// }
 
+if (!process.argv[2]) throw new Error("No entry file provided.")
+if (!process.argv[3]) throw new Error("No lambda type provided.")
+if (!process.argv[4]) throw new Error("Server port not provided.")
+//var endpointData = JSON.parse(message)
+// get handler
+const handler = handlers[process.argv[3]]
+startServer(process.argv[2], process.argv[3], handler).then((port)=>{
+  process.send(port)
+  log("port sent")
+})
+/*
 console.log("started process")
 process.on('message', message => {
   console.log('message from parent:', message);
@@ -21,19 +36,37 @@ process.on('message', message => {
     process.send(port)
   })
 })
+*/
 
-async function startServer(endpointData, handler){
-  const file = path.resolve(endpointData[1])
+function fetch(uri, options){
+  // fix relative path when running on server side.
+  if (uri && uri.startsWith("/")){
+    // TODO: figure out what happens when each lambda is running on multiple servers.
+    // TODO: figure out how to forward cookies (idea: run getInitialProps in a VM with modified global.fetch that has 'req' access and thus to cookies too)
+    uri = url.resolve("http://localhost:"+process.argv[4], uri)
+  }
+  //console.log("fetch", uri)
+  return FETCH(uri, options)
+}
+global.fetch = fetch
+
+async function startServer(entryFile, lambdaType, handler){
+  const file = path.resolve(entryFile)
   // start a server on random port and bind to localhost
   const server = http.createServer(async (req, res)=>{
+    
+    req.on('end', ()=>{
+      //console.log("closed")
+      //process.exit()
+    })
     try{
-      console.log("TRYING", file, typeof handler)
+      //console.log("TRYING", file, typeof handler)
       if (handler) await handler(req, res, file)
       else throw new Error("No handler available for this type of lambda.")
     }
     catch(error){
       //res.write("ERROR")
-      console.log("CATCH", error)
+      //console.log("CATCH", error)
       const youch = new Youch(error, req)
       
       var html = await 
@@ -53,7 +86,8 @@ async function startServer(endpointData, handler){
     }
   })
   await server.listen(0, "127.0.0.1")
-  console.log("listening ", endpointData[2], server.address().port)
+  log("listening")
+  console.log("listening ", lambdaType, server.address().port)
   //lambdaToPortMap[entryFilePath] = server.address().port
   return server.address().port
 }
