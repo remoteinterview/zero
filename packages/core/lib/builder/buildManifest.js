@@ -1,4 +1,7 @@
-var glob = require("glob")
+const glob = require("glob")
+const konan = require('konan')
+const fs = require("fs")
+const path = require('path')
 //var { spawnSync } = require("child_process")
 var spawnAsync = require("./spawn-async")
 
@@ -25,6 +28,10 @@ async function buildManifest(basePath, buildPath){
   
   //console.log(basePath, files)
   var json = await Promise.all( files.map(async (file)=>{
+    // first check if filename (or the folder it resides in) begines with underscore _. ignore those.
+    var ignore = file.replace(basePath, "").split("/").find((dirname=>dirname.startsWith("_")))
+    if (ignore) return false
+
     // check if js file is a js lambda function
     if (file.endsWith(".js")){
       
@@ -78,15 +85,18 @@ async function buildManifest(basePath, buildPath){
 
   manifest = manifest.map((endpoint)=>{
     endpoint.push(dependancyTree(buildPath, endpoint[1]))
+    return endpoint
   })
 
   return manifest
 }
 
 // recursively generate list of (relative) files imported by given file
-async function dependancyTree(buildPath, file){
+function dependancyTree(buildPath, file){
   buildPath = buildPath || process.cwd()
   var deps = []
+  if (!fs.existsSync(file, 'utf8')) return deps
+
   // js based files
   if (file.endsWith(".js") || file.endsWith(".jsx")){
     var imports = konan(fs.readFileSync(file, 'utf8'))
@@ -94,10 +104,21 @@ async function dependancyTree(buildPath, file){
     imports.strings.forEach((imp)=> {
       // skip package imports
       if (imp.startsWith(".")) {
-        deps.push(imp)
+        // some imports dont have extension. We got to handle those
+        if (path.extname(imp)){
+          deps.push(path.join(path.dirname(file), imp ))
+        }
+        else{
+          var baseName = path.join(path.dirname(file), imp)
+          if ( fs.existsSync( baseName + ".js") ) deps.push(baseName + ".js")
+          else if ( fs.existsSync( baseName + ".jsx") ) deps.push(baseName + ".jsx")
+        }
       }
     })
   }
+  deps.forEach((dep)=>{
+    deps = deps.concat(dependancyTree(buildPath, dep ))
+  })
   return deps
 }
 
