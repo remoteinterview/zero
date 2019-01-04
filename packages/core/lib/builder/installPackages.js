@@ -35,18 +35,6 @@ async function installPackages(buildPath, manifest){
       })
     }
   })
-  
-  // manifest.forEach(lambda => {
-  //   const file = lambda[1]
-  //   if (file.endsWith(".js") || file.endsWith(".jsx")){
-  //     var imports = konan(fs.readFileSync(file, 'utf8'))
-  //     // only strings for now.
-  //     imports.strings.forEach((imp)=> {
-  //       // skip relative imports
-  //       if (!imp.startsWith(".")) deps.push(imp)
-  //     })
-  //   }
-  // })
 
   deps = deps.filter(function(item, pos) {
     return deps.indexOf(item) == pos;

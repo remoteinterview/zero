@@ -62,7 +62,7 @@ async function buildManifest(basePath, buildPath){
   console.log("elaps", (Date.now() - date)/1000 )
 
   
-  return json
+  var manifest = json
   // remove empty elements
   .filter((endpoint)=>{
     return endpoint !== false
@@ -75,6 +75,30 @@ async function buildManifest(basePath, buildPath){
     endpoint.unshift(trimmedPath)
     return endpoint
   })
+
+  manifest = manifest.map((endpoint)=>{
+    endpoint.push(dependancyTree(buildPath, endpoint[1]))
+  })
+
+  return manifest
+}
+
+// recursively generate list of (relative) files imported by given file
+async function dependancyTree(buildPath, file){
+  buildPath = buildPath || process.cwd()
+  var deps = []
+  // js based files
+  if (file.endsWith(".js") || file.endsWith(".jsx")){
+    var imports = konan(fs.readFileSync(file, 'utf8'))
+    // only strings for now.
+    imports.strings.forEach((imp)=> {
+      // skip package imports
+      if (imp.startsWith(".")) {
+        deps.push(imp)
+      }
+    })
+  }
+  return deps
 }
 
 module.exports = buildManifest
