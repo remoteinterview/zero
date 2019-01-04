@@ -122,13 +122,25 @@ function matchPathWithDictionary(path){
 
   var match = Manifest.find((endpoint)=>{
     console.log("matching", path, endpoint[0])
-    // first see if endpoint starts with given path
-    return endpoint[0].startsWith(path)
-    // exact match
-      && (endpoint[0] === path || endpoint[0] === path+"/index")
+
+    // check for exact math
+    return (endpoint[0] === path || endpoint[0] === path+"/index")
+    
   })
 
-  //match.find()
-  //console.log(path, "match", match)
-  return match
+  if (!match){
+    // check for partial match now ie. query is: /login/username and endpoint will be /login
+    // reverse sort to have closest/deepest match at [0] ie. [ "/login/abc/def", "/login/abc", "/login" ]
+    var matches = Manifest.filter((endpoint) => {
+      return path.startsWith(endpoint[0])
+    }).sort().reverse()
+    if (matches && matches[0]){
+      return matches[0]
+    }
+  }
+  else{
+    return match
+  }
+
+  return false
 }
