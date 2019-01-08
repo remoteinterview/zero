@@ -5,7 +5,8 @@ const path = require("path"),
       http = require("http"),
       url = require("url"),
       handlers = require("./index"),
-      Youch = require('youch')
+      Youch = require('youch'),
+      express = require('express')
 const FETCH = require('@zeit/fetch')()
 
 const GLOBALS = require("./globals")
@@ -15,22 +16,8 @@ log("imports")
 //   process.send("ready");
 // }
 
-const {NodeVM} = require('vm2');
 const vm = require('vm');
 
-
-function createVM(globalVars){
-  return new NodeVM({
-      console: 'inherit',
-      sourceExtensions: ['js'],
-      sandbox: globalVars || {},
-      require: {
-          external: true,
-          builtin: ['*'],
-          context: "sandbox"
-      }
-  });
-}
 
 
 if (!process.argv[2]) throw new Error("No entry file provided.")
@@ -74,7 +61,51 @@ function generateFetch(req){
 //global.fetch = fetch
 
 async function startServer(entryFile, lambdaType, handler){
-  const file = path.resolve(entryFile)
+  return new Promise((resolve, reject)=>{
+    const file = path.resolve(entryFile)
+    const app = express()
+
+    app.all("*", (req, res)=>{
+      try{
+        //console.log("TRYING", file, typeof handler)
+        var globals = Object.assign({__Zero: {req, res, lambdaType, handler, file, renderError, fetch: generateFetch(req)}}, GLOBALS);
+  
+        vm.runInNewContext(`
+          const { req, res, lambdaType, file, fetch, handler, renderError } = __Zero;
+          global.fetch = fetch
+          // require("./index")[lambdaType](req, res, file)
+          async function run(){ 
+            try{
+              if (handler) await handler(req, res, file) 
+            }
+            catch(e){
+              renderError(e, req, res)
+            }
+          }
+          run()
+        `, globals)
+        // var vm = createVM({req, res, file, lambdaType, fetch, foo})
+        // console.log("req", require.extensions)
+        // vm.run(`require("zero-lambda-react").handler(req, res, file)`,  path.join(__dirname, "server-process.js") )
+        //vm.run(`require.extensions = __req_ext; console.log("reqIn", require.extensions)`)
+  
+        // if (handler) await handler(req, res, file)
+        // else throw new Error("No handler available for this type of lambda.")
+      }
+      catch(error){
+        //res.write("ERROR")
+        console.log("CATCH", error)
+        renderError(error, req, res)
+      }
+    })
+    // app.get('/', (req, res) => res.send('Hello World!'))
+  
+    var listener = app.listen(0, "127.0.0.1", () => {
+      console.log("listening ", lambdaType, listener.address().port)
+      resolve(listener.address().port)
+    })
+  })
+  
   // start a server on random port and bind to localhost
   const server = http.createServer(async (req, res)=>{
     
@@ -82,37 +113,7 @@ async function startServer(entryFile, lambdaType, handler){
       //console.log("closed")
       //process.exit()
     })
-    try{
-      //console.log("TRYING", file, typeof handler)
-      var globals = Object.assign({__Zero: {req, res, lambdaType, handler, file, renderError, fetch: generateFetch(req)}}, GLOBALS);
-
-      vm.runInNewContext(`
-        const { req, res, lambdaType, file, fetch, handler, renderError } = __Zero;
-        global.fetch = fetch
-        // require("./index")[lambdaType](req, res, file)
-        async function run(){ 
-          try{
-            if (handler) await handler(req, res, file) 
-          }
-          catch(e){
-            renderError(e, req, res)
-          }
-        }
-        run()
-      `, globals)
-      // var vm = createVM({req, res, file, lambdaType, fetch, foo})
-      // console.log("req", require.extensions)
-      // vm.run(`require("zero-lambda-react").handler(req, res, file)`,  path.join(__dirname, "server-process.js") )
-      //vm.run(`require.extensions = __req_ext; console.log("reqIn", require.extensions)`)
-
-      // if (handler) await handler(req, res, file)
-      // else throw new Error("No handler available for this type of lambda.")
-    }
-    catch(error){
-      //res.write("ERROR")
-      console.log("CATCH", error)
-      renderError(error, req, res)
-    }
+    
   })
   await server.listen(0, "127.0.0.1")
   log("listening")
