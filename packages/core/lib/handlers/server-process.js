@@ -12,9 +12,6 @@ const FETCH = require('@zeit/fetch')()
 const GLOBALS = require("./globals")
 
 log("imports")
-// if (process.send) {
-//   process.send("ready");
-// }
 
 const vm = require('vm');
 
@@ -23,44 +20,26 @@ const vm = require('vm');
 if (!process.argv[2]) throw new Error("No entry file provided.")
 if (!process.argv[3]) throw new Error("No lambda type provided.")
 if (!process.argv[4]) throw new Error("Server port not provided.")
-//var endpointData = JSON.parse(message)
+
 // get handler
 const handler = handlers[process.argv[3]]
 startServer(process.argv[2], process.argv[3], handler).then((port)=>{
   process.send(port)
   log("port sent")
 })
-/*
-console.log("started process")
-process.on('message', message => {
-  console.log('message from parent:', message);
-  // endpointData is (path, entryFile, lambdaType) 
-  // example: [ '/react/class', '/example/.zero/react/class.js', 'lambda:react' ]
-  var endpointData = JSON.parse(message)
-  // get handler
-  const handler = handlers[endpointData[2]]
-  startServer(endpointData, handler).then((port)=>{
-    process.send(port)
-  })
-})
-*/
+
 function generateFetch(req){
   return function fetch(uri, options){
-    // console.log('fetch!!', req.url)
     // fix relative path when running on server side.
     if (uri && uri.startsWith("/")){
       // TODO: figure out what happens when each lambda is running on multiple servers.
       // TODO: figure out how to forward cookies (idea: run getInitialProps in a VM with modified global.fetch that has 'req' access and thus to cookies too)
       uri = url.resolve("http://localhost:"+process.argv[4], uri)
     }
-    //console.log("fetch", uri)
     return FETCH(uri, options)
   }
 }
-
-//global.fetch = fetch
-
-async function startServer(entryFile, lambdaType, handler){
+function startServer(entryFile, lambdaType, handler){
   return new Promise((resolve, reject)=>{
     const file = path.resolve(entryFile)
     const app = express()
@@ -84,13 +63,6 @@ async function startServer(entryFile, lambdaType, handler){
           }
           run()
         `, globals)
-        // var vm = createVM({req, res, file, lambdaType, fetch, foo})
-        // console.log("req", require.extensions)
-        // vm.run(`require("zero-lambda-react").handler(req, res, file)`,  path.join(__dirname, "server-process.js") )
-        //vm.run(`require.extensions = __req_ext; console.log("reqIn", require.extensions)`)
-  
-        // if (handler) await handler(req, res, file)
-        // else throw new Error("No handler available for this type of lambda.")
       }
       catch(error){
         //res.write("ERROR")
@@ -105,21 +77,6 @@ async function startServer(entryFile, lambdaType, handler){
       resolve(listener.address().port)
     })
   })
-  
-  // start a server on random port and bind to localhost
-  const server = http.createServer(async (req, res)=>{
-    
-    req.on('end', ()=>{
-      //console.log("closed")
-      //process.exit()
-    })
-    
-  })
-  await server.listen(0, "127.0.0.1")
-  log("listening")
-  console.log("listening ", lambdaType, server.address().port)
-  //lambdaToPortMap[entryFilePath] = server.address().port
-  return server.address().port
 }
 
 async function renderError(error, req, res){
