@@ -1,5 +1,7 @@
 const underscore = require("underscore")
-module.exports = ({req, res, fetch})=>{
+module.exports = (req, res)=>{
+	foo()
+
 	res.end("login api here\n"+req.url )
-	console.log(fetch)
+	//console.log(fetch)
 }
