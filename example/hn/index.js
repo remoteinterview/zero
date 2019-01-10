@@ -6,7 +6,7 @@ import "./style.css"
 class ClassTypeComponent extends Component {
   static async getInitialProps({ req }){
     var stories = await fetch("/hn/api/stories").then((resp) => resp.json())
-    return {data: stories}
+    return {data: stories, user: req.user}
   }
 
   render() {
@@ -18,7 +18,7 @@ class ClassTypeComponent extends Component {
             <nav>
               <a href="/hn"><img id="topImage" src="/hn/img/y18.gif" alt="" /></a>
               <a className="main-link" href="/hn">Hacker News</a>
-              <a href="">new</a>
+              <a href="">new {this.props.user?this.props.user.id:""}</a>
               <span>|</span>
               <a href="#">comments</a>
               <span>|</span>

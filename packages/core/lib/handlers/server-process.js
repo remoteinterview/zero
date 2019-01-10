@@ -14,13 +14,20 @@ const GLOBALS = require("./globals")
 log("imports")
 
 const vm = require('vm');
+var passport = require('passport');
+passport.serializeUser(function(user, done) {
+  done(null, JSON.stringify(user));
+})
 
-
+passport.deserializeUser(function(id, done) {
+  done(null, JSON.parse(id))
+})
 
 if (!process.argv[2]) throw new Error("No entry file provided.")
 if (!process.argv[3]) throw new Error("No lambda type provided.")
-if (!process.argv[4]) throw new Error("Server port not provided.")
+if (!process.argv[4]) throw new Error("Server address not provided.")
 
+var SERVERADDRESS = process.argv[4]
 // get handler
 const handler = handlers[process.argv[3]]
 startServer(process.argv[2], process.argv[3], handler).then((port)=>{
@@ -34,7 +41,7 @@ function generateFetch(req){
     if (uri && uri.startsWith("/")){
       // TODO: figure out what happens when each lambda is running on multiple servers.
       // TODO: figure out how to forward cookies (idea: run getInitialProps in a VM with modified global.fetch that has 'req' access and thus to cookies too)
-      uri = url.resolve("http://localhost:"+process.argv[4], uri)
+      uri = url.resolve(SERVERADDRESS, uri)
     }
     return FETCH(uri, options)
   }
@@ -43,6 +50,23 @@ function startServer(entryFile, lambdaType, handler){
   return new Promise((resolve, reject)=>{
     const file = path.resolve(entryFile)
     const app = express()
+    var session = require('express-session');
+    var FileStore = require('session-file-store')(session);
+
+    app.use(require('cookie-parser')());
+    app.use(require('body-parser').urlencoded({ extended: true }));
+    console.log("tempdir", path.join(require('os').tmpdir(), "zero-sessions"))
+    app.use(session({
+      store: new FileStore({path: path.join(require('os').tmpdir(), "zero-sessions")}),
+      secret: process.env.SESSION_SECRET || 'keyboard cat', 
+      resave: false, 
+      saveUninitialized: false 
+    }))
+
+    // Initialize Passport and restore authentication state, if any, from the
+    // session.
+    app.use(passport.initialize());
+    app.use(passport.session());
 
     app.all("*", (req, res)=>{
       try{

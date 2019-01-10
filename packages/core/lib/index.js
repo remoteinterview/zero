@@ -5,38 +5,57 @@ const path = require("path");
 const url = require("url");
 const fetch = require('node-fetch')
 var Manifest = []
+const express = require('express')
+
+process.env.PORT = process.env.PORT || 3000
+var serverAddress = "http://127.0.0.1:"+process.env.PORT
+// session and auth helpers
+// var passport = require('passport');
+// var Strategy = require('passport-local').Strategy;
+// var USERS = {} // TODO: a more permanent session store 
+// passport.serializeUser(function(user, done) {
+//   var sessionId = user.id || user.username || user.email
+//   USERS[sessionId] = user
+//   done(null, sessionId);
+// });
+
+// passport.deserializeUser(function(id, done) {
+//   done(null, USERS[id])
+// });
 
 
 build().then((manifest)=>{
   Manifest = manifest
 })
 
-const server = http.createServer((request, response) => {
-  //console.log(request.url)
-  var endpointData = matchPathWithDictionary(request.url)
-  if (endpointData){
-    // call relevant handler as defined in manifest
-    return proxyLambdaRequest(request, response, endpointData)
-    // if (handlers[endpointData[2]]){
-    //   return handlers[endpointData[2]](request, response, endpointData)
-    // }
-  }
+// const server = http.createServer((request, response) => {
+//   //console.log(request.url)
+//   var endpointData = matchPathWithDictionary(request.url)
+//   if (endpointData){
+//     // call relevant handler as defined in manifest
+//     return proxyLambdaRequest(request, response, endpointData)
+//     // if (handlers[endpointData[2]]){
+//     //   return handlers[endpointData[2]](request, response, endpointData)
+//     // }
+//   }
 
-  // catch all handler
-  return staticHandler(request, response, endpointData)
-})
+//   // catch all handler
+//   return staticHandler(request, response, endpointData)
+// })
 
 
 var lambdaToPortMap = {}
 async function proxyLambdaRequest(req, res, endpointData){
   const port = await startLambdaServer(endpointData)
   // console.log("req", endpointData[1], port)
-  const proxyRes = await fetch("http://127.0.0.1:"+port + req.url, {
+  var lambdaAddress = "http://127.0.0.1:"+port
+  const proxyRes = await fetch(lambdaAddress + req.url, {
     method: req.method,
     headers: Object.assign({ 'x-forwarded-host': req.headers.host }, req.headers),
     body: req.body,
     compress: false,
-    redirect: 'manual'
+    redirect: 'manual',
+    //credentials: "include"
   })
 
   // Forward status code
@@ -45,8 +64,12 @@ async function proxyLambdaRequest(req, res, endpointData){
   // Forward headers
   const headers = proxyRes.headers.raw()
   for (const key of Object.keys(headers)) {
+    if (key.toLowerCase()==="location" && headers[key]){
+      headers[key] = headers[key][0].replace(lambdaAddress, serverAddress)
+    }
     res.setHeader(key, headers[key])
   }
+  res.setHeader("x-powered-by", "ZeroServer")
 
   // Stream the proxy response
   proxyRes.body.pipe(res)
@@ -72,7 +95,7 @@ function startLambdaServer(endpointData){
     if (lambdaToPortMap[entryFilePath]) return resolve(lambdaToPortMap[entryFilePath])
     const fork = require('child_process').fork;
     const program = path.resolve(path.join(__dirname, "handlers/server-process.js"));
-    const parameters = [endpointData[1], endpointData[2], process.env.PORT];
+    const parameters = [endpointData[1], endpointData[2], serverAddress];
     const options = {
       stdio: [ 'pipe', 'pipe', 'pipe', 'ipc' ]
     };
@@ -109,10 +132,40 @@ function startLambdaServer(endpointData){
   })
   
 }
-process.env.PORT = process.env.PORT || 3000
-server.listen(process.env.PORT, () => {
-  console.log('Running at http://localhost:3000');
-});
+
+
+const app = express()
+// app.use(require('cookie-parser')());
+// app.use(require('body-parser').urlencoded({ extended: true }));
+// app.use(require('express-session')({ secret: process.env.SESSION_SECRET || 'keyboard cat', resave: false, saveUninitialized: false }));
+
+// // Initialize Passport and restore authentication state, if any, from the
+// // session.
+// app.use(passport.initialize());
+// app.use(passport.session());
+
+app.all("*", (request, response)=>{
+
+  //console.log(request.url)
+  var endpointData = matchPathWithDictionary(request.url)
+  if (endpointData){
+    // call relevant handler as defined in manifest
+    return proxyLambdaRequest(request, response, endpointData)
+    // if (handlers[endpointData[2]]){
+    //   return handlers[endpointData[2]](request, response, endpointData)
+    // }
+  }
+
+  // catch all handler
+  return staticHandler(request, response, endpointData)
+})
+
+var listener = app.listen(process.env.PORT, "127.0.0.1", () => {
+  console.log("Running on port", listener.address().port)
+})
+// server.listen(process.env.PORT, () => {
+//   console.log('Running at http://localhost:3000');
+// });
 
 
 

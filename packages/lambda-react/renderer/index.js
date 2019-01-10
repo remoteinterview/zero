@@ -41,10 +41,10 @@ async function generateComponent(req, res, componentPath){
   
   const App = require(componentPath)
   //var props = Object.assign({}, { req })
-  var props = {}
+  var props = {user: req.user}
   if (App && App.getInitialProps && typeof App.getInitialProps === "function"){
     try{
-      props = await App.getInitialProps({req}) || {}
+      props = await App.getInitialProps({req, user: req.user}) || props
     }
     catch(e){
       console.log(e)

@@ -1,9 +1,9 @@
 import React from 'react'
 import Heading from "./heading"
 
-module.exports = () => (
+module.exports = ({user}) => (
   <div>
     <title>React</title>
-    <Heading name="World1"/>
+    <Heading name={user? user.id: "World"}/>
   </div>
 )
