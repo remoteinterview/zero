@@ -8,40 +8,13 @@ var Manifest = []
 const express = require('express')
 
 process.env.PORT = process.env.PORT || 3000
+process.env.SESSION_TTL = process.env.SESSION_TTL || 1000 * 60 * 60 * 24 * 365 // 1 year
+process.env.SESSION_SECRET = process.env.SESSION_SECRET || 'k3yb0Ard c@t'
 var serverAddress = "http://127.0.0.1:"+process.env.PORT
-// session and auth helpers
-// var passport = require('passport');
-// var Strategy = require('passport-local').Strategy;
-// var USERS = {} // TODO: a more permanent session store 
-// passport.serializeUser(function(user, done) {
-//   var sessionId = user.id || user.username || user.email
-//   USERS[sessionId] = user
-//   done(null, sessionId);
-// });
-
-// passport.deserializeUser(function(id, done) {
-//   done(null, USERS[id])
-// });
-
 
 build().then((manifest)=>{
   Manifest = manifest
 })
-
-// const server = http.createServer((request, response) => {
-//   //console.log(request.url)
-//   var endpointData = matchPathWithDictionary(request.url)
-//   if (endpointData){
-//     // call relevant handler as defined in manifest
-//     return proxyLambdaRequest(request, response, endpointData)
-//     // if (handlers[endpointData[2]]){
-//     //   return handlers[endpointData[2]](request, response, endpointData)
-//     // }
-//   }
-
-//   // catch all handler
-//   return staticHandler(request, response, endpointData)
-// })
 
 
 var lambdaToPortMap = {}
@@ -135,15 +108,6 @@ function startLambdaServer(endpointData){
 
 
 const app = express()
-// app.use(require('cookie-parser')());
-// app.use(require('body-parser').urlencoded({ extended: true }));
-// app.use(require('express-session')({ secret: process.env.SESSION_SECRET || 'keyboard cat', resave: false, saveUninitialized: false }));
-
-// // Initialize Passport and restore authentication state, if any, from the
-// // session.
-// app.use(passport.initialize());
-// app.use(passport.session());
-
 app.all("*", (request, response)=>{
 
   //console.log(request.url)

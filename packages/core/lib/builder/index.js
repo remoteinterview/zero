@@ -5,7 +5,7 @@ const installPackages = require("./installPackages")
 
 
 module.exports = async function build(){
-  const buildPath = path.join( process.cwd(), ".zero" )
+  const buildPath = path.join( process.cwd(), ".zero/build" )
   await prepareBuildFolder(process.cwd(), buildPath)
   const manifest = await buildManifest(process.cwd(), buildPath)
   console.log(manifest)

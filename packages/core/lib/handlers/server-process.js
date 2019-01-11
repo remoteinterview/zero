@@ -22,6 +22,16 @@ passport.serializeUser(function(user, done) {
 passport.deserializeUser(function(id, done) {
   done(null, JSON.parse(id))
 })
+var SESSION_TTL = parseInt(process.env.SESSION_TTL)
+
+
+var session = require('express-session')
+var FileStore = require('session-file-store')(session)
+// TODO: handle mongo and redis stores.
+var sessionStore = new FileStore({
+  path: path.join(require('os').tmpdir(), "zero-sessions"),
+  ttl: SESSION_TTL
+})
 
 if (!process.argv[2]) throw new Error("No entry file provided.")
 if (!process.argv[3]) throw new Error("No lambda type provided.")
@@ -50,16 +60,16 @@ function startServer(entryFile, lambdaType, handler){
   return new Promise((resolve, reject)=>{
     const file = path.resolve(entryFile)
     const app = express()
-    var session = require('express-session');
-    var FileStore = require('session-file-store')(session);
 
     app.use(require('cookie-parser')());
     app.use(require('body-parser').urlencoded({ extended: true }));
-    console.log("tempdir", path.join(require('os').tmpdir(), "zero-sessions"))
+    // console.log("tempdir", SESSION_TTL, path.join(require('os').tmpdir(), "zero-sessions"))
+
     app.use(session({
-      store: new FileStore({path: path.join(require('os').tmpdir(), "zero-sessions")}),
-      secret: process.env.SESSION_SECRET || 'keyboard cat', 
+      store: sessionStore,
+      secret: process.env.SESSION_SECRET, 
       resave: false, 
+      cookie: { maxAge : SESSION_TTL },
       saveUninitialized: false 
     }))
 
