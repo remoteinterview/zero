@@ -68,7 +68,7 @@ function startLambdaServer(endpointData){
     if (lambdaToPortMap[entryFilePath]) return resolve(lambdaToPortMap[entryFilePath])
     const fork = require('child_process').fork;
     const program = path.resolve(path.join(__dirname, "handlers/server-process.js"));
-    const parameters = [endpointData[1], endpointData[2], serverAddress];
+    const parameters = [endpointData[0], endpointData[1], endpointData[2], serverAddress];
     const options = {
       stdio: [ 'pipe', 'pipe', 'pipe', 'ipc' ]
     };
@@ -112,16 +112,22 @@ app.all("*", (request, response)=>{
 
   //console.log(request.url)
   var endpointData = matchPathWithDictionary(request.url)
-  if (endpointData){
+  console.log("end", endpointData)
+  if (endpointData && endpointData[2]!=="static"){
     // call relevant handler as defined in manifest
+    
     return proxyLambdaRequest(request, response, endpointData)
     // if (handlers[endpointData[2]]){
     //   return handlers[endpointData[2]](request, response, endpointData)
     // }
   }
-
-  // catch all handler
-  return staticHandler(request, response, endpointData)
+  else if (endpointData && endpointData[2]==="static"){
+    // catch all handler
+    return staticHandler(request, response, endpointData)
+  }
+  else{
+    response.sendStatus(404)
+  }
 })
 
 var listener = app.listen(process.env.PORT, "127.0.0.1", () => {
@@ -153,7 +159,7 @@ function matchPathWithDictionary(path){
     // check for partial match now ie. query is: /login/username and endpoint will be /login
     // reverse sort to have closest/deepest match at [0] ie. [ "/login/abc/def", "/login/abc", "/login" ]
     var matches = Manifest.filter((endpoint) => {
-      return path.startsWith(endpoint[0])
+      return path.startsWith(endpoint[2]!=="static" && endpoint[0])
     }).sort().reverse()
     if (matches && matches[0]){
       return matches[0]

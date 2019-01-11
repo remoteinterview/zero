@@ -33,14 +33,17 @@ var sessionStore = new FileStore({
   ttl: SESSION_TTL
 })
 
-if (!process.argv[2]) throw new Error("No entry file provided.")
-if (!process.argv[3]) throw new Error("No lambda type provided.")
-if (!process.argv[4]) throw new Error("Server address not provided.")
+if (!process.argv[2]) throw new Error("No basePath provided.")
+if (!process.argv[3]) throw new Error("No entry file provided.")
+if (!process.argv[4]) throw new Error("No lambda type provided.")
+if (!process.argv[5]) throw new Error("Server address not provided.")
 
-var SERVERADDRESS = process.argv[4]
+var BASEPATH = process.argv[2]
+var SERVERADDRESS = process.argv[5]
+
 // get handler
-const handler = handlers[process.argv[3]]
-startServer(process.argv[2], process.argv[3], handler).then((port)=>{
+const handler = handlers[process.argv[4]]
+startServer(process.argv[3], process.argv[4], handler).then((port)=>{
   process.send(port)
   log("port sent")
 })
@@ -63,6 +66,7 @@ function startServer(entryFile, lambdaType, handler){
 
     app.use(require('cookie-parser')());
     app.use(require('body-parser').urlencoded({ extended: true }));
+    app.use(require('body-parser').json());
     // console.log("tempdir", SESSION_TTL, path.join(require('os').tmpdir(), "zero-sessions"))
 
     app.use(session({
@@ -77,8 +81,12 @@ function startServer(entryFile, lambdaType, handler){
     // session.
     app.use(passport.initialize());
     app.use(passport.session());
-
-    app.all("*", (req, res)=>{
+    app.all([BASEPATH, url.resolve(BASEPATH, "/*")], (req, res)=>{
+      // if path has params (like /user/:id/:comment). Split the params into an array.
+      // also remove empty params (caused by path endind with slash)
+      if (req.params && req.params[0]){
+        req.params = req.params[0].split("/").filter((param)=> !!param)
+      }
       try{
         //console.log("TRYING", file, typeof handler)
         var globals = Object.assign({__Zero: {req, res, lambdaType, handler, file, renderError, fetch: generateFetch(req)}}, GLOBALS);

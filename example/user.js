@@ -1,9 +1,6 @@
 // const underscore = require("underscore")
 module.exports = (req, res)=>{
-  console.log("req", req.cookies, req.user)
-  //console.log(res.location("/abc").get('Location'))
-  
-  //return res.json(req.user)
-  if (req.user) res.json(req.user)
+  console.log("1", req.baseUrl, "2", req.originalUrl, "3", req.url, "4", req.path)
+  if (req.user) res.json({user: req.user, params: req.params})
   else res.sendStatus(403)
 }

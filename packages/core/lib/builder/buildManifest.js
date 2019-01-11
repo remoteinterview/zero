@@ -19,71 +19,73 @@ async function getFiles(baseSrc) {
   })
 }
 
-async function buildManifest(basePath, buildPath){
-  basePath = basePath.endsWith("/")? basePath : (basePath + "/")
-  buildPath = buildPath.endsWith("/")? buildPath : (buildPath + "/")
+async function buildManifest(basePath, buildPath) {
+  basePath = basePath.endsWith("/") ? basePath : (basePath + "/")
+  buildPath = buildPath.endsWith("/") ? buildPath : (buildPath + "/")
   var date = Date.now()
   var files = await getFiles(basePath)
-  files = files.filter((f)=>f.indexOf("node_modules")===-1 && f.indexOf(".zero")===-1)
-  
+  files = files.filter((f) => f.indexOf("node_modules") === -1 && f.indexOf(".zero") === -1)
+
   //console.log(basePath, files)
-  var json = await Promise.all( files.map(async (file)=>{
+  var json = await Promise.all(files.map(async (file) => {
     // first check if filename (or the folder it resides in) begines with underscore _. ignore those.
-    var ignore = file.replace(basePath, "").split("/").find((dirname=>dirname.startsWith("_")))
+    var ignore = file.replace(basePath, "").split("/").find((dirname => dirname.startsWith("_")))
     if (ignore) return false
 
     // check if js file is a js lambda function
-    if (file.endsWith(".js")){
-      
+    if (file.endsWith(".js")) {
+
       var statusCode = await spawnAsync(validators["js"], [file])
       console.log(file, statusCode)
-      if (statusCode===0){
+      if (statusCode === 0) {
         return [file, 'lambda:js']
       }
     }
 
     // check if a react component
-    if (file.endsWith(".js") || file.endsWith(".jsx")){
+    if (file.endsWith(".js") || file.endsWith(".jsx")) {
       var statusCode = await spawnAsync(validators["react"], [file])
       console.log(file, statusCode)
-      if (statusCode===0){
+      if (statusCode === 0) {
         return [file, 'lambda:react']
       }
     }
 
     // PHP Lambda
-    if (file.endsWith(".php")){
+    if (file.endsWith(".php")) {
       return [file, "lambda:php"]
     }
 
     // Python Lambda
-    if (file.endsWith(".py")){
+    if (file.endsWith(".py")) {
       return [file, "lambda:py"]
     }
     // catch all, static / cdn hosting
-    return false // static is catch-all so no need to save it as entry in our manifest
-    //return [file, 'static']
+    return [file, 'static']
   })
   )
 
-  console.log("elaps", (Date.now() - date)/1000 )
+  console.log("elaps", (Date.now() - date) / 1000)
 
-  
+
   var manifest = json
-  // remove empty elements
-  .filter((endpoint)=>{
-    return endpoint !== false
-  })
-  // add endpoint path at 0 position for each lambda
-  .map((endpoint)=>{
-    var trimmedPath = endpoint[0].replace(basePath, "/")
-    trimmedPath = trimmedPath.split('.').slice(0, -1).join('.') // remove extension
-    endpoint[0] = endpoint[0].replace(basePath, buildPath)
-    endpoint.unshift(trimmedPath)
-    return endpoint
-  })
+    // remove empty elements
+    .filter((endpoint) => {
+      return endpoint !== false
+    })
+    // add endpoint path at 0 position for each lambda
+    .map((endpoint) => {
+      var trimmedPath = endpoint[0].replace(basePath, "/")
+      trimmedPath = trimmedPath.split('.').slice(0, -1).join('.') // remove extension
+      if (trimmedPath.endsWith("/index")) {
+        trimmedPath = trimmedPath.split('/index').slice(0, -1).join('/index') // remove extension
+      }
+      endpoint[0] = endpoint[0].replace(basePath, buildPath)
+      endpoint.unshift(trimmedPath)
+      return endpoint
+    })
 
-  manifest = manifest.map((endpoint)=>{
+  manifest = manifest.map((endpoint) => {
     endpoint.push(dependancyTree(buildPath, endpoint[1]))
     return endpoint
   })
