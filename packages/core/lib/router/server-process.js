@@ -105,8 +105,6 @@ function startServer(entryFile, lambdaType/*, handler*/){
         `, globals)
       }
       catch(error){
-        //res.write("ERROR")
-        console.log("CATCH", error)
         renderError(error, req, res)
       }
     })
