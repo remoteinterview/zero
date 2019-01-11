@@ -4,7 +4,7 @@ function log(str){ console.log (str, Date.now()-dt); dt = Date.now()}
 const path = require("path"),
       http = require("http"),
       url = require("url"),
-      handlers = require("./index"),
+      handlers = require("./handlers"),
       Youch = require('youch'),
       express = require('express')
 const FETCH = require('@zeit/fetch')()
@@ -85,7 +85,7 @@ function startServer(entryFile, lambdaType, handler){
       // if path has params (like /user/:id/:comment). Split the params into an array.
       // also remove empty params (caused by path endind with slash)
       if (req.params && req.params[0]){
-        req.params = req.params[0].split("/").filter((param)=> !!param)
+        req.params = req.params[0].replace(BASEPATH.slice(1), "").split("/").filter((param)=> !!param)
       }
       try{
         //console.log("TRYING", file, typeof handler)

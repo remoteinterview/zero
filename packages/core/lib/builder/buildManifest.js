@@ -61,7 +61,8 @@ async function buildManifest(basePath, buildPath) {
       return [file, "lambda:py"]
     }
     // catch all, static / cdn hosting
-    return [file, 'static']
+    //return [file, 'static']
+    return false
   })
   )
 
@@ -76,10 +77,13 @@ async function buildManifest(basePath, buildPath) {
     // add endpoint path at 0 position for each lambda
     .map((endpoint) => {
       var trimmedPath = endpoint[0].replace(basePath, "/")
-      trimmedPath = trimmedPath.split('.').slice(0, -1).join('.') // remove extension
-      if (trimmedPath.endsWith("/index")) {
-        trimmedPath = trimmedPath.split('/index').slice(0, -1).join('/index') // remove extension
-      }
+      //if (endpoint[1]!=="static" 
+        //  || (trimmedPath.endsWith(".html") || trimmedPath.endsWith(".htm")) ){
+        trimmedPath = trimmedPath.split('.').slice(0, -1).join('.') // remove extension
+        if (trimmedPath.endsWith("/index")) {
+          trimmedPath = trimmedPath.split('/index').slice(0, -1).join('/index') // remove extension
+        }
+      //}
       endpoint[0] = endpoint[0].replace(basePath, buildPath)
       endpoint.unshift(trimmedPath)
       return endpoint
