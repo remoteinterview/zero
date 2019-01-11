@@ -4,7 +4,7 @@ function log(str){ console.log (str, Date.now()-dt); dt = Date.now()}
 const path = require("path"),
       http = require("http"),
       url = require("url"),
-      handlers = require("./handlers"),
+      //handlers = require("./handlers"),
       Youch = require('youch'),
       express = require('express')
 const FETCH = require('@zeit/fetch')()
@@ -42,8 +42,8 @@ var BASEPATH = process.argv[2]
 var SERVERADDRESS = process.argv[5]
 
 // get handler
-const handler = handlers[process.argv[4]]
-startServer(process.argv[3], process.argv[4], handler).then((port)=>{
+//const handler = handlers[process.argv[4]]
+startServer(process.argv[3], process.argv[4]/*, handler*/).then((port)=>{
   process.send(port)
   log("port sent")
 })
@@ -59,7 +59,7 @@ function generateFetch(req){
     return FETCH(uri, options)
   }
 }
-function startServer(entryFile, lambdaType, handler){
+function startServer(entryFile, lambdaType/*, handler*/){
   return new Promise((resolve, reject)=>{
     const file = path.resolve(entryFile)
     const app = express()
@@ -89,21 +89,19 @@ function startServer(entryFile, lambdaType, handler){
       }
       try{
         //console.log("TRYING", file, typeof handler)
-        var globals = Object.assign({__Zero: {req, res, lambdaType, handler, file, renderError, fetch: generateFetch(req)}}, GLOBALS);
+        var globals = Object.assign({__Zero: {req, res, lambdaType/*, handler*/, file, renderError, fetch: generateFetch(req)}}, GLOBALS);
   
         vm.runInNewContext(`
-          const { req, res, lambdaType, file, fetch, handler, renderError } = __Zero;
+          const { req, res, lambdaType, file, fetch, renderError } = __Zero;
           global.fetch = fetch
-          // require("./index")[lambdaType](req, res, file)
-          async function run(){ 
-            try{
-              if (handler) await handler(req, res, file) 
-            }
-            catch(e){
-              renderError(e, req, res)
-            }
-          }
-          run()
+          var handler = require("./handlers")[lambdaType]
+          process.on('unhandledRejection', (reason, p) => {
+            renderError(reason, req, res)
+          })
+
+          handler(req, res, file)
+          
+          
         `, globals)
       }
       catch(error){

@@ -8,7 +8,7 @@ module.exports = (req, res)=>{
 		})
 	}
 	else{
-		//res.redirect("/user")
-		res.send(req.user)
+		res.redirect("/user")
+		//res.send(req.user)
 	}
 }
