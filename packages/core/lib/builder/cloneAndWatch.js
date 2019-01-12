@@ -5,10 +5,11 @@ const path = require('path');
 const chokidar = require('chokidar');
 const glob = require('glob');
 const globParent = require('glob-parent');
+const del = require('del');
 require('colors');
 
 
-module.exports = (options, onWatchUpdate) => {
+module.exports = async (options, onWatchUpdate) => {
   var isWatching = false
   const target = options.target
   const sources = options.sources;
@@ -60,6 +61,10 @@ module.exports = (options, onWatchUpdate) => {
 
   };
   const rimraf = dir => {
+    // don't remove node_modules
+    if (dir.indexOf("node_modules")!==-1){
+      return
+    }
     if (fs.existsSync(dir)) {
       fs.readdirSync(dir).forEach(entry => {
         const entryPath = path.join(dir, entry);
@@ -75,7 +80,7 @@ module.exports = (options, onWatchUpdate) => {
 
   // clean
   if (options.clean) {
-    rimraf(target);
+    await del([path.join(target, "/**"), '!' + target, '!'+path.join(target, '/node_modules/**') ], {force: true});
   }
 
   // initial copy

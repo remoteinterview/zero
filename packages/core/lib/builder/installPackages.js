@@ -16,55 +16,86 @@ async function getFiles(baseSrc) {
 }
 
 
-async function installPackages(buildPath, manifest){
-  buildPath = buildPath || process.cwd()
-  var files = await getFiles(buildPath)
-  files = files.filter((f)=>f.indexOf("node_modules")===-1)
-  var deps = []
+function installPackages(buildPath, filterFiles){
+  return new Promise(async (resolve, reject)=>{
+    buildPath = buildPath || process.cwd()
+    var files = await getFiles(buildPath)
+    files = files.filter((f)=>f.indexOf("node_modules")===-1)
+    var deps = []
 
-  // build a list of packages required by all js files
-  files.forEach((file)=>{
-    if (file.endsWith(".js") || file.endsWith(".jsx")){
-      var imports = konan(fs.readFileSync(file, 'utf8'))
-      // only strings for now.
-      imports.strings.forEach((imp)=> {
-        // trim submodule imports and install main package (ie. 'bootstrap' for: import 'bootstrap/dist/css/bootstrap.min.css')
-        imp = imp.split("/")[0]
-        // skip relative imports
-        if (!imp.startsWith(".")) deps.push(imp)
-      })
+    // build a list of packages required by all js files
+    files.forEach((file)=>{
+      if (filterFiles && filterFiles.length>0 && filterFiles.indexOf(file)===-1) {
+        console.log("konan skip", file)
+        return
+      }
+
+      if (file.endsWith(".js") || file.endsWith(".jsx")){
+        var imports = konan(fs.readFileSync(file, 'utf8'))
+        // only strings for now.
+        imports.strings.forEach((imp)=> {
+          // trim submodule imports and install main package (ie. 'bootstrap' for: import 'bootstrap/dist/css/bootstrap.min.css')
+          imp = imp.split("/")[0]
+          // skip relative imports
+          if (!imp.startsWith(".")) deps.push(imp)
+        })
+      }
+    })
+
+    deps = deps.filter(function(item, pos) {
+      return deps.indexOf(item) == pos;
+    })
+
+    // check if these deps are already installed
+    var pkgjsonPath = path.join(buildPath, "/package.json")
+    var allInstalled = false
+    if (fs.existsSync(pkgjsonPath)){
+      try{
+        var pkg = require(pkgjsonPath)
+        allInstalled = true // we assume all is installed
+        deps.forEach((dep)=>{
+          if (!pkg || !pkg.dependencies || !pkg.dependencies[dep]){
+            allInstalled = false //didn't find this dep in there.
+          }
+        })
+      }
+      catch(e){
+
+      }
+    }
+    if (!allInstalled) {
+      writePackageJSON(buildPath, deps)
+      console.log("installing", deps)
+
+      // now that we have a list. npm install them in our build folder
+      // var out = spawnSync(`cd ${buildPath} && npm i ${deps.join(" ")}`)
+      // console.log(out)
+
+      var options = {
+        path: buildPath,				// installation path [default: '.']
+        npmLoad: {				// npm.load(options, callback): this is the "options" given to npm.load()
+          loglevel: 'silent',	// [default: {loglevel: 'silent'}]
+          progress: false
+        }
+      }
+      npmi(options, function (err, result) {
+        if (err) {
+          if 		(err.code === npmi.LOAD_ERR) 	console.log('npm load error');
+          else if (err.code === npmi.INSTALL_ERR) console.log('npm install error');
+          reject(err)
+          return console.log("errr", err.message);
+        }
+      
+        // installed
+        console.log('Pkgs installed successfully.');
+        resolve()
+      });
+    }
+    else{
+      resolve()
     }
   })
-
-  deps = deps.filter(function(item, pos) {
-    return deps.indexOf(item) == pos;
-  })
-
-  writePackageJSON(buildPath, deps)
-
-  console.log("installing", deps)
-
-  // now that we have a list. npm install them in our build folder
-  // var out = spawnSync(`cd ${buildPath} && npm i ${deps.join(" ")}`)
-  // console.log(out)
-
-  var options = {
-    path: buildPath,				// installation path [default: '.']
-    npmLoad: {				// npm.load(options, callback): this is the "options" given to npm.load()
-      loglevel: 'silent',	// [default: {loglevel: 'silent'}]
-      progress: false
-    }
-  }
-  npmi(options, function (err, result) {
-    if (err) {
-      if 		(err.code === npmi.LOAD_ERR) 	console.log('npm load error');
-      else if (err.code === npmi.INSTALL_ERR) console.log('npm install error');
-      return console.log("errr", err.message);
-    }
   
-    // installed
-    console.log('Pkgs installed successfully.');
-  });
 }
 
 function writePackageJSON(buildPath, deps){

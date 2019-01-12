@@ -10,7 +10,7 @@ function matchPathWithDictionary(Manifest, forbiddenStaticFiles, buildPath, path
   path = url.parse(path).pathname
   path = stripTrailingSlash(path)
 
-  var match = Manifest.find((endpoint)=>{
+  var match = Manifest.lambdas.find((endpoint)=>{
     console.log("matching", path, endpoint[0])
 
     // check for exact match
@@ -31,7 +31,7 @@ function matchPathWithDictionary(Manifest, forbiddenStaticFiles, buildPath, path
   if (!match){
     // check for partial match now ie. query is: /login/username and endpoint will be /login
     // reverse sort to have closest/deepest match at [0] ie. [ "/login/abc/def", "/login/abc", "/login" ]
-    var matches = Manifest.filter((endpoint) => {
+    var matches = Manifest.lambdas.filter((endpoint) => {
       return path.startsWith(endpoint[2]!=="static" && endpoint[0])
     }).sort().reverse()
     if (matches && matches[0]){

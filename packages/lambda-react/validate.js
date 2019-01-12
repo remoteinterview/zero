@@ -22,9 +22,10 @@ const createAsyncElement = async (Component, props) =>
 
 // include the component
 async function test(){
+  var el
   var App = require( require("path").join(process.argv[2]) ) 
   try{
-    const el = isAsync(App)
+    el = isAsync(App)
     ? await createAsyncElement(App, props)
     : React.createElement(App, props)
   }
