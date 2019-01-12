@@ -59,7 +59,7 @@ async function installPackages(buildPath, manifest){
     if (err) {
       if 		(err.code === npmi.LOAD_ERR) 	console.log('npm load error');
       else if (err.code === npmi.INSTALL_ERR) console.log('npm install error');
-      return console.log(err.message);
+      return console.log("errr", err.message);
     }
   
     // installed

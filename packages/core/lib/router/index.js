@@ -72,7 +72,7 @@ function getLambdaServerPort(endpointData, serverAddress){
     };
 
     const child = fork(program, parameters, options);
-    
+
     // child server sends port via IPC
     child.on('message', message => {
       lambdaToPortMap[entryFilePath] = {port: parseInt(message), process: child}
@@ -99,7 +99,7 @@ function getLambdaServerPort(endpointData, serverAddress){
   
 }
 
-module.exports = (manifest, forbiddenStaticFiles, buildPath, serverAddress)=>{
+module.exports = (buildPath, serverAddress)=>{
   const app = express()
   app.all("*", (request, response)=>{
     var endpointData = matchPath(manifest, forbiddenStaticFiles, buildPath, request.url)
@@ -114,6 +114,17 @@ module.exports = (manifest, forbiddenStaticFiles, buildPath, serverAddress)=>{
   var listener = app.listen(process.env.PORT, () => {
     console.log("Running on port", listener.address().port)
   })
+
+  return (newManifest, newForbiddenFiles)=>{
+    console.log("updating manifest in server")
+    for (var i in lambdaToPortMap){
+      console.log("killing", lambdaToPortMap[i].port)
+      lambdaToPortMap[i].process.kill()
+    }
+    manifest = newManifest;
+    forbiddenStaticFiles = newForbiddenFiles
+    
+  }
 }
 
 
