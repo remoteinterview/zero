@@ -7,7 +7,7 @@ const glob = require('glob');
 const globParent = require('glob-parent');
 const del = require('del');
 require('colors');
-
+const debug = require('debug')('core')
 
 module.exports = async (options, onWatchUpdate) => {
   var isWatching = false
@@ -47,14 +47,14 @@ module.exports = async (options, onWatchUpdate) => {
       return;
     }
     fs.writeFileSync(to, fs.readFileSync(from));
-    console.log('[COPY]'.yellow, from, 'to'.yellow, to);
+    debug('[COPY]'.yellow, from, 'to'.yellow, to);
     if (isWatching && onWatchUpdate) onWatchUpdate('add', to) 
   };
   const remove = from => {
     const to = findTarget(from);
     try{
       fs.unlinkSync(to);
-      console.log('[DELETE]'.yellow, to);
+      debug('[DELETE]'.yellow, to);
       if (isWatching && onWatchUpdate) onWatchUpdate('remove', to)
     }
     catch(e){}
@@ -92,12 +92,12 @@ module.exports = async (options, onWatchUpdate) => {
     chokidar.watch(sources, {
       ignoreInitial: true
     })
-      .on('ready', () => { console.log('[WATCHING]'.yellow, sources); isWatching = true })
+      .on('ready', () => { debug('[WATCHING]'.yellow, sources); isWatching = true })
       .on('add', copy)
       .on('addDir', copy)
       .on('change', copy)
       .on('unlink', remove)
       .on('unlinkDir', remove)
-      .on('error', e => console.log('[ERROR]'.red, e));
+      .on('error', e => debug('[ERROR]'.red, e));
   }
 }

@@ -1,6 +1,7 @@
 const url = require("url");
 const fetch = require('node-fetch')
 const fs = require("fs")
+const debug = require('debug')('core')
 
 const stripTrailingSlash = (str) => {
   return str.replace(/^(.+?)\/*?$/, "$1");
@@ -11,7 +12,7 @@ function matchPathWithDictionary(Manifest, forbiddenStaticFiles, buildPath, path
   path = stripTrailingSlash(path)
 
   var match = Manifest.lambdas.find((endpoint)=>{
-    console.log("matching", path, endpoint[0])
+    debug("matching", path, endpoint[0])
 
     // check for exact match
     return (endpoint[0] === path || endpoint[0] === path+"/index")

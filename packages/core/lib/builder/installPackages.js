@@ -5,6 +5,7 @@ var glob = require("glob")
 const npminstall = require('npminstall');
 var npmi = require('npmi');
 var path = require('path');
+const debug = require('debug')('core')
 
 async function getFiles(baseSrc) {
   return new Promise((resolve, reject)=>{
@@ -26,7 +27,7 @@ function installPackages(buildPath, filterFiles){
     // build a list of packages required by all js files
     files.forEach((file)=>{
       if (filterFiles && filterFiles.length>0 && filterFiles.indexOf(file)===-1) {
-        console.log("konan skip", file)
+        debug("konan skip", file)
         return
       }
 
@@ -65,11 +66,11 @@ function installPackages(buildPath, filterFiles){
     }
     if (!allInstalled) {
       writePackageJSON(buildPath, deps)
-      console.log("installing", deps)
+      debug("installing", deps)
 
       // now that we have a list. npm install them in our build folder
       // var out = spawnSync(`cd ${buildPath} && npm i ${deps.join(" ")}`)
-      // console.log(out)
+      // debug(out)
 
       var options = {
         path: buildPath,				// installation path [default: '.']
@@ -80,14 +81,14 @@ function installPackages(buildPath, filterFiles){
       }
       npmi(options, function (err, result) {
         if (err) {
-          if 		(err.code === npmi.LOAD_ERR) 	console.log('npm load error');
-          else if (err.code === npmi.INSTALL_ERR) console.log('npm install error');
+          if 		(err.code === npmi.LOAD_ERR) 	debug('npm load error');
+          else if (err.code === npmi.INSTALL_ERR) debug('npm install error');
           reject(err)
-          return console.log("errr", err.message);
+          return debug("errr", err.message);
         }
       
         // installed
-        console.log('Pkgs installed successfully.');
+        debug('Pkgs installed successfully.');
         resolve()
       });
     }

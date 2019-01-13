@@ -13,13 +13,22 @@ const matchPath = require("./matchPath")
 const staticHandler = require("zero-static").handler
 const path = require('path')
 const fetch = require("node-fetch")
+const debug = require('debug')('core')
+const ora = require('ora');
 
 var lambdaIdToPortMap = {}
-var SERVERADDRESS = process.env.SERVERADDRESS
 
 async function proxyLambdaRequest(req, res, endpointData){
-  const port = await getLambdaServerPort(endpointData)
-  console.log("req", endpointData[1], port)
+  const spinner = ora({
+    color: 'green',
+    spinner: "star"
+  })
+  if (!lambdaIdToPortMap[endpointData[1]]){
+    spinner.start("Building " + endpointData[0])
+  }
+
+  const port = await getLambdaServerPort(endpointData, spinner)
+  debug("req", endpointData[1], port)
   var lambdaAddress = "http://127.0.0.1:"+port
   const proxyRes = await fetch(lambdaAddress + req.url, {
     method: req.method,
@@ -30,6 +39,10 @@ async function proxyLambdaRequest(req, res, endpointData){
     //credentials: "include"
   })
 
+  if (spinner.isSpinning){
+    spinner.succeed(endpointData[0] + " ready")
+  }
+
   // Forward status code
   res.statusCode = proxyRes.status
 
@@ -37,7 +50,7 @@ async function proxyLambdaRequest(req, res, endpointData){
   const headers = proxyRes.headers.raw()
   for (const key of Object.keys(headers)) {
     if (key.toLowerCase()==="location" && headers[key]){
-      headers[key] = headers[key][0].replace(lambdaAddress, SERVERADDRESS)
+      headers[key] = headers[key][0].replace(lambdaAddress, process.env.SERVERADDRESS)
     }
     res.setHeader(key, headers[key])
   }
@@ -56,19 +69,18 @@ async function proxyLambdaRequest(req, res, endpointData){
   })
 
   // req.on('end', ()=>{
-  //   console.log("closed")
+  //   debug("closed")
   // })
 }
 
 
 function getLambdaServerPort(endpointData){
   return new Promise((resolve, reject)=>{
-    
     const entryFilePath = endpointData[1]
     if (lambdaIdToPortMap[entryFilePath]) return resolve(lambdaIdToPortMap[entryFilePath].port)
     const fork = require('child_process').fork;
     const program = path.resolve(path.join(__dirname, "./server-process.js"));
-    const parameters = [endpointData[0], endpointData[1], endpointData[2], SERVERADDRESS];
+    const parameters = [endpointData[0], endpointData[1], endpointData[2], process.env.SERVERADDRESS];
     const options = {
       stdio: [ 'pipe', 'pipe', 'pipe', 'ipc' ]
     };
@@ -77,32 +89,33 @@ function getLambdaServerPort(endpointData){
 
     // child server sends port via IPC
     child.on('message', message => {
-      console.log("got Port for", entryFilePath, message)
+      debug("got Port for", entryFilePath, message)
       lambdaIdToPortMap[entryFilePath] = {port: parseInt(message), process: child}
       resolve(lambdaIdToPortMap[entryFilePath].port)
+      //if (spinner) spinner.succeed(endpointData[0] + " ready")
     })
 
     child.on('error', (err) => {
-      console.log('Failed to start subprocess.', err);
+      debug('Failed to start subprocess.', err);
       delete lambdaIdToPortMap[entryFilePath]
     });
     child.on('close', () => {
-      console.log('subprocess stopped.');
+      debug('subprocess stopped.');
       delete lambdaIdToPortMap[entryFilePath]
     });
 
     child.stdout.on('data', (data) => {
-      console.log(`stdout: ${data}`);
+      debug(`stdout: ${data}`);
     });
     
     child.stderr.on('data', (data) => {
-      console.log(`stderr: ${data}`);
+      debug(`stderr: ${data}`);
     });
   })
   
 }
 
-module.exports = (buildPath, SERVERADDRESS)=>{
+module.exports = (buildPath)=>{
   const app = express()
   var manifest = {lambdas:[], fileToLambdas:{}}
   var forbiddenStaticFiles = []
@@ -110,18 +123,18 @@ module.exports = (buildPath, SERVERADDRESS)=>{
     var endpointData = matchPath(manifest, forbiddenStaticFiles, buildPath, request.url)
     if (endpointData){
       // call relevant handler as defined in manifest
-      return proxyLambdaRequest(request, response, endpointData, SERVERADDRESS)
+      return proxyLambdaRequest(request, response, endpointData)
     }
     // catch all handler
     return staticHandler(request, response)
   })
 
   var listener = app.listen(process.env.PORT, () => {
-    console.log("Running on port", listener.address().port)
+    debug("Running on port", listener.address().port)
   })
 
   return (newManifest, newForbiddenFiles, filesUpdated)=>{
-    console.log("updating manifest in server")
+    debug("updating manifest in server")
     manifest = newManifest;
     forbiddenStaticFiles = newForbiddenFiles
 
@@ -129,15 +142,15 @@ module.exports = (buildPath, SERVERADDRESS)=>{
     if (filesUpdated){
       filesUpdated.forEach(file=>{
         if (lambdaIdToPortMap[file]) {
-          console.log("killing", file, lambdaIdToPortMap[file].port)
+          debug("killing", file, lambdaIdToPortMap[file].port)
           lambdaIdToPortMap[file].process.kill() 
           // start the process again
           var endpointData = newManifest.lambdas.find((lambda)=>{
             return lambda[1]===file
           })
-          
+
           delete lambdaIdToPortMap[file]
-          console.log("starting", endpointData)
+          debug("starting", endpointData)
           if (endpointData) getLambdaServerPort(endpointData)
         }
       })
@@ -145,7 +158,7 @@ module.exports = (buildPath, SERVERADDRESS)=>{
     else{
       // kill all servers
       for (var file in lambdaIdToPortMap){
-        //console.log("killing", lambdaIdToPortMap[i].port)
+        //debug("killing", lambdaIdToPortMap[i].port)
         lambdaIdToPortMap[file].process.kill()
       }
     }

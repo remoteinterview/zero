@@ -2,6 +2,8 @@ const glob = require("glob")
 const konan = require('konan')
 const fs = require("fs")
 const path = require('path')
+const debug = require('debug')('core')
+
 //var { spawnSync } = require("child_process")
 var spawnAsync = require("./spawn-async")
 
@@ -26,7 +28,7 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
   var files = await getFiles(buildPath)
   files = files.filter((f) => f.indexOf("node_modules") === -1 && f.indexOf(".zero") === -1)
 
-  //console.log(basePath, files)
+  //debug(basePath, files)
   var json = await Promise.all(files.map(async (file, i) => {
 
     // if old manifest is given and a file filter is given, we skip those not in filter
@@ -36,7 +38,7 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
         var endpoint = oldManifest.lambdas.find((lambda)=>{
           return lambda[1]===normalizedFile
         })
-        console.log("skipping", normalizedFile, !!endpoint)
+        debug("skipping", normalizedFile, !!endpoint)
         if (endpoint) return [file, endpoint[2]]
         else return false
       }
@@ -49,7 +51,7 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
     if (file.endsWith(".js")) {
 
       var statusCode = await spawnAsync(validators["js"], [file])
-      console.log(file, statusCode, 'js')
+      debug(file, statusCode, 'js')
       if (statusCode === 0) {
         return [file, 'lambda:js']
       }
@@ -58,7 +60,7 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
     // check if a react component
     if (file.endsWith(".js") || file.endsWith(".jsx")) {
       var statusCode = await spawnAsync(validators["react"], [file])
-      console.log(file, statusCode, 'react')
+      debug(file, statusCode, 'react')
       if (statusCode === 0) {
         return [file, 'lambda:react']
       }
@@ -79,7 +81,7 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
   })
   )
 
-  console.log("elaps", (Date.now() - date) / 1000)
+  debug("elaps", (Date.now() - date) / 1000)
 
 
   var lambdas = json

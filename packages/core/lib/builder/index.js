@@ -1,29 +1,38 @@
 const path = require("path");
+const debug = require('debug')('core')
+
 const buildManifest = require('./buildManifest');
 const prepareBuildFolder = require("./clone")
 const installPackages = require("./installPackages")
 //const syncGlob = require('sync-glob').default
 const sync = require("./cloneAndWatch")
+const ora = require('ora');
 
+const spinner = ora({
+  color: 'green',
+  spinner: "star",
+  text: "Starting..."
+})
 module.exports = async function build(buildPath, onManifest){
   const sourcePath = process.cwd()
-
   // await prepareBuildFolder(sourcePath, buildPath)
   // const manifest = await buildManifest(sourcePath, buildPath)
-  // console.log(manifest)
+  // debug(manifest)
   // installPackages( buildPath, manifest)
   // lambda files are hidden from being viewed as static files.
-
   var currentManifest = false
   
-  console.log("buildPath", buildPath)
+  debug("buildPath", buildPath)
   sync({
     sources: [path.join(sourcePath, '/**/*'), "!zero/**/*"], 
     target: buildPath, 
     watch: true, 
     clean: true
   }, async (event, file)=>{
-    console.log("CHANGE", event, file)
+    debug("CHANGE", event, file)
+    
+    spinner.start()
+  
     // recreate manifest
     // TODO: defer creation of manifest until file changes have settled.
     var filesArr = file?[file]:false
@@ -37,9 +46,10 @@ module.exports = async function build(buildPath, onManifest){
       }
     })
 
-    console.log("filesUpdated", filesUpdated)
+    debug("filesUpdated", filesUpdated)
     const {manifest, forbiddenFiles} = await updateManifest(buildPath, currentManifest, filesUpdated)
     currentManifest = manifest
+    spinner.succeed("Server running")
     onManifest(manifest, forbiddenFiles, filesUpdated)
   })
 }

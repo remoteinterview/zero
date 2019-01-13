@@ -1,6 +1,6 @@
 // child process to run given lambda server
 var dt = Date.now()
-function log(str){ console.log (str, Date.now()-dt); dt = Date.now()}
+function log(str){ debug (str, Date.now()-dt); dt = Date.now()}
 const path = require("path"),
       http = require("http"),
       url = require("url"),
@@ -8,6 +8,7 @@ const path = require("path"),
       Youch = require('youch'),
       express = require('express')
 const FETCH = require('@zeit/fetch')()
+const debug = require('debug')('core')
 
 const GLOBALS = require("./globals")
 
@@ -67,7 +68,7 @@ function startServer(entryFile, lambdaType/*, handler*/){
     app.use(require('cookie-parser')());
     app.use(require('body-parser').urlencoded({ extended: true }));
     app.use(require('body-parser').json());
-    // console.log("tempdir", SESSION_TTL, path.join(require('os').tmpdir(), "zero-sessions"))
+    // debug("tempdir", SESSION_TTL, path.join(require('os').tmpdir(), "zero-sessions"))
 
     app.use(session({
       store: sessionStore,
@@ -88,7 +89,7 @@ function startServer(entryFile, lambdaType/*, handler*/){
         req.params = req.params[0].replace(BASEPATH.slice(1), "").split("/").filter((param)=> !!param)
       }
       try{
-        //console.log("TRYING", file, typeof handler)
+        //debug("TRYING", file, typeof handler)
         var globals = Object.assign({__Zero: {req, res, lambdaType/*, handler*/, file, renderError, fetch: generateFetch(req)}}, GLOBALS);
   
         vm.runInNewContext(`
@@ -111,7 +112,7 @@ function startServer(entryFile, lambdaType/*, handler*/){
     // app.get('/', (req, res) => res.send('Hello World!'))
   
     var listener = app.listen(0, "127.0.0.1", () => {
-      console.log("listening ", lambdaType, listener.address().port)
+      debug("listening ", lambdaType, listener.address().port)
       resolve(listener.address().port)
     })
   })
