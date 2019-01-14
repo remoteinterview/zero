@@ -33,7 +33,9 @@ function matchPathWithDictionary(Manifest, forbiddenStaticFiles, buildPath, path
     // check for partial match now ie. query is: /login/username and endpoint will be /login
     // reverse sort to have closest/deepest match at [0] ie. [ "/login/abc/def", "/login/abc", "/login" ]
     var matches = Manifest.lambdas.filter((endpoint) => {
-      return path.startsWith(endpoint[2]!=="static" && endpoint[0])
+      return endpoint[2]!=="static" && path.startsWith(endpoint[0])
+      // if both /user and /users lambdas exist in same directory. 
+            && path.replace(endpoint[0],"").startsWith("/")
     }).sort().reverse()
     if (matches && matches[0]){
       return matches[0]
