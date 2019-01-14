@@ -1,11 +1,10 @@
 import React, { Component } from 'react'
 import 'bootstrap/dist/css/bootstrap.css';
 import "./style.css"
-// import "./heading.css"
 
 class ClassTypeComponent extends Component {
   static async getInitialProps({ req }){
-    var stories = await fetch("/hn/api/stories").then((resp) => resp.json())
+    var stories = await fetch("/api/stories").then((resp) => resp.json())
     return {data: stories, user: req.user}
   }
 
@@ -16,8 +15,8 @@ class ClassTypeComponent extends Component {
         <div className="header-section">
           <header>
             <nav>
-              <a href="/hn"><img id="topImage" src="/hn/img/y18.gif" alt="" /></a>
-              <a className="main-link" href="/hn">Hacker News</a>
+              <a href="/"><img id="topImage" src="/img/y18.gif" alt="" /></a>
+              <a className="main-link" href="/">Hacker News</a>
               <a href="">new {this.props.user?this.props.user.id:""}</a>
               <span>|</span>
               <a href="#">comments</a>

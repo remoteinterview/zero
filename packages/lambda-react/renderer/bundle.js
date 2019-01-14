@@ -84,7 +84,7 @@ const bundle = async filename => {
   const entry = createEntry(component) // wrap the component with entry and loader
 
   const script = await browser(filename, entry) // transform and pack all the imported packages and modules 
-  const min = minify(script).code
+  const min = process.env.NODE_ENV==='production'?minify(script).code : script
   return {js: min }
 
   /*

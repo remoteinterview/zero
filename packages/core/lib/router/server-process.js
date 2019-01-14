@@ -34,7 +34,7 @@ var sessionStore = new FileStore({
   ttl: SESSION_TTL
 })
 
-if (!process.argv[2]) throw new Error("No basePath provided.")
+if (!process.argv[2] && process.argv[2]!=="") throw new Error("No basePath provided.")
 if (!process.argv[3]) throw new Error("No entry file provided.")
 if (!process.argv[4]) throw new Error("No lambda type provided.")
 if (!process.argv[5]) throw new Error("Server address not provided.")
