@@ -94,7 +94,7 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
       var trimmedPath = endpoint[0].replace(buildPath, "/")
       //if (endpoint[1]!=="static" 
         //  || (trimmedPath.endsWith(".html") || trimmedPath.endsWith(".htm")) ){
-        trimmedPath = trimmedPath.split('.').slice(0, -1).join('.') // remove extension
+        trimmedPath = trimmedPath.split('.').slice(0, -1).join('.').toLowerCase() // remove extension
         if (trimmedPath.endsWith("/index")) {
           trimmedPath = trimmedPath.split('/index').slice(0, -1).join('/index') // remove extension
         }

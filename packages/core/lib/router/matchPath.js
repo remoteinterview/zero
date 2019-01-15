@@ -9,7 +9,7 @@ const stripTrailingSlash = (str) => {
 
 function matchPathWithDictionary(Manifest, forbiddenStaticFiles, buildPath, path){
   path = url.parse(path).pathname
-  path = stripTrailingSlash(path)
+  path = stripTrailingSlash(path).toLowerCase()
 
   var match = Manifest.lambdas.find((endpoint)=>{
     debug("matching", path, endpoint[0])
