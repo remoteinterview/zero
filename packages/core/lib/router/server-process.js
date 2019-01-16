@@ -90,11 +90,12 @@ function startServer(entryFile, lambdaType/*, handler*/){
       }
       try{
         //debug("TRYING", file, typeof handler)
-        var globals = Object.assign({__Zero: {req, res, lambdaType/*, handler*/, file, renderError, fetch: generateFetch(req)}}, GLOBALS);
+        var globals = Object.assign({__Zero: {app, req, res, lambdaType/*, handler*/, file, renderError, fetch: generateFetch(req)}}, GLOBALS);
   
         vm.runInNewContext(`
-          const { req, res, lambdaType, file, fetch, renderError } = __Zero;
+          const { app, req, res, lambdaType, file, fetch, renderError } = __Zero;
           global.fetch = fetch
+          global.app = app
           var handler = require("./handlers")[lambdaType]
           process.on('unhandledRejection', (reason, p) => {
             renderError(reason, req, res)
