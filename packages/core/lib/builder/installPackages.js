@@ -130,6 +130,7 @@ function writePackageJSON(buildPath, deps){
     "babel-register": "^6.26.0",
     "browserify": "^14.5.0",
     "browserify-css": "^0.14.0",
+    "sassify":"^4.0.1",
     "babelify": "8"
   }
 

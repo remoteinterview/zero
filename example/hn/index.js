@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import 'bootstrap/dist/css/bootstrap.css';
-import "./style.css"
+import "./style.scss"
 
 class ClassTypeComponent extends Component {
   static async getInitialProps({ req }){

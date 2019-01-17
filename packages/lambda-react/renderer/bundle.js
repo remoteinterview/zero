@@ -4,7 +4,8 @@ const { Readable } = require('stream')
 const babel = require('babel-core')
 const browserify = require('browserify')
 const { minify } = require('uglify-es')
-const Bundler = require('parcel-bundler');
+//const Bundler = require('parcel-bundler');
+var sassify = require('sassify');
 
 const crypto = require("crypto");
 function sha1(data) {
@@ -58,12 +59,19 @@ const browser = (filename, code) => {
         ]
       ]
     })
-    .transform('browserify-css', {
+    .transform('browserify-css', { // first import all css cuz sassify crashes on some css files.
       autoInject: true,
       global: true,
       autoInjectOptions: {
         "insertAt": "bottom"
       }
+    })
+    .transform(sassify, {
+      base64Encode: false, // Use base64 to inject css
+      sourceMap: false, // Add source map to the code
+      // when 'no-auto-inject' is set to `true`, `require('./style.scss')` won't inject styles
+      // it will simply return the css as a string
+      'no-auto-inject': false
     })
     .bundle((err, res) => {
       console.log("bundle", err)
