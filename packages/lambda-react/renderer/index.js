@@ -19,6 +19,7 @@ const {
   renderToStaticNodeStream,
   renderToString
 } = require('react-dom/server')
+const { Helmet } = require("react-helmet");
 const jsonStringify = require('json-stringify-safe')
 const bundle = require('./bundle')
 // const fetch = require('@zeit/fetch')()
@@ -65,6 +66,26 @@ async function generateComponent(req, res, componentPath){
 
   
   const html = renderToString(el)
+  const helmet = Helmet.renderStatic()
+  const json = jsonStringify(props)
+  var markup = `<!DOCTYPE html>
+  <html ${helmet.htmlAttributes.toString()}>
+    <head>
+      ${helmet.title.toString()}
+      ${helmet.meta.toString()}
+      ${helmet.link.toString()}					
+      ${(BUNDLECACHE[componentPath].css?`<style>${BUNDLECACHE[componentPath].css}</style>`:"")}
+    </head>
+    <body ${helmet.bodyAttributes.toString()}>
+      <div id="_react_root">${html}</div>
+      <script id='initial_props' type='application/json'>${json}</script>
+      <script>${BUNDLECACHE[componentPath].js}</script>
+    </body>
+  </html>`
+
+  res.write(markup)
+  res.end()
+  /*
   if (BUNDLECACHE[componentPath].css){
     res.write(`<style>${BUNDLECACHE[componentPath].css}</style>`)
   }
@@ -77,6 +98,7 @@ async function generateComponent(req, res, componentPath){
 
 
   res.end()
+  */
 
 /*
   const stream = renderToNodeStream(el)
