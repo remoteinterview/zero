@@ -6,10 +6,14 @@ const path = require("path");
 // var Manifest = []
 // var forbiddenStaticFiles = {}
 
+var getHash = function(str){
+  return require("crypto").createHash('sha1').update(str).digest('hex')
+}
 
 // const DEFAULTBUILDPATH = path.join( process.cwd(), ".zero/build" )
-const DEFAULTBUILDPATH = path.join( require("os").tmpdir(), "/zero-build" )
-
+const DEFAULTBUILDPATH = path.join( require("os").tmpdir(), getHash(process.cwd()), "/zero-build" )
+// Load environment variables from .env file if present
+require('dotenv').config({path: path.resolve(process.cwd(), '.env')})
 
 // Default env variables.
 process.env.PORT = process.env.PORT || 3000

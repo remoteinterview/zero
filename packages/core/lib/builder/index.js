@@ -31,7 +31,7 @@ module.exports = async function build(buildPath, onManifest){
   }, async (event, file)=>{
     debug("CHANGE", event, file)
     
-    spinner.start()
+    
   
     // recreate manifest
     // TODO: defer creation of manifest until file changes have settled.
@@ -57,6 +57,7 @@ module.exports = async function build(buildPath, onManifest){
 
 async function updateManifest(buildPath, currentManifest, updatedFiles){
   await installPackages(buildPath, updatedFiles)
+  spinner.start()
   const manifest = await buildManifest(buildPath, currentManifest, updatedFiles)
   
   var forbiddenFiles = []
@@ -64,5 +65,6 @@ async function updateManifest(buildPath, currentManifest, updatedFiles){
     forbiddenFiles.push(endpoint[1])
     // TODO: see if dependancy tree files are also to be added here or not.
   })
+  debug("manifest", manifest)
   return {manifest, forbiddenFiles}
 }

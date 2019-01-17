@@ -38,7 +38,9 @@ function installPackages(buildPath, filterFiles){
           // trim submodule imports and install main package (ie. 'bootstrap' for: import 'bootstrap/dist/css/bootstrap.min.css')
           imp = imp.split("/")[0]
           // skip relative imports
-          if (!imp.startsWith(".")) deps.push(imp)
+          if (!imp.startsWith(".")) {
+            deps.push(imp)
+          }
         })
       }
     })
@@ -75,8 +77,8 @@ function installPackages(buildPath, filterFiles){
       var options = {
         path: buildPath,				// installation path [default: '.']
         npmLoad: {				// npm.load(options, callback): this is the "options" given to npm.load()
-          loglevel: 'silent',	// [default: {loglevel: 'silent'}]
-          progress: false
+          //loglevel: 'silent',	// [default: {loglevel: 'silent'}]
+          progress: true
         }
       }
       npmi(options, function (err, result) {
@@ -100,31 +102,52 @@ function installPackages(buildPath, filterFiles){
 }
 
 function writePackageJSON(buildPath, deps){
-  // TODO: load package.json if already present at buildPath and use that as base.
-  var json = {
+  // first load current package.json if present
+  var pkgjsonPath = path.join(buildPath, "/package.json")
+  var pkg = {
     "name": "zeroapp",
     "private": true,
-    "dependencies": {
-      "react": "*",
-      "react-dom": "*",
-      "babel-core": "^6.26.0",
-      "babel-plugin-add-module-exports": "^1.0.0",
-      "babel-polyfill": "^6.26.0",
-      "babel-preset-env": "^1.6.1",
-      "babel-preset-react": "^6.24.1",
-      "babel-preset-stage-0": "^6.24.1",
-      "babel-plugin-transform-runtime": "^6.23.0",
-      "babel-register": "^6.26.0",
-      "browserify": "^14.5.0",
-      "browserify-css": "^0.14.0",
-      "babelify": "8"
-    }
+    "dependencies": {}
   }
+  if (fs.existsSync(pkgjsonPath)){
+    try{
+      pkg = require(pkgjsonPath)
+    }
+    catch(e){}
+  }
+
+  // the base packages required by zero
+  var depsJson = {
+    "react": "*",
+    "react-dom": "*",
+    "babel-core": "^6.26.0",
+    "babel-plugin-add-module-exports": "^1.0.0",
+    "babel-polyfill": "^6.26.0",
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-react": "^6.24.1",
+    "babel-preset-stage-0": "^6.24.1",
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-register": "^6.26.0",
+    "browserify": "^14.5.0",
+    "browserify-css": "^0.14.0",
+    "babelify": "8"
+  }
+
+  if (pkg.dependencies){
+    Object.keys(depsJson).forEach((key)=>{
+      pkg.dependencies[key] = depsJson[key]
+    })
+  }
+  else{
+    pkg.dependencies = depsJson
+  }
+
+  // append user's imported packages (only if not already defined in package.json)
   deps.forEach((dep)=>{
-    json.dependencies[dep] = "*"
+    if (!pkg.dependencies[dep]) pkg.dependencies[dep] = "*"
   })
 
-  fs.writeFileSync(path.join(buildPath, "/package.json"), JSON.stringify(json), 'utf8')
+  fs.writeFileSync(path.join(buildPath, "/package.json"), JSON.stringify(pkg), 'utf8')
 
   // // write .babelrc
   // var babeljson = {
