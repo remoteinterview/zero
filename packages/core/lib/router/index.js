@@ -105,11 +105,11 @@ function getLambdaServerPort(endpointData){
     });
 
     child.stdout.on('data', (data) => {
-      debug(`stdout: ${data}`);
+      console.log(`${data}`)
     });
     
     child.stderr.on('data', (data) => {
-      debug(`stderr: ${data}`);
+      console.error(`${data}`)
     });
   })
   

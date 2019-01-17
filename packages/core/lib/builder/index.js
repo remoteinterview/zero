@@ -49,6 +49,7 @@ module.exports = async function build(buildPath, onManifest){
     debug("filesUpdated", filesUpdated)
     const {manifest, forbiddenFiles} = await updateManifest(buildPath, currentManifest, filesUpdated)
     currentManifest = manifest
+    //process.stdout.write('\x1b[2J'); // clear terminal
     spinner.succeed("Server running")
     onManifest(manifest, forbiddenFiles, filesUpdated)
   })
@@ -56,8 +57,9 @@ module.exports = async function build(buildPath, onManifest){
 
 
 async function updateManifest(buildPath, currentManifest, updatedFiles){
+  spinner.start("Installing packages")
   await installPackages(buildPath, updatedFiles)
-  spinner.start()
+  spinner.start("Generating manifest")
   const manifest = await buildManifest(buildPath, currentManifest, updatedFiles)
   
   var forbiddenFiles = []

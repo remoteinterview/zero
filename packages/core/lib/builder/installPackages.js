@@ -78,7 +78,7 @@ function installPackages(buildPath, filterFiles){
         path: buildPath,				// installation path [default: '.']
         npmLoad: {				// npm.load(options, callback): this is the "options" given to npm.load()
           //loglevel: 'silent',	// [default: {loglevel: 'silent'}]
-          progress: true
+          progress: false
         }
       }
       npmi(options, function (err, result) {

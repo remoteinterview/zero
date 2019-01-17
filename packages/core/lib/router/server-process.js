@@ -1,6 +1,6 @@
 // child process to run given lambda server
 var dt = Date.now()
-function log(str){ debug (str, Date.now()-dt); dt = Date.now()}
+// function log(str){ debug (str, Date.now()-dt); dt = Date.now()}
 const path = require("path"),
       http = require("http"),
       url = require("url"),
@@ -11,8 +11,7 @@ const FETCH = require('@zeit/fetch')()
 const debug = require('debug')('core')
 
 const GLOBALS = require("./globals")
-
-log("imports")
+// log("imports")
 
 const vm = require('vm');
 var passport = require('passport');
@@ -46,7 +45,7 @@ var SERVERADDRESS = process.argv[5]
 //const handler = handlers[process.argv[4]]
 startServer(process.argv[3], process.argv[4]/*, handler*/).then((port)=>{
   process.send(port)
-  log("port sent")
+  // log("port sent")
 })
 
 function generateFetch(req){
