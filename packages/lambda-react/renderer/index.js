@@ -40,12 +40,13 @@ var BUNDLECACHE = {}
 
 async function generateComponent(req, res, componentPath){
   
-  const App = require(componentPath)
+  var App = require(componentPath)
+  App = (App && App.default)?App.default : App // cater export default class...
   //var props = Object.assign({}, { req })
-  var props = {user: req.user}
+  var props = {user: req.user, url: {query: req.query}}
   if (App && App.getInitialProps && typeof App.getInitialProps === "function"){
     try{
-      props = await App.getInitialProps({req, user: req.user}) || props
+      props = await App.getInitialProps({req, ...props}) || props
     }
     catch(e){
       console.log(e)
