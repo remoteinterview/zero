@@ -13,8 +13,7 @@ const spinner = ora({
   spinner: "star",
   text: "Starting..."
 })
-module.exports = async function build(buildPath, onManifest){
-  const sourcePath = process.cwd()
+module.exports = async function build(sourcePath, buildPath, onManifest){
   // await prepareBuildFolder(sourcePath, buildPath)
   // const manifest = await buildManifest(sourcePath, buildPath)
   // debug(manifest)

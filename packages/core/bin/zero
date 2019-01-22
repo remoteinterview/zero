@@ -1,2 +1,3 @@
 #!/usr/bin/env node
-require('../lib');
+var startServer = require('../lib');
+startServer(process.cwd())

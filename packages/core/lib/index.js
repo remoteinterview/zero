@@ -25,12 +25,6 @@ process.env.SERVERADDRESS = process.env.SERVERADDRESS ||  "http://127.0.0.1:"+pr
 
 var updateManifestFn = startRouter(/*manifest, forbiddenFiles,*/ process.env.BUILDPATH)
 
-build(process.env.BUILDPATH, (manifest, forbiddenFiles, filesUpdated)=>{
-  updateManifestFn(manifest, forbiddenFiles, filesUpdated)
-})
-
-
-
 // npmi module sometime prevents Ctrl+C to shut down server. This helps do that.
 if (process.platform === "win32") {
   var rl = require("readline").createInterface({
@@ -47,3 +41,14 @@ process.on("SIGINT", function () {
   //graceful shutdown
   process.exit();
 });
+
+
+module.exports = async (path)=>{
+  return new Promise((resolve, reject)=>{
+    build(path, process.env.BUILDPATH, (manifest, forbiddenFiles, filesUpdated)=>{
+      updateManifestFn(manifest, forbiddenFiles, filesUpdated)
+      resolve()
+    })
+  })
+  
+}

@@ -3,10 +3,14 @@
   "private": true,
   "scripts": {
     "bootstrap": "lerna bootstrap",
-    "example": "cd example && zero"
+    "example": "cd example && zero",
+    "test": "jest"
   },
   "devDependencies": {
-    "lerna": "^3.4.3"
+    "jest": "^23.6.0",
+    "lerna": "^3.4.3",
+    "request-promise-native": "^1.0.5",
+    "wait-port": "^0.2.2"
   },
   "dependencies": {
     "react": "^16.6.3",
