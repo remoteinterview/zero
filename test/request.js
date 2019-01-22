@@ -8,4 +8,7 @@ function makeRequest(path, options){
   return request(options)
 }
 
-module.exports = makeRequest
+module.exports = {
+  get: makeRequest,
+  jar: request.jar
+}

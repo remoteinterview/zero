@@ -21,7 +21,7 @@ process.env.SESSION_TTL = process.env.SESSION_TTL || 1000 * 60 * 60 * 24 * 365 /
 process.env.SESSION_SECRET = process.env.SESSION_SECRET || 'k3yb0Ard c@t'
 process.env.BUILDPATH = process.env.BUILDPATH || DEFAULTBUILDPATH
 
-process.env.SERVERADDRESS = process.env.SERVERADDRESS ||  "http://127.0.0.1:"+process.env.PORT
+//process.env.SERVERADDRESS = process.env.SERVERADDRESS ||  "http://127.0.0.1:"+process.env.PORT
 
 var updateManifestFn = startRouter(/*manifest, forbiddenFiles,*/ process.env.BUILDPATH)
 

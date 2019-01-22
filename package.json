@@ -4,9 +4,10 @@
   "scripts": {
     "bootstrap": "lerna bootstrap",
     "example": "cd example && zero",
-    "test": "jest"
+    "test": "jest --verbose false"
   },
   "devDependencies": {
+    "cheerio": "^1.0.0-rc.2",
     "jest": "^23.6.0",
     "lerna": "^3.4.3",
     "request-promise-native": "^1.0.5",
