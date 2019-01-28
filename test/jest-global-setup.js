@@ -3,7 +3,7 @@ const path = require("path")
 const startServer = require("../packages/core/lib")
 
 module.exports = async function globalSetup () {
-  await startServer(path.join(__dirname, "./files"))
+  await startServer(path.join(__dirname, "./www"))
 
   await waitPort({
       //host: "http://localhost",
