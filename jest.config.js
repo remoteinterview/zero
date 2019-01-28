@@ -5,7 +5,6 @@ module.exports = {
   rootDir: 'test',  
   testEnvironment: "node",
   globalSetup: '<rootDir>/jest-global-setup.js',
-  globalTeardown: '<rootDir>/jest-global-teardown.js'
+  globalTeardown: '<rootDir>/jest-global-teardown.js',
+  setupTestFrameworkScriptFile: '<rootDir>/jest.setup.js'
 };
-
-//jest.setTimeout(600000)

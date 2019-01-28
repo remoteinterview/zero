@@ -4,6 +4,7 @@
   "scripts": {
     "bootstrap": "lerna bootstrap",
     "example": "cd example && zero",
+    "exampletest": "cd test/files && zero",
     "test": "jest --verbose false"
   },
   "devDependencies": {

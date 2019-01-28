@@ -123,6 +123,7 @@ module.exports = (buildPath)=>{
   var forbiddenStaticFiles = []
   app.all("*", (request, response)=>{
     var endpointData = matchPath(manifest, forbiddenStaticFiles, buildPath, request.url)
+    debug("match", request.url, endpointData)
     if (endpointData){
       // call relevant handler as defined in manifest
       return proxyLambdaRequest(request, response, endpointData)

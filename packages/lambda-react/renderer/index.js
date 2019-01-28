@@ -10,7 +10,7 @@ require('babel-register')({
   plugins: ['babel-plugin-add-module-exports'].map(require.resolve)
 })
 require('ignore-styles') // ignore css/scss imports on server side.
-
+const debug = require('debug')('react')
 const http = require('http')
 const url = require('url')
 const React = require('react')
@@ -31,7 +31,7 @@ const bundle = require('./bundle')
 //     // TODO: figure out how to forward cookies (idea: run getInitialProps in a VM with modified global.fetch that has 'req' access and thus to cookies too)
 //     uri = url.resolve("http://localhost:"+process.env.PORT, uri)
 //   }
-//   //console.log("fetch", uri)
+//   //debug("fetch", uri)
 //   return fetch(uri, options)
 // }
 // global.fetch = ssrFetch
@@ -49,15 +49,15 @@ async function generateComponent(req, res, componentPath){
       props = await App.getInitialProps({req, ...props}) || props
     }
     catch(e){
-      console.log(e)
+      debug(e)
     }
   }
   
-  // console.log("imported", App)
+  // debug("imported", App)
   //delete BUNDLECACHE[componentPath] // temp
   if (!BUNDLECACHE[componentPath]){
     BUNDLECACHE[componentPath] = await bundle(componentPath)
-    console.log("bundle size", BUNDLECACHE[componentPath].js.length/1024)
+    debug("bundle size", BUNDLECACHE[componentPath].js.length/1024)
   }
 
 
@@ -108,7 +108,7 @@ async function generateComponent(req, res, componentPath){
   stream.pipe(res, { end: false })
 
   stream.on('error', error => {
-    console.log("errorr", error)
+    debug("errorr", error)
     res.end()
   })
   

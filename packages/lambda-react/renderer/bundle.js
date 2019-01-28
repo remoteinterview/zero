@@ -74,7 +74,7 @@ const browser = (filename, code) => {
       'no-auto-inject': false
     })
     .bundle((err, res) => {
-      console.log("bundle", err)
+      // console.log("bundle", err)
       if (err) reject(err)
       else {
         const script = res.toString()

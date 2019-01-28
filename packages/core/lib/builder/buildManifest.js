@@ -75,6 +75,10 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
     if (file.endsWith(".py")) {
       return [file, "lambda:py"]
     }
+
+    if (file.endsWith(".htm") || file.endsWith(".html")) {
+      return [file, 'static']
+    }
     // catch all, static / cdn hosting
     //return [file, 'static']
     return false
