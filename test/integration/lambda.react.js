@@ -18,3 +18,12 @@ test('React With Imports', () => {
     expect($('body').text().trim()).toBe("246");
   });
 });
+
+
+test('React With Helmet', () => {
+  //expect.assertions(1);
+  return get("/react/withhelmet").then(data => {
+    const $ = cheerio.load(data)
+    expect($('head title').text().trim()).toBe("Page Title");
+  });
+});

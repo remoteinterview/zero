@@ -22,7 +22,6 @@
     "parcel-bundler": "^1.11.0",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
-    "react-helmet": "^5.2.0",
     "sassify": "^4.0.1",
     "uglify-es": "^3.2.2"
   }

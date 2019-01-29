@@ -16,3 +16,11 @@ test('Txt file in root folder', () => {
     expect(data).toBe("text content");
   });
 });
+
+
+test('Hidden files are hidden', () => {
+  // expect.assertions(1);
+  return get("/_hidden/config.txt").then(data => {
+    expect(data && data.indexOf("secret")===-1).toBe(true)
+  });
+});

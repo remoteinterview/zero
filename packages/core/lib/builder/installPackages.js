@@ -131,7 +131,8 @@ function writePackageJSON(buildPath, deps){
     "browserify": "^14.5.0",
     "browserify-css": "^0.14.0",
     "sassify":"^4.0.1",
-    "babelify": "8"
+    "babelify": "8",
+    "react-helmet": "^5.2.0"
   }
 
   if (pkg.dependencies){

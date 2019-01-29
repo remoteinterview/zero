@@ -19,9 +19,11 @@ const {
   renderToStaticNodeStream,
   renderToString
 } = require('react-dom/server')
-const { Helmet } = require("react-helmet");
+// const { Helmet } = require("react-helmet");
 const jsonStringify = require('json-stringify-safe')
 const bundle = require('./bundle')
+// const { HelmetProvider } = require('react-helmet-async');
+
 // const fetch = require('@zeit/fetch')()
 
 // function ssrFetch(uri, options){
@@ -65,16 +67,25 @@ async function generateComponent(req, res, componentPath){
     ? await createAsyncElement(App, props)
     : React.createElement(App, props)
 
-  
+  // var helmetContext = {};
+  // const helmetWrap = React.createElement(HelmetProvider, {context: helmetContext}, [el])
+
   const html = renderToString(el)
+
+  // we use client's helmet instance to avoid two Helmet instances to be loaded.
+  // see: https://github.com/nfl/react-helmet/issues/125
+  // and https://stackoverflow.com/questions/45822925/react-helmet-outputting-empty-strings-on-server-side
+  const {Helmet} = require( require('path').join(process.env.BUILDPATH, "/node_modules/react-helmet") )
   const helmet = Helmet.renderStatic()
+  // const { helmet } = helmetContext;
+  debug("helmet", helmet.title.toString())
   const json = jsonStringify(props)
   var markup = `<!DOCTYPE html>
   <html ${helmet.htmlAttributes.toString()}>
     <head>
       ${helmet.title.toString()}
       ${helmet.meta.toString()}
-      ${helmet.link.toString()}					
+      ${helmet.link.toString()}
       ${(BUNDLECACHE[componentPath].css?`<style>${BUNDLECACHE[componentPath].css}</style>`:"")}
     </head>
     <body ${helmet.bodyAttributes.toString()}>
