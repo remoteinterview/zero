@@ -10,8 +10,9 @@ require('babel-register')({
 })
 require('ignore-styles') // ignore css/scss imports on server side.
 const debug = require('debug')('react')
-const http = require('http')
-const url = require('url')
+const fs = require('fs')
+const path = require('path')
+const mkdirp = require('mkdirp')
 const React = require('react')
 const {
   renderToString
@@ -25,10 +26,10 @@ const {Helmet} = require( require('path').join(process.env.BUILDPATH, "/node_mod
 const jsonStringify = require('json-stringify-safe')
 const bundle = require('./bundle')
 
-var BUNDLECACHE = {}
+var bundleInfo = false
 
-async function generateComponent(req, res, componentPath){
-  
+async function generateComponent(req, res, componentPath, bundlePath){
+  var fullBundlePath = path.join(process.env.BUILDPATH, bundlePath)
   var App = require(componentPath)
   App = (App && App.default)?App.default : App // cater export default class...
   var props = {user: req.user, url: {query: req.query}}
@@ -43,11 +44,22 @@ async function generateComponent(req, res, componentPath){
     }
   }
   
-  if (!BUNDLECACHE[componentPath]){
-    BUNDLECACHE[componentPath] = await bundle(componentPath)
-    debug("bundle size", BUNDLECACHE[componentPath].js.length/1024)
+  if (!bundleInfo){
+    if (!fs.existsSync(fullBundlePath)){
+      var bundleFiles = await bundle(componentPath)
+      debug("bundle size", bundleFiles.js.length/1024)
+      mkdirp.sync(fullBundlePath)
+      if (bundleFiles.js) fs.writeFileSync(path.join(fullBundlePath,"/bundle.js"), bundleFiles.js, 'utf8')
+      if (bundleFiles.css) fs.writeFileSync(path.join(fullBundlePath,"/bundle.css"), bundleFiles.css, 'utf8')
+    }
+
+    bundleInfo = {
+      js: fs.existsSync( path.join(fullBundlePath,"/bundle.js") ) ? path.join(bundlePath, "/bundle.js") : false,
+      css: fs.existsSync( path.join(fullBundlePath,"/bundle.css") ) ? path.join(bundlePath, "/bundle.css") : false,
+    }
   }
 
+  
 
   const el = isAsync(App)
     ? await createAsyncElement(App, props)
@@ -69,12 +81,13 @@ async function generateComponent(req, res, componentPath){
       ${helmet.title.toString()}
       ${helmet.meta.toString()}
       ${helmet.link.toString()}
-      ${(BUNDLECACHE[componentPath].css?`<style>${BUNDLECACHE[componentPath].css}</style>`:"")}
+      ${(bundleInfo.css?`<link rel="stylesheet" href="/${bundleInfo.css}">`:"")}
     </head>
     <body ${helmet.bodyAttributes.toString()}>
       <div id="_react_root">${html}</div>
       <script id='initial_props' type='application/json'>${json}</script>
-      <script>${BUNDLECACHE[componentPath].js}</script>
+      <script src="/${bundleInfo.js}"></script>
+      
     </body>
   </html>`
 

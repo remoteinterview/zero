@@ -37,10 +37,14 @@ if (!process.argv[2] && process.argv[2]!=="") throw new Error("No basePath provi
 if (!process.argv[3]) throw new Error("No entry file provided.")
 if (!process.argv[4]) throw new Error("No lambda type provided.")
 if (!process.argv[5]) throw new Error("Server address not provided.")
+if (!process.argv[6]) throw new Error("Lambda ID not provided.")
 
 var BASEPATH = process.argv[2]
 var SERVERADDRESS = process.argv[5]
-debug("SERVER ADDRESS", SERVERADDRESS, process.argv[5], !!process.argv[5])
+
+// let the lambda save it's bundle files in BUILDPATH/LambdaID folder
+var BUNDLEPATH = process.argv[6]
+debug("Server Address", SERVERADDRESS, "BundlePath", BUNDLEPATH)
 // get handler
 //const handler = handlers[process.argv[4]]
 startServer(process.argv[3], process.argv[4]/*, handler*/).then((port)=>{
@@ -90,10 +94,10 @@ function startServer(entryFile, lambdaType/*, handler*/){
       }
       try{
         //debug("TRYING", file, typeof handler)
-        var globals = Object.assign({__Zero: {app, req, res, lambdaType/*, handler*/, file, renderError, fetch: generateFetch(req)}}, GLOBALS);
+        var globals = Object.assign({__Zero: {app, req, res, lambdaType, BUNDLEPATH, file, renderError, fetch: generateFetch(req)}}, GLOBALS);
   
         vm.runInNewContext(`
-          const { app, req, res, lambdaType, file, fetch, renderError } = __Zero;
+          const { app, req, res, lambdaType, file, fetch, renderError, BUNDLEPATH } = __Zero;
           global.fetch = fetch
           global.app = app
           var handler = require("./handlers")[lambdaType]
@@ -101,7 +105,7 @@ function startServer(entryFile, lambdaType/*, handler*/){
             renderError(reason, req, res)
           })
 
-          handler(req, res, file)
+          handler(req, res, file, BUNDLEPATH)
           
           
         `, globals)

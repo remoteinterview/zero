@@ -15,15 +15,20 @@ const path = require('path')
 const fetch = require("node-fetch")
 const debug = require('debug')('core')
 const ora = require('ora');
+const del = require('del');
 
 var lambdaIdToPortMap = {}
+var getLambdaID = function(entryFile){
+  return require("crypto").createHash('sha1').update(entryFile).digest('hex')
+}
 
 async function proxyLambdaRequest(req, res, endpointData){
   const spinner = ora({
     color: 'green',
     spinner: "star"
   })
-  if (!lambdaIdToPortMap[endpointData[1]]){
+  var lambdaID = getLambdaID(endpointData[1])
+  if (!lambdaIdToPortMap[lambdaID]){
     spinner.start("Building " + endpointData[0])
   }
   if (!process.env.SERVERADDRESS){
@@ -83,10 +88,11 @@ async function proxyLambdaRequest(req, res, endpointData){
 function getLambdaServerPort(endpointData){
   return new Promise((resolve, reject)=>{
     const entryFilePath = endpointData[1]
-    if (lambdaIdToPortMap[entryFilePath]) return resolve(lambdaIdToPortMap[entryFilePath].port)
+    const lambdaID = getLambdaID(entryFilePath)
+    if (lambdaIdToPortMap[lambdaID]) return resolve(lambdaIdToPortMap[lambdaID].port)
     const fork = require('child_process').fork;
     const program = path.resolve(path.join(__dirname, "./server-process.js"));
-    const parameters = [endpointData[0], endpointData[1], endpointData[2], process.env.SERVERADDRESS];
+    const parameters = [endpointData[0], endpointData[1], endpointData[2], process.env.SERVERADDRESS, lambdaID];
     const options = {
       stdio: [ 'pipe', 'pipe', 'pipe', 'ipc' ]
     };
@@ -96,18 +102,18 @@ function getLambdaServerPort(endpointData){
     // child server sends port via IPC
     child.on('message', message => {
       debug("got Port for", entryFilePath, message)
-      lambdaIdToPortMap[entryFilePath] = {port: parseInt(message), process: child}
-      resolve(lambdaIdToPortMap[entryFilePath].port)
+      lambdaIdToPortMap[lambdaID] = {port: parseInt(message), process: child}
+      resolve(lambdaIdToPortMap[lambdaID].port)
       //if (spinner) spinner.succeed(endpointData[0] + " ready")
     })
 
     child.on('error', (err) => {
       debug('Failed to start subprocess.', err);
-      delete lambdaIdToPortMap[entryFilePath]
+      delete lambdaIdToPortMap[lambdaID]
     });
     child.on('close', () => {
       debug('subprocess stopped.');
-      delete lambdaIdToPortMap[entryFilePath]
+      delete lambdaIdToPortMap[lambdaID]
     });
 
     child.stdout.on('data', (data) => {
@@ -147,16 +153,19 @@ module.exports = (buildPath)=>{
 
     // kill and restart servers 
     if (filesUpdated){
-      filesUpdated.forEach(file=>{
-        if (lambdaIdToPortMap[file]) {
-          debug("killing", file, lambdaIdToPortMap[file].port)
-          lambdaIdToPortMap[file].process.kill() 
+      filesUpdated.forEach(async file=>{
+        var lambdaID = getLambdaID(file)
+        if (lambdaIdToPortMap[lambdaID]) {
+          debug("killing", file, lambdaIdToPortMap[lambdaID].port)
+          lambdaIdToPortMap[lambdaID].process.kill() 
+          // delete their bundle if any
+          await del(path.join(process.env.BUILDPATH, lambdaID, "/**"), {force: true})
           // start the process again
           var endpointData = newManifest.lambdas.find((lambda)=>{
             return lambda[1]===file
           })
 
-          delete lambdaIdToPortMap[file]
+          delete lambdaIdToPortMap[lambdaID]
           debug("starting", endpointData)
           if (endpointData) getLambdaServerPort(endpointData)
         }
@@ -166,7 +175,7 @@ module.exports = (buildPath)=>{
       // kill all servers
       for (var file in lambdaIdToPortMap){
         //debug("killing", lambdaIdToPortMap[i].port)
-        lambdaIdToPortMap[file].process.kill()
+        lambdaIdToPortMap[getLambdaID(file)].process.kill()
       }
     }
   }

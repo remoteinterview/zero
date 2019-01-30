@@ -3,7 +3,6 @@
   "main": "index.js",
   "version": "0.0.1",
   "dependencies": {
-    "@zeit/fetch": "^3.0.3",
     "babel-core": "^6.26.0",
     "babel-plugin-add-module-exports": "^1.0.0",
     "babel-plugin-transform-runtime": "^6.23.0",
@@ -17,9 +16,7 @@
     "debug": "^4.1.1",
     "ignore-styles": "^5.0.1",
     "json-stringify-safe": "^5.0.1",
-    "konan": "^1.2.1",
-    "node-fetch": "^1.7.3",
-    "parcel-bundler": "^1.11.0",
+    "mkdirp": "^0.5.1",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
     "sassify": "^4.0.1",
