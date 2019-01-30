@@ -27,3 +27,31 @@ test('React With Helmet', () => {
     expect($('head title').text().trim()).toBe("Page Title");
   });
 });
+
+test('React With Custom Meta Charset', () => {
+  //expect.assertions(1);
+  return get("/react/withcustomcharset").then(data => {
+    const $ = cheerio.load(data)
+    expect( $('head [charset]').attr('charset') ).toBe("ISO-8859-1");
+  });
+});
+
+test('React With Default Meta Charset', () => {
+  //expect.assertions(1);
+  return get("/react/withhelmet").then(data => {
+    const $ = cheerio.load(data)
+    expect( $('head [charset]').attr('charset') ).toBe("utf-8");
+  });
+});
+
+
+test('React With getInitialProps', () => {
+  //expect.assertions(1);
+  return get("/react/withInitialProps").then(data => {
+    const $ = cheerio.load(data)
+    expect($('body').text().trim()).toBe("2,4,6");
+  });
+});
+
+
+// TODO: test for getInitialProps and fetch() and props merging

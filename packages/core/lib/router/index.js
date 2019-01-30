@@ -26,10 +26,14 @@ async function proxyLambdaRequest(req, res, endpointData){
   if (!lambdaIdToPortMap[endpointData[1]]){
     spinner.start("Building " + endpointData[0])
   }
+  if (!process.env.SERVERADDRESS){
+    process.env.SERVERADDRESS = "http://"+req.headers.host
+  }
+  var serverAddress = process.env.SERVERADDRESS
 
-  const port = await getLambdaServerPort(endpointData, spinner)
+  const port = await getLambdaServerPort(endpointData)
   debug("req", endpointData[1], port)
-  var serverAddress = process.env.SERVERADDRESS || ("http://"+req.headers.host)
+  
   //debug("server address", serverAddress)
   var lambdaAddress = "http://127.0.0.1:"+port
   const proxyRes = await fetch(lambdaAddress + req.url, {

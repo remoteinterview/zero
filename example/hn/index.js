@@ -1,16 +1,20 @@
 import React, { Component } from 'react'
 import 'bootstrap/dist/css/bootstrap.css';
 import "./style.scss"
-
+import { Helmet } from 'react-helmet';
 class ClassTypeComponent extends Component {
   static async getInitialProps({ req }){
     var stories = await fetch("/hn/api/stories").then((resp) => resp.json())
-    return {data: stories, user: req.user}
+    return {data: stories}
   }
 
   render() {
+    console.log("props", this.props.user)
     return (
       <div>
+      <Helmet>
+        <meta charSet="utf-8" />
+      </Helmet>
       <div className="container-fluid">
         <div className="header-section">
           <header>

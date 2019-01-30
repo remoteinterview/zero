@@ -15,3 +15,10 @@ test('Login and redirect', () => {
     expect(data.id).toBe('asad');
   });
 });
+
+test('Fetch (relative path)', () => {
+  // expect.assertions(1);
+  return get("/api/fetch", {jar: true, json: true}).then(data => {
+    expect(data.evens[0]).toBe(2);
+  });
+});

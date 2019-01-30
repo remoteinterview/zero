@@ -7,7 +7,7 @@ const path = require("path"),
       //handlers = require("./handlers"),
       Youch = require('youch'),
       express = require('express')
-const FETCH = require('@zeit/fetch')()
+const FETCH = require('node-fetch')
 const debug = require('debug')('core')
 
 const GLOBALS = require("./globals")
@@ -40,7 +40,7 @@ if (!process.argv[5]) throw new Error("Server address not provided.")
 
 var BASEPATH = process.argv[2]
 var SERVERADDRESS = process.argv[5]
-
+debug("SERVER ADDRESS", SERVERADDRESS, process.argv[5], !!process.argv[5])
 // get handler
 //const handler = handlers[process.argv[4]]
 startServer(process.argv[3], process.argv[4]/*, handler*/).then((port)=>{
@@ -56,6 +56,7 @@ function generateFetch(req){
       // TODO: figure out how to forward cookies (idea: run getInitialProps in a VM with modified global.fetch that has 'req' access and thus to cookies too)
       uri = url.resolve(SERVERADDRESS, uri)
     }
+    debug("fething", uri, options, SERVERADDRESS)
     return FETCH(uri, options)
   }
 }

@@ -17,6 +17,11 @@ const {
   renderToString
 } = require('react-dom/server')
 
+// we use client's helmet instance to avoid two Helmet instances to be loaded.
+// see: https://github.com/nfl/react-helmet/issues/125
+// and https://stackoverflow.com/questions/45822925/react-helmet-outputting-empty-strings-on-server-side
+const {Helmet} = require( require('path').join(process.env.BUILDPATH, "/node_modules/react-helmet") )
+
 const jsonStringify = require('json-stringify-safe')
 const bundle = require('./bundle')
 
@@ -27,12 +32,14 @@ async function generateComponent(req, res, componentPath){
   var App = require(componentPath)
   App = (App && App.default)?App.default : App // cater export default class...
   var props = {user: req.user, url: {query: req.query}}
+  debug("App", typeof App.getInitialProps === "function")
   if (App && App.getInitialProps && typeof App.getInitialProps === "function"){
     try{
-      props = await App.getInitialProps({req, ...props}) || props
+      var newProps = await App.getInitialProps({req, ...props}) || {}
+      props = {...props, ...newProps}
     }
     catch(e){
-      debug(e)
+      debug("ERROR::getInitialProps", e)
     }
   }
   
@@ -47,17 +54,18 @@ async function generateComponent(req, res, componentPath){
     : React.createElement(App, props)
 
   const html = renderToString(el)
-
-  // we use client's helmet instance to avoid two Helmet instances to be loaded.
-  // see: https://github.com/nfl/react-helmet/issues/125
-  // and https://stackoverflow.com/questions/45822925/react-helmet-outputting-empty-strings-on-server-side
-  const {Helmet} = require( require('path').join(process.env.BUILDPATH, "/node_modules/react-helmet") )
   const helmet = Helmet.renderStatic()
-  debug("helmet", helmet.title.toString())
+
+  // determine if the user has provided with <meta charset />, 
+  // if not, add a default tag with utf8
+  var hasCharset = helmet.meta.toComponent().find((meta)=>{
+    return meta.props && (meta.props['charSet'] || meta.props['charset'])
+  })
   const json = jsonStringify(props)
   var markup = `<!DOCTYPE html>
   <html ${helmet.htmlAttributes.toString()}>
     <head>
+      ${(!hasCharset?'<meta charset="utf-8"/>':'')}
       ${helmet.title.toString()}
       ${helmet.meta.toString()}
       ${helmet.link.toString()}
@@ -80,5 +88,14 @@ const isAsync = fn => fn.constructor.name === 'AsyncFunction'
 const createAsyncElement = async (Component, props) =>
   await Component(props)
 
+
+
+// function wrapInHelmet(el){
+//   var helmetEl = React.createElement(Helmet, {}, [
+//     React.createElement("meta", {charset: "utf-8"})
+//   ])
+
+//   return React.createElement(React.Fragment, {}, [helmetEl, el])
+// }
 
 module.exports = generateComponent
