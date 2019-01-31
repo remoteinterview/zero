@@ -53,5 +53,4 @@ test('React With getInitialProps', () => {
   });
 });
 
-
-// TODO: test for getInitialProps and fetch() and props merging
+// TODO: test scss/css imports

@@ -4,6 +4,7 @@
   "version": "0.0.1",
   "dependencies": {
     "babel-core": "^6.26.0",
+    "babel-loader": "^8.0.5",
     "babel-plugin-add-module-exports": "^1.0.0",
     "babel-plugin-transform-runtime": "^6.23.0",
     "babel-polyfill": "^6.26.0",
@@ -11,15 +12,13 @@
     "babel-preset-react": "^6.24.1",
     "babel-preset-stage-0": "^6.24.1",
     "babel-register": "^6.26.0",
-    "browserify": "^14.5.0",
-    "browserify-css": "^0.14.0",
     "debug": "^4.1.1",
     "ignore-styles": "^5.0.1",
     "json-stringify-safe": "^5.0.1",
+    "mini-css-extract-plugin": "^0.5.0",
     "mkdirp": "^0.5.1",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
-    "sassify": "^4.0.1",
-    "uglify-es": "^3.2.2"
+    "webpack": "^4.29.0"
   }
 }

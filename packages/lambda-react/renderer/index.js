@@ -46,11 +46,14 @@ async function generateComponent(req, res, componentPath, bundlePath){
   
   if (!bundleInfo){
     if (!fs.existsSync(fullBundlePath)){
-      var bundleFiles = await bundle(componentPath)
-      debug("bundle size", bundleFiles.js.length/1024)
       mkdirp.sync(fullBundlePath)
-      if (bundleFiles.js) fs.writeFileSync(path.join(fullBundlePath,"/bundle.js"), bundleFiles.js, 'utf8')
-      if (bundleFiles.css) fs.writeFileSync(path.join(fullBundlePath,"/bundle.css"), bundleFiles.css, 'utf8')
+      const {err, stats} = await bundle(componentPath, fullBundlePath)
+      console.log(err)
+      // var bundleFiles = await bundle(componentPath, fullBundlePath)
+      // debug("bundle size", bundleFiles.js.length/1024)
+      
+      // if (bundleFiles.js) fs.writeFileSync(path.join(fullBundlePath,"/bundle.js"), bundleFiles.js, 'utf8')
+      // if (bundleFiles.css) fs.writeFileSync(path.join(fullBundlePath,"/bundle.css"), bundleFiles.css, 'utf8')
     }
 
     bundleInfo = {
