@@ -3,23 +3,21 @@ const path = require('path')
 const debug = require('debug')('react')
 const babel = require('babel-core')
 const webpack = require('webpack');
+const mdxTransform = require("@mdx-js/mdx").sync
 const webpackConfig = require("./webpack.config")
+const babelConfig = require("./babel.config")
 const crypto = require("crypto");
 function sha1(data) {
     return crypto.createHash("sha1").update(data, "binary").digest("hex");
 }
 
-const parse = (filename, raw) => babel.transform(raw, {
-  filename,
-  presets: [
-    require('babel-preset-env'),
-    require('babel-preset-stage-0'),
-    require('babel-preset-react')
-  ],
-  compact: true,
-  minified: process.env.NODE_ENV==="production",
-  comments: false,
-}).code
+const parse = (filename, raw) => {
+  if (path.extname(filename)===".mdx" || path.extname(filename)===".md"){
+    raw = `import { MDXTag } from "@mdx-js/tag"; ${mdxTransform(raw)}`
+  }
+
+  return babel.transform(raw, {...babelConfig, filename}).code
+}
 
 const bundle = async (filename, bundlePath) => {
   

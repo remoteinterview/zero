@@ -1,14 +1,10 @@
 require("babel-polyfill")
-require('babel-register')({
-  
-  presets: [
-    'babel-preset-stage-0',
-    'babel-preset-react',
-    'babel-preset-env',
-  ].map(require.resolve),
-  plugins: ['babel-plugin-add-module-exports'].map(require.resolve)
-})
+require("./mdx-override") // convert mdx to jsx on import()
+const babelConfig = require("./babel.config")
+require('babel-register')(babelConfig)
 require('ignore-styles') // ignore css/scss imports on server side.
+
+
 const debug = require('debug')('react')
 const fs = require('fs')
 const path = require('path')
@@ -31,6 +27,7 @@ var bundleInfo = false
 async function generateComponent(req, res, componentPath, bundlePath){
   var fullBundlePath = path.join(process.env.BUILDPATH, bundlePath)
   var App = require(componentPath)
+  var meta = App.meta || {}
   App = (App && App.default)?App.default : App // cater export default class...
   var props = {user: req.user, url: {query: req.query}}
   debug("App", typeof App.getInitialProps === "function")
@@ -77,11 +74,14 @@ async function generateComponent(req, res, componentPath, bundlePath){
     return meta.props && (meta.props['charSet'] || meta.props['charset'])
   })
   const json = jsonStringify(props)
+  const finalMetaTags = {
+    title: (helmet.title.toComponent()[0].props.children.length>0)? helmet.title.toString() : (meta.title?`<title>${meta.title}</title>`:"")
+  }
   var markup = `<!DOCTYPE html>
   <html ${helmet.htmlAttributes.toString()}>
     <head>
       ${(!hasCharset?'<meta charset="utf-8"/>':'')}
-      ${helmet.title.toString()}
+      ${finalMetaTags.title}
       ${helmet.meta.toString()}
       ${helmet.link.toString()}
       ${(bundleInfo.css?`<link rel="stylesheet" href="/${bundleInfo.css}">`:"")}
@@ -90,7 +90,6 @@ async function generateComponent(req, res, componentPath, bundlePath){
       <div id="_react_root">${html}</div>
       <script id='initial_props' type='application/json'>${json}</script>
       <script src="/${bundleInfo.js}"></script>
-      
     </body>
   </html>`
 

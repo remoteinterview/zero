@@ -1,5 +1,5 @@
 const glob = require("glob")
-const konan = require('konan')
+const konan = require('./getImports')
 const fs = require("fs")
 const path = require('path')
 const debug = require('debug')('core')
@@ -23,6 +23,7 @@ async function getFiles(baseSrc) {
 
 async function buildManifest(buildPath, oldManifest, fileFilter) {
   //basePath = basePath.endsWith("/") ? basePath : (basePath + "/")
+  
   buildPath = buildPath.endsWith("/") ? buildPath : (buildPath + "/")
   var date = Date.now()
   var files = await getFiles(buildPath)
@@ -30,6 +31,7 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
 
   //debug(basePath, files)
   var json = await Promise.all(files.map(async (file, i) => {
+    const extension = path.extname(file)
 
     // if old manifest is given and a file filter is given, we skip those not in filter
     if (oldManifest && fileFilter && fileFilter.length>0){
@@ -48,7 +50,7 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
     if (ignore) return false
 
     // check if js file is a js lambda function
-    if (file.endsWith(".js")) {
+    if (extension === ".js") {
 
       var statusCode = await spawnAsync(validators["js"], [file])
       debug(file, statusCode, 'js')
@@ -58,7 +60,9 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
     }
 
     // check if a react component
-    if (file.endsWith(".js") || file.endsWith(".jsx")) {
+    if (extension ===".js" || extension ===".jsx"
+    // md/mdx is also rendered by react lambda
+        || extension === ".mdx" || extension === ".md") {
       var statusCode = await spawnAsync(validators["react"], [file])
       debug(file, statusCode, 'react')
       if (statusCode === 0) {
@@ -67,16 +71,16 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
     }
 
     // PHP Lambda
-    if (file.endsWith(".php")) {
+    if (extension ===".php") {
       return [file, "lambda:php"]
     }
 
     // Python Lambda
-    if (file.endsWith(".py")) {
+    if (extension ===".py") {
       return [file, "lambda:py"]
     }
 
-    if (file.endsWith(".htm") || file.endsWith(".html")) {
+    if (extension ===".htm" || extension ===".html") {
       return [file, 'static']
     }
     // catch all, static / cdn hosting
@@ -127,12 +131,14 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
 // recursively generate list of (relative) files imported by given file
 function dependancyTree(buildPath, file){
   buildPath = buildPath || process.cwd()
+  const extension = path.extname(file)
   var deps = []
   if (!fs.existsSync(file, 'utf8')) return deps
 
   // js based files
-  if (file.endsWith(".js") || file.endsWith(".jsx")){
-    var imports = konan(fs.readFileSync(file, 'utf8'))
+  if (extension === ".js" || extension === ".jsx"
+      || extension === ".md" || extension === ".mdx"){
+    var imports = konan(file, fs.readFileSync(file, 'utf8'))
     // only strings for now.
     imports.strings.forEach((imp)=> {
       // skip package imports

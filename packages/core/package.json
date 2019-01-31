@@ -12,6 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@mdx-js/mdx": "^0.16.8",
     "@zeit/fetch": "^3.0.3",
     "body-parser": "^1.18.3",
     "chokidar": "^2.0.4",

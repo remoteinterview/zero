@@ -16,11 +16,17 @@ module.exports = {
     rules: [
       // BABEL
       {
-        test: /\.js$/,
+        test: /\.(js|jsx)$/,
         loader: 'babel-loader',
         exclude: /(node_modules)/,
         options: {
-          compact: true
+          compact: true,
+          presets: [
+            'babel-preset-stage-0',
+              'babel-preset-react',
+              'babel-preset-env',
+            ].map(require.resolve),
+          plugins: ['babel-plugin-add-module-exports', 'babel-plugin-react-require'].map(require.resolve)
         }
       },
 
@@ -65,6 +71,12 @@ module.exports = {
         options: {
           name: '[path][name].[ext]'
         }
+      },
+
+      // MARKDOWN
+      {
+        test: /\.(md|mdx)$/,
+        use: ['babel-loader', '@mdx-js/loader']
       }
     ]
   }

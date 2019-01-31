@@ -1,4 +1,4 @@
-const konan = require('konan')
+const konan = require('./getImports')
 const fs = require("fs")
 var glob = require("glob")
 //var { spawnSync } = require("child_process")
@@ -26,13 +26,15 @@ function installPackages(buildPath, filterFiles){
 
     // build a list of packages required by all js files
     files.forEach((file)=>{
+      const extension = path.extname(file)
       if (filterFiles && filterFiles.length>0 && filterFiles.indexOf(file)===-1) {
         debug("konan skip", file)
         return
       }
 
-      if (file.endsWith(".js") || file.endsWith(".jsx")){
-        var imports = konan(fs.readFileSync(file, 'utf8'))
+      if (extension === ".js" || extension === ".jsx"
+      || extension === ".md" || extension === ".mdx"){
+        var imports = konan(file, fs.readFileSync(file, 'utf8'))
         // only strings for now.
         imports.strings.forEach((imp)=> {
           // trim submodule imports and install main package (ie. 'bootstrap' for: import 'bootstrap/dist/css/bootstrap.min.css')
@@ -132,6 +134,9 @@ function writePackageJSON(buildPath, deps){
     "style-loader": "0.23.1",
     "url-loader": "1.1.2",
     "mini-css-extract-plugin": "^0.5.0",
+
+    "@mdx-js/tag": "0.16.8",
+    "@mdx-js/loader": "^0.16.8",
   }
 
   if (pkg.dependencies){
