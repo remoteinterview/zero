@@ -53,4 +53,10 @@ test('React With getInitialProps', () => {
   });
 });
 
-// TODO: test scss/css imports
+test('React With SCSS Style', () => {
+  //expect.assertions(1);
+  return get("/react/withStyle").then(data => {
+    const $ = cheerio.load(data)
+    expect($('head [rel="stylesheet"]').attr('href').endsWith("bundle.css")).toBe(true);
+  });
+});

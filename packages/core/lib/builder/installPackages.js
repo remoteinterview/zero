@@ -121,13 +121,7 @@ function writePackageJSON(buildPath, deps){
     "react": "*",
     "react-dom": "*",
     "babel-core": "^6.26.0",
-    // "babel-plugin-add-module-exports": "^1.0.0",
     "babel-polyfill": "^6.26.0",
-    // "babel-preset-env": "^1.6.1",
-    // "babel-preset-react": "^6.24.1",
-    // "babel-preset-stage-0": "^6.24.1",
-    // "babel-plugin-transform-runtime": "^6.23.0",
-    // "babel-register": "^6.26.0",
     "babel-loader": "^7.1.5",
     "react-helmet": "^5.2.0",
     
