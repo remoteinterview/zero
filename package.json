@@ -3,8 +3,8 @@
   "private": true,
   "scripts": {
     "bootstrap": "lerna bootstrap",
-    "example": "cd example && zero",
-    "exampletest": "cd test/files && zero",
+    "example": "zero example",
+    "exampletest": "zero test/www",
     "test": "jest --verbose false"
   },
   "devDependencies": {

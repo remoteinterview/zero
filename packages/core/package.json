@@ -1,6 +1,6 @@
 {
-  "name": "zerojs",
-  "version": "0.0.1",
+  "name": "zeroserver",
+  "version": "0.0.2",
   "description": "",
   "main": "app.js",
   "scripts": {
@@ -37,8 +37,9 @@
     "rimraf": "^2.6.2",
     "session-file-store": "^1.2.0",
     "youch": "^2.0.10",
-    "zero-lambda-js": "0.0.1",
-    "zero-lambda-react": "0.0.1",
-    "zero-static": "0.0.1"
-  }
+    "zero-lambda-js": "^0.0.2",
+    "zero-lambda-react": "^0.0.2",
+    "zero-static": "^0.0.2"
+  },
+  "gitHead": "a834e7be9877ee36dea013b7c52a7e1dd4f6339c"
 }

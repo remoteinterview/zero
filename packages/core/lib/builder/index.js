@@ -1,6 +1,6 @@
 const path = require("path");
 const debug = require('debug')('core')
-
+const fs = require("fs")
 const buildManifest = require('./buildManifest');
 const prepareBuildFolder = require("./clone")
 const installPackages = require("./installPackages")
@@ -49,14 +49,36 @@ module.exports = async function build(sourcePath, buildPath, onManifest){
     const {manifest, forbiddenFiles} = await updateManifest(buildPath, currentManifest, filesUpdated)
     currentManifest = manifest
     //process.stdout.write('\x1b[2J'); // clear terminal
-    spinner.succeed("Server running")
+    var serverAddress = process.env.SERVERADDRESS || ("http://localhost:"+process.env.PORT)
+
+    // check if directory is empty on first run
+    if (event==="ready"){
+      fs.readdir(sourcePath, function(err, files) {
+          if (err) {
+            // some sort of error
+          } else {
+            if (!files.length) {
+                // directory appears to be empty
+                spinner.stopAndPersist({symbol: "⚠️ ", text:"It looks like the given directory is empty. Add a file (like index.js) and see what happens!"})
+            }
+            else{
+              spinner.succeed("Server running on " + serverAddress)
+            }
+          }
+      });
+    }
+    else{
+      spinner.succeed("Server running on " + serverAddress)
+    }
+    
+    
     onManifest(manifest, forbiddenFiles, filesUpdated)
   })
 }
 
 
 async function updateManifest(buildPath, currentManifest, updatedFiles){
-  spinner.start("Installing packages")
+  spinner.start("Updating packages")
   await installPackages(buildPath, updatedFiles)
   spinner.start("Generating manifest")
   const manifest = await buildManifest(buildPath, currentManifest, updatedFiles)

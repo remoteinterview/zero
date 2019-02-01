@@ -1,7 +1,7 @@
 {
   "name": "zero-lambda-react",
   "main": "index.js",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "dependencies": {
     "@babel/core": "^7.2.2",
     "@babel/polyfill": "^7.2.5",
@@ -36,5 +36,6 @@
     "style-loader": "^0.23.1",
     "url-loader": "^1.1.2",
     "webpack": "^4.29.0"
-  }
+  },
+  "gitHead": "a834e7be9877ee36dea013b7c52a7e1dd4f6339c"
 }

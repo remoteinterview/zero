@@ -1,8 +1,9 @@
 {
   "name": "zero-static",
   "main": "index.js",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "dependencies": {
     "serve-handler": "^5.0.7"
-  }
+  },
+  "gitHead": "a834e7be9877ee36dea013b7c52a7e1dd4f6339c"
 }

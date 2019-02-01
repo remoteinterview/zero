@@ -1,8 +1,9 @@
 {
   "name": "zero-lambda-js",
   "main": "index.js",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "dependencies": {
     "node-fetch": "^2.3.0"
-  }
+  },
+  "gitHead": "a834e7be9877ee36dea013b7c52a7e1dd4f6339c"
 }

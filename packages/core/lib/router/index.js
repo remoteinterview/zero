@@ -12,6 +12,7 @@ const express = require('express')
 const matchPath = require("./matchPath")
 const staticHandler = require("zero-static").handler
 const path = require('path')
+const url = require("url")
 const fetch = require("node-fetch")
 const debug = require('debug')('core')
 const ora = require('ora');
@@ -29,7 +30,7 @@ async function proxyLambdaRequest(req, res, endpointData){
   })
   var lambdaID = getLambdaID(endpointData[1])
   if (!lambdaIdToPortMap[lambdaID]){
-    spinner.start("Building " + endpointData[0])
+    spinner.start("Building " + url.resolve("/", endpointData[0]))
   }
   if (!process.env.SERVERADDRESS){
     process.env.SERVERADDRESS = "http://"+req.headers.host
@@ -51,7 +52,7 @@ async function proxyLambdaRequest(req, res, endpointData){
   })
 
   if (spinner.isSpinning){
-    spinner.succeed(endpointData[0] + " ready")
+    spinner.succeed(url.resolve("/", endpointData[0]) + " ready")
   }
 
   // Forward status code
@@ -78,11 +79,14 @@ async function proxyLambdaRequest(req, res, endpointData){
   req.on('abort', () => {
     proxyRes.body.destroy()
   })
-
-  // req.on('end', ()=>{
-  //   debug("closed")
-  // })
 }
+
+// if server exits, kill the child processes too.
+process.on('exit', () => {
+  for (var id in lambdaIdToPortMap){
+    lambdaIdToPortMap[id].process.kill()
+  }
+})
 
 
 function getLambdaServerPort(endpointData){
