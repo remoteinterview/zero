@@ -4,17 +4,16 @@
 // only exits normally if a valid react component is present in the given file.
 // we are doing this in a separate process to avoid crashing main builder.
 
-require('babel-register')({
-  presets: [
-    'babel-preset-react'
-  ].map(require.resolve)
-})
+// require("@babel/polyfill")
+require("./renderer/mdx-override") // convert mdx to jsx on import()
+const babelConfig = require("./renderer/babel.config")
+require('@babel/register')(babelConfig)
 
 const React = require('react')
 const {
   renderToString
 } = require('react-dom/server')
-const jsonStringify = require('json-stringify-safe')
+
 const props = {}
 const isAsync = fn => fn.constructor.name === 'AsyncFunction'
 const createAsyncElement = async (Component, props) =>

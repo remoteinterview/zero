@@ -3,6 +3,11 @@
   "main": "index.js",
   "version": "0.0.1",
   "dependencies": {
+    "@babel/core": "^7.2.2",
+    "@babel/polyfill": "^7.2.5",
+    "@babel/preset-env": "^7.3.1",
+    "@babel/preset-react": "^7.0.0",
+    "@babel/register": "^7.0.0",
     "@mdx-js/loader": "^0.16.8",
     "@mdx-js/mdx": "^0.16.8",
     "@mdx-js/tag": "^0.16.8",
@@ -16,14 +21,20 @@
     "babel-preset-react": "^6.24.1",
     "babel-preset-stage-0": "^6.24.1",
     "babel-register": "^6.26.0",
+    "css-loader": "^2.1.0",
     "debug": "^4.1.1",
+    "file-loader": "^3.0.1",
     "ignore-styles": "^5.0.1",
     "json-stringify-safe": "^5.0.1",
     "mini-css-extract-plugin": "^0.5.0",
     "mkdirp": "^0.5.1",
+    "node-sass": "^4.11.0",
     "pirates": "^4.0.0",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
+    "sass-loader": "^7.1.0",
+    "style-loader": "^0.23.1",
+    "url-loader": "^1.1.2",
     "webpack": "^4.29.0"
   }
 }

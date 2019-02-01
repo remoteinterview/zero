@@ -13,9 +13,5 @@
     "lerna": "^3.4.3",
     "request-promise-native": "^1.0.5",
     "wait-port": "^0.2.2"
-  },
-  "dependencies": {
-    "react": "^16.6.3",
-    "underscore": "^1.9.1"
   }
 }

@@ -60,3 +60,5 @@ test('React With SCSS Style', () => {
     expect($('head [rel="stylesheet"]').attr('href').endsWith("bundle.css")).toBe(true);
   });
 });
+
+// TODO: test webpack output

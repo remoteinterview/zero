@@ -122,21 +122,25 @@ function writePackageJSON(buildPath, deps){
   var depsJson = {
     "react": "*",
     "react-dom": "*",
-    "babel-core": "^6.26.0",
-    "babel-polyfill": "^6.26.0",
-    "babel-loader": "^7.1.5",
+    // "babel-core": "^6.26.0",
+    // "babel-polyfill": "^6.26.0",
+    //"babel-loader": "^7.1.5",
     "react-helmet": "^5.2.0",
+
+    // "@babel/core": "^7.2.2",
+    "@babel/polyfill": "^7.2.5",
+    // "babel-loader": "^8.0.5",
     
-    "css-loader": "2.1.0",
-    "file-loader": "3.0.1",
-    "node-sass": "4.11.0",
-    "sass-loader": "7.1.0",
-    "style-loader": "0.23.1",
-    "url-loader": "1.1.2",
-    "mini-css-extract-plugin": "^0.5.0",
+    // "css-loader": "2.1.0",
+    // "file-loader": "3.0.1",
+    // "node-sass": "4.11.0",
+    // "sass-loader": "7.1.0",
+    // "style-loader": "0.23.1",
+    // "url-loader": "1.1.2",
+    // "mini-css-extract-plugin": "^0.5.0",
 
     "@mdx-js/tag": "0.16.8",
-    "@mdx-js/loader": "^0.16.8",
+    // "@mdx-js/loader": "^0.16.8",
   }
 
   if (pkg.dependencies){

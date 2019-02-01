@@ -4,7 +4,7 @@
 
 const overrideRequire = require("pirates").addHook
 const mdxTransform = require("@mdx-js/mdx").sync
-const babelTransform = require("babel-core").transform
+const babelTransform = require("@babel/core").transform
 const babelConfig = require("./babel.config")
 
 const transform = (code, filename) => {
@@ -17,7 +17,6 @@ const transform = (code, filename) => {
   `
 
   let result = babelTransform(jsx, {...babelConfig, filename})
-  console.log("MDXOUT", jsx)
   return result.code
 }
 

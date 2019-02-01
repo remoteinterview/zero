@@ -1,9 +1,8 @@
-require("babel-polyfill")
+require("@babel/polyfill")
 require("./mdx-override") // convert mdx to jsx on import()
 const babelConfig = require("./babel.config")
-require('babel-register')(babelConfig)
+require('@babel/register')(babelConfig)
 require('ignore-styles') // ignore css/scss imports on server side.
-
 
 const debug = require('debug')('react')
 const fs = require('fs')
@@ -44,8 +43,7 @@ async function generateComponent(req, res, componentPath, bundlePath){
   if (!bundleInfo){
     if (!fs.existsSync(fullBundlePath)){
       mkdirp.sync(fullBundlePath)
-      const {err, stats} = await bundle(componentPath, fullBundlePath)
-      console.log(err)
+      const stats = await bundle(componentPath, fullBundlePath)
       // var bundleFiles = await bundle(componentPath, fullBundlePath)
       // debug("bundle size", bundleFiles.js.length/1024)
       

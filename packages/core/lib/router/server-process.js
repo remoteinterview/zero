@@ -48,7 +48,8 @@ debug("Server Address", SERVERADDRESS, "BundlePath", BUNDLEPATH)
 // get handler
 //const handler = handlers[process.argv[4]]
 startServer(process.argv[3], process.argv[4]/*, handler*/).then((port)=>{
-  process.send(port)
+  if (process.send) process.send(port)
+  else console.log("PORT", port)
   // log("port sent")
 })
 

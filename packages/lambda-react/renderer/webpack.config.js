@@ -1,8 +1,13 @@
+const path = require("path")
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const IS_DEV = (process.env.NODE_ENV !== 'production');
-
+const babelConfig = require("./babel.config")
+const babelLoader = {loader: 'babel-loader', options: babelConfig}
 module.exports = {
-  context: process.env.BUILDPATH,
+  mode: IS_DEV ? "development" : "production",
+  resolveLoader: {
+    modules: [path.join(__dirname, "../node_modules")]
+  },
   plugins: [
     new MiniCssExtractPlugin({
       // Options similar to the same options in webpackOptions.output
@@ -17,17 +22,10 @@ module.exports = {
       // BABEL
       {
         test: /\.(js|jsx)$/,
-        loader: 'babel-loader',
+        use: [
+          babelLoader
+        ],
         exclude: /(node_modules)/,
-        options: {
-          compact: true,
-          presets: [
-            'babel-preset-stage-0',
-              'babel-preset-react',
-              'babel-preset-env',
-            ].map(require.resolve),
-          plugins: ['babel-plugin-add-module-exports', 'babel-plugin-react-require'].map(require.resolve)
-        }
       },
 
       // STYLES
@@ -76,7 +74,9 @@ module.exports = {
       // MARKDOWN
       {
         test: /\.(md|mdx)$/,
-        use: ['babel-loader', '@mdx-js/loader']
+        use: [
+          babelLoader, 
+          '@mdx-js/loader']
       }
     ]
   }

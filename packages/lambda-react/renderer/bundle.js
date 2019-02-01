@@ -1,7 +1,7 @@
 const fs = require('fs')
 const path = require('path')
 const debug = require('debug')('react')
-const babel = require('babel-core')
+const babel = require('@babel/core')
 const webpack = require('webpack');
 const mdxTransform = require("@mdx-js/mdx").sync
 const webpackConfig = require("./webpack.config")
@@ -33,22 +33,25 @@ const bundle = async (filename, bundlePath) => {
     path: bundlePath,
     filename: "bundle.js"
   }
-  const {err, stats} = await webpackAsync(webpackConfig)
+  const stats = await webpackAsync(webpackConfig)
   fs.unlinkSync(entryFileName)
-  return {err, stats}
+  return stats
 }
 
 function webpackAsync(config){
   return new Promise((resolve, reject)=>{
     webpack(config, (err, stats) => {
-      debug("webpack stats", stats, err)
-      if (err || stats.hasErrors()) {
-        // Handle errors here
-        resolve({err, stats})
+      if (err) {
+        return reject(err);
       }
-      else{
-        resolve({stats})
+      const info = stats.toJson();
+      if (stats.hasErrors()) {
+        return reject(new Error(info.errors));
       }
+      if (stats.hasWarnings()) {
+        console.warn(info.warnings);
+      }
+      resolve(stats)
     });
   })
 }
@@ -64,7 +67,7 @@ const createEntry = component => {
 component = "var ZeroAppContainer;" + replaceAll(component, "module.exports", "ZeroAppContainer")
 component = replaceAll(component, "exports.default", "ZeroAppContainer")
 return(`
-require("babel-polyfill");
+require("@babel/polyfill");
 var React = require("react")
 ${component}
 const { hydrate } = require('react-dom')
