@@ -3,10 +3,15 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const IS_DEV = (process.env.NODE_ENV !== 'production');
 const babelConfig = require("./babel.config")
 const babelLoader = {loader: 'babel-loader', options: babelConfig}
+
+// Support for NODE_PATH
+const nodePathList = (process.env.NODE_PATH || '').split(process.platform === 'win32' ? ';' : ':').filter((p) => !!p)
+
 module.exports = {
   mode: IS_DEV ? "development" : "production",
   resolveLoader: {
-    modules: [path.join(__dirname, "../node_modules")]
+    //modules: [path.join(__dirname, "../node_modules"), ...nodePathList]
+    modules: [path.join(__dirname, "webpack-loaders")]
   },
   plugins: [
     new MiniCssExtractPlugin({
@@ -76,7 +81,7 @@ module.exports = {
         test: /\.(md|mdx)$/,
         use: [
           babelLoader, 
-          '@mdx-js/loader']
+          'mdx-js-loader']
       }
     ]
   }
