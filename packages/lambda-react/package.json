@@ -1,7 +1,7 @@
 {
   "name": "zero-lambda-react",
   "main": "index.js",
-  "version": "0.0.2",
+  "version": "0.0.4-alpha.0",
   "dependencies": {
     "@babel/core": "^7.2.2",
     "@babel/polyfill": "^7.2.5",
