@@ -51,7 +51,6 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
 
     // check if js file is a js lambda function
     if (extension === ".js") {
-
       var statusCode = await spawnAsync(validators["js"], [file])
       debug(file, statusCode, 'js')
       if (statusCode === 0) {
@@ -60,7 +59,7 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
     }
 
     // check if a react component
-    if (extension ===".js" || extension ===".jsx"
+    if (/*extension ===".js" ||*/ extension ===".jsx"
     // md/mdx is also rendered by react lambda
         || extension === ".mdx" || extension === ".md") {
       var statusCode = await spawnAsync(validators["react"], [file])
