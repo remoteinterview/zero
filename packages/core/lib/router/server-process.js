@@ -101,7 +101,8 @@ function startServer(entryFile, lambdaType/*, handler*/){
           const { app, req, res, lambdaType, file, fetch, renderError, BUNDLEPATH } = __Zero;
           global.fetch = fetch
           global.app = app
-          var handler = require("./handlers")[lambdaType]
+          var handlerModule = require("./handlers")[lambdaType]
+          var handler = require(handlerModule).handler
           process.on('unhandledRejection', (reason, p) => {
             renderError(reason, req, res)
           })

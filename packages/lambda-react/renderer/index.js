@@ -25,7 +25,12 @@ var bundleInfo = false
 
 async function generateComponent(req, res, componentPath, bundlePath){
   var fullBundlePath = path.join(process.env.BUILDPATH, bundlePath)
+  try{
   var App = require(componentPath)
+  }
+  catch(e){
+    console.log(e)
+  }
   var meta = App.meta || {}
   App = (App && App.default)?App.default : App // cater export default class...
   var props = {user: req.user, url: {query: req.query}}

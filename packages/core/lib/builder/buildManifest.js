@@ -7,10 +7,10 @@ const debug = require('debug')('core')
 //var { spawnSync } = require("child_process")
 var spawnAsync = require("./spawn-async")
 
-var validators = {
-  js: require.resolve("zero-lambda-js/validate.js"),
-  react: require.resolve("zero-lambda-react/validate.js")
-}
+// var validators = {
+//   js: require.resolve("zero-lambda-js/validate.js"),
+//   react: require.resolve("zero-lambda-react/validate.js")
+// }
 
 async function getFiles(baseSrc) {
   return new Promise((resolve, reject)=>{
@@ -51,22 +51,24 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
 
     // check if js file is a js lambda function
     if (extension === ".js") {
-      var statusCode = await spawnAsync(validators["js"], [file])
-      debug(file, statusCode, 'js')
-      if (statusCode === 0) {
-        return [file, 'lambda:js']
-      }
+      return [file, "lambda:js"]
+      // var statusCode = await spawnAsync(validators["js"], [file])
+      // debug(file, statusCode, 'js')
+      // if (statusCode === 0) {
+      //   return [file, 'lambda:js']
+      // }
     }
 
     // check if a react component
     if (/*extension ===".js" ||*/ extension ===".jsx"
     // md/mdx is also rendered by react lambda
         || extension === ".mdx" || extension === ".md") {
-      var statusCode = await spawnAsync(validators["react"], [file])
-      debug(file, statusCode, 'react')
-      if (statusCode === 0) {
-        return [file, 'lambda:react']
-      }
+          return [file, "lambda:react"]
+      // var statusCode = await spawnAsync(validators["react"], [file])
+      // debug(file, statusCode, 'react')
+      // if (statusCode === 0) {
+      //   return [file, 'lambda:react']
+      // }
     }
 
     // PHP Lambda
@@ -80,7 +82,7 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
     }
 
     if (extension ===".htm" || extension ===".html") {
-      return [file, 'static']
+      return [file, 'lambda:html']
     }
     // catch all, static / cdn hosting
     //return [file, 'static']

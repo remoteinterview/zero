@@ -27,6 +27,9 @@ module.exports = {
       // BABEL
       {
         test: /\.(js|jsx)$/,
+        resolve: {
+          extensions: [".js", ".jsx"]
+        },
         use: [
           babelLoader
         ],

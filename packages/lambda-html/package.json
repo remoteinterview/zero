@@ -1,0 +1,10 @@
+{
+  "name": "zero-lambda-html",
+  "main": "index.js",
+  "version": "0.0.4-alpha.0",
+  "dependencies": {
+    "mkdirp": "^0.5.1",
+    "parcel-bundler": "^1.11.0"
+  },
+  "gitHead": "a834e7be9877ee36dea013b7c52a7e1dd4f6339c"
+}

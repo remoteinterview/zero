@@ -1,5 +1,6 @@
 module.exports = {
-  "static": require("zero-static").handler,
-  "lambda:js": require("zero-lambda-js").handler,
-  "lambda:react": require("zero-lambda-react").handler
+  "static": "zero-static",
+  "lambda:html": "zero-lambda-html",
+  "lambda:js": "zero-lambda-js",
+  "lambda:react": "zero-lambda-react"
 }
