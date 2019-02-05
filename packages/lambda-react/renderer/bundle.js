@@ -67,7 +67,6 @@ const createEntry = component => {
 component = "var ZeroAppContainer;" + replaceAll(component, "module.exports", "ZeroAppContainer")
 component = replaceAll(component, "exports.default", "ZeroAppContainer")
 return(`
-require("@babel/polyfill");
 var React = require("react")
 ${component}
 const { hydrate } = require('react-dom')
