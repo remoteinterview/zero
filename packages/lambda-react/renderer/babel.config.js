@@ -3,7 +3,7 @@ module.exports = {
       '@babel/preset-env',
       '@babel/preset-react'
     ].map(require.resolve),
-  plugins: ['babel-plugin-react-require'].map(require.resolve),
+  plugins: ['@babel/plugin-transform-runtime','babel-plugin-react-require'].map(require.resolve),
   compact: true,
   minified: process.env.NODE_ENV==="production",
   comments: false,
