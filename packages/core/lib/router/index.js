@@ -96,7 +96,7 @@ function getLambdaServerPort(endpointData){
     if (lambdaIdToPortMap[lambdaID]) return resolve(lambdaIdToPortMap[lambdaID].port)
     const fork = require('child_process').fork;
     const program = path.resolve(path.join(__dirname, "./server-process.js"));
-    const parameters = [endpointData[0], endpointData[1], endpointData[2], process.env.SERVERADDRESS, lambdaID];
+    const parameters = [endpointData[0], endpointData[1], endpointData[2], process.env.SERVERADDRESS, "zero-builds/" + lambdaID];
     const options = {
       stdio: [ 'pipe', 'pipe', 'pipe', 'ipc' ]
     };
@@ -113,10 +113,12 @@ function getLambdaServerPort(endpointData){
 
     child.on('error', (err) => {
       debug('Failed to start subprocess.', err);
+      del(path.join(process.env.BUILDPATH, "zero-builds", lambdaID, "/**"), {force: true})
       delete lambdaIdToPortMap[lambdaID]
     });
     child.on('close', () => {
       debug('subprocess stopped.');
+      del(path.join(process.env.BUILDPATH, "zero-builds", lambdaID, "/**"), {force: true})
       delete lambdaIdToPortMap[lambdaID]
     });
 
@@ -128,7 +130,6 @@ function getLambdaServerPort(endpointData){
       console.error(`${data}`)
     });
   })
-  
 }
 
 module.exports = (buildPath)=>{
@@ -161,9 +162,9 @@ module.exports = (buildPath)=>{
         var lambdaID = getLambdaID(file)
         if (lambdaIdToPortMap[lambdaID]) {
           debug("killing", file, lambdaIdToPortMap[lambdaID].port)
-          lambdaIdToPortMap[lambdaID].process.kill() 
+          lambdaIdToPortMap[lambdaID].process.kill()
           // delete their bundle if any
-          await del(path.join(process.env.BUILDPATH, lambdaID, "/**"), {force: true})
+          await del(path.join(process.env.BUILDPATH, "zero-builds", lambdaID, "/**"), {force: true})
           // start the process again
           var endpointData = newManifest.lambdas.find((lambda)=>{
             return lambda[1]===file

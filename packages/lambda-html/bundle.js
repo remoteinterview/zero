@@ -6,7 +6,8 @@ module.exports = async function bundle(entryFile, buildPath, publicPath){
     outDir: buildPath,
     outFile: "index.html",
     publicUrl: publicPath,
-    watch: false,
+    watch: true,
+    hmr: false,
     logLevel: 2,
     cache: false,
     minify: process.env.NODE_ENV === "production"
