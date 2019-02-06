@@ -35,7 +35,7 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
 
     // if old manifest is given and a file filter is given, we skip those not in filter
     if (oldManifest && fileFilter && fileFilter.length>0){
-      var normalizedFile = file//.replace(basePath, buildPath)
+      var normalizedFile = file
       if (fileFilter.indexOf(normalizedFile)===-1){
         var endpoint = oldManifest.lambdas.find((lambda)=>{
           return lambda[1]===normalizedFile
@@ -52,23 +52,12 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
     // check if js file is a js lambda function
     if (extension === ".js") {
       return [file, "lambda:js"]
-      // var statusCode = await spawnAsync(validators["js"], [file])
-      // debug(file, statusCode, 'js')
-      // if (statusCode === 0) {
-      //   return [file, 'lambda:js']
-      // }
     }
 
     // check if a react component
-    if (/*extension ===".js" ||*/ extension ===".jsx"
     // md/mdx is also rendered by react lambda
-        || extension === ".mdx" || extension === ".md") {
-          return [file, "lambda:react"]
-      // var statusCode = await spawnAsync(validators["react"], [file])
-      // debug(file, statusCode, 'react')
-      // if (statusCode === 0) {
-      //   return [file, 'lambda:react']
-      // }
+    if (extension ===".jsx" || extension === ".mdx" || extension === ".md") {
+      return [file, "lambda:react"]
     }
 
     // PHP Lambda
@@ -84,8 +73,8 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
     if (extension ===".htm" || extension ===".html") {
       return [file, 'lambda:html']
     }
+    
     // catch all, static / cdn hosting
-    //return [file, 'static']
     return false
   })
   )
@@ -131,7 +120,6 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
 
 // recursively generate list of (relative) files imported by given file
 function dependancyTree(buildPath, file){
-  buildPath = buildPath || process.cwd()
   const extension = path.extname(file)
   var deps = []
   if (!fs.existsSync(file, 'utf8')) return deps
@@ -153,6 +141,8 @@ function dependancyTree(buildPath, file){
           if ( fs.existsSync( baseName + ".js") ) deps.push(baseName + ".js")
           else if ( fs.existsSync( baseName + ".jsx") ) deps.push(baseName + ".jsx")
           else if ( fs.existsSync( baseName + ".json") ) deps.push(baseName + ".json")
+          else if ( fs.existsSync( baseName + ".md") ) deps.push(baseName + ".md")
+          else if ( fs.existsSync( baseName + ".mdx") ) deps.push(baseName + ".mdx")
         }
       }
     })

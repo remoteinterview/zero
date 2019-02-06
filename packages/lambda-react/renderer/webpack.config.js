@@ -28,7 +28,7 @@ module.exports = {
       {
         test: /\.(js|jsx)$/,
         resolve: {
-          extensions: [".js", ".jsx"]
+          extensions: [".js", ".jsx", ".md", ".mdx", ".json"]
         },
         use: [
           babelLoader
@@ -82,6 +82,7 @@ module.exports = {
       // MARKDOWN
       {
         test: /\.(md|mdx)$/,
+        resolve: { extensions: [".js", ".jsx", ".md", ".mdx", ".json"] },
         use: [
           babelLoader, 
           'mdx-js-loader']
