@@ -134,3 +134,11 @@ module.exports = (req, res) => {
   else res.sendStatus(403)
 }
 ```
+
+This `user` object is also passed to your React pages as props:
+
+```jsx
+export default (props) =>(
+  <h1>Hello {props.user?props.user.id:"World"}</h1>
+)
+```

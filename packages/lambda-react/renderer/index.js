@@ -33,7 +33,7 @@ async function generateComponent(req, res, componentPath, bundlePath){
   }
   var meta = App.meta || {}
   App = (App && App.default)?App.default : App // cater export default class...
-  var props = {user: req.user, url: {query: req.query}}
+  var props = {user: req.user, url: {query: req.query, params: req.params}}
   debug("App", typeof App.getInitialProps === "function")
   if (App && App.getInitialProps && typeof App.getInitialProps === "function"){
     try{

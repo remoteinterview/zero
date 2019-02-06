@@ -31,7 +31,9 @@ npm install -g zeroserver
 
 ## Getting Started
 
-Let's start by creating a new API endpoint in Node.js to tell us time.
+Let's start by making a website that tells us server time.
+
+First we create an API endpoint in Node.js to tell us time in JSON.
 
 Create a new folder and add a new file `time.js` in that folder. In this file, export a function that accepts `Request` and `Response` objects ([like Express](https://expressjs.com/en/4x/api.html#res)):
 
@@ -52,7 +54,9 @@ Once saved, you can `cd` into that folder and start the server like this:
 zero
 ```
 
-And go to this URL: `http://localhost:3000/time`
+Running this command will automatically install any dependencies (like *momentjs* here) and start the web server.
+
+Open this URL in the browser: `http://localhost:3000/time`
 
 You just created an API endpoint 🎉
 

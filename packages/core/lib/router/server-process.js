@@ -68,6 +68,9 @@ function startServer(entryFile, lambdaType/*, handler*/){
       if (req.params && req.params[0]){
         req.params = req.params[0].replace(BASEPATH.slice(1), "").split("/").filter((param)=> !!param)
       }
+      else{
+        delete req.params
+      }
       try{
         //debug("TRYING", file, typeof handler)
         var globals = Object.assign({__Zero: {app, req, res, lambdaType, BUNDLEPATH, file, renderError, fetch: generateFetch(req)}}, GLOBALS);
