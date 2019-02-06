@@ -4,14 +4,6 @@ const fs = require("fs")
 const path = require('path')
 const debug = require('debug')('core')
 
-//var { spawnSync } = require("child_process")
-var spawnAsync = require("./spawn-async")
-
-// var validators = {
-//   js: require.resolve("zero-lambda-js/validate.js"),
-//   react: require.resolve("zero-lambda-react/validate.js")
-// }
-
 async function getFiles(baseSrc) {
   return new Promise((resolve, reject)=>{
     glob(baseSrc + '/**/*', {nodir: true, dot: true}, (err, res)=>{
@@ -22,14 +14,11 @@ async function getFiles(baseSrc) {
 }
 
 async function buildManifest(buildPath, oldManifest, fileFilter) {
-  //basePath = basePath.endsWith("/") ? basePath : (basePath + "/")
-  
   buildPath = buildPath.endsWith("/") ? buildPath : (buildPath + "/")
   var date = Date.now()
   var files = await getFiles(buildPath)
   files = files.filter((f) => f.indexOf("node_modules") === -1 && f.indexOf(".zero") === -1)
 
-  //debug(basePath, files)
   var json = await Promise.all(files.map(async (file, i) => {
     const extension = path.extname(file)
 
@@ -81,32 +70,34 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
 
   debug("elaps", (Date.now() - date) / 1000)
 
-
   var lambdas = json
     // remove empty elements
     .filter((endpoint) => {
       return endpoint !== false
     })
+
     // add endpoint path at 0 position for each lambda
     .map((endpoint) => {
       var trimmedPath = endpoint[0].replace(buildPath, "/")
-      //if (endpoint[1]!=="static" 
-        //  || (trimmedPath.endsWith(".html") || trimmedPath.endsWith(".htm")) ){
-        trimmedPath = trimmedPath.split('.').slice(0, -1).join('.').toLowerCase() // remove extension
-        if (trimmedPath.endsWith("/index")) {
-          trimmedPath = trimmedPath.split('/index').slice(0, -1).join('/index') // remove extension
-        }
-      //}
-      //endpoint[0] = endpoint[0].replace(basePath, buildPath)
+      trimmedPath = trimmedPath.split('.').slice(0, -1).join('.').toLowerCase() // remove extension
+      if (trimmedPath.endsWith("/index")) {
+        trimmedPath = trimmedPath.split('/index').slice(0, -1).join('/index') // remove extension
+      }
+      
+
       endpoint.unshift(trimmedPath)
       return endpoint
     })
 
+    // get all related files (imports/requires) of this lambda
     lambdas = lambdas.map((endpoint) => {
     endpoint.push( [endpoint[1]].concat(dependancyTree(buildPath, endpoint[1])) )
     return endpoint
   })
 
+  // generate a (file -> lambda) index ie. all the lambdas that use that file. 
+  // this is useful when a file is changed and we need to rebuild all the 
+  // lambdas depending on that file.
   var fileToLambdas = {}
   lambdas.forEach((endpoint, i)=>{
     endpoint[3].forEach((file)=>{

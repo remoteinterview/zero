@@ -62,8 +62,6 @@ async function generateComponent(req, res, componentPath, bundlePath){
     }
   }
 
-  
-
   const el = isAsync(App)
     ? await createAsyncElement(App, props)
     : React.createElement(App, props)
@@ -105,15 +103,5 @@ const isAsync = fn => fn.constructor.name === 'AsyncFunction'
 
 const createAsyncElement = async (Component, props) =>
   await Component(props)
-
-
-
-// function wrapInHelmet(el){
-//   var helmetEl = React.createElement(Helmet, {}, [
-//     React.createElement("meta", {charset: "utf-8"})
-//   ])
-
-//   return React.createElement(React.Fragment, {}, [helmetEl, el])
-// }
 
 module.exports = generateComponent
