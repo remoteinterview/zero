@@ -89,7 +89,7 @@ function startServer(entryFile, lambdaType/*, handler*/){
     app.use(passport.session());
     app.all([BASEPATH, url.resolve(BASEPATH, "/*")], (req, res)=>{
       // if path has params (like /user/:id/:comment). Split the params into an array.
-      // also remove empty params (caused by path endind with slash)
+      // also remove empty params (caused by path ending with slash)
       if (req.params && req.params[0]){
         req.params = req.params[0].replace(BASEPATH.slice(1), "").split("/").filter((param)=> !!param)
       }

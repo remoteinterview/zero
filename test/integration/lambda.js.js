@@ -22,3 +22,16 @@ test('Fetch (relative path)', () => {
     expect(data.evens[0]).toBe(2);
   });
 });
+
+
+test('POST (json)', () => {
+  // expect.assertions(1);
+  const body = {a: 2}
+  return get("/api/post", {
+    jar: true, json: true, 
+    method: "POST", 
+    json: body
+  }).then(data => {
+    expect(data.body.a).toBe(2);
+  });
+});

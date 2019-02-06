@@ -38,18 +38,21 @@ async function proxyLambdaRequest(req, res, endpointData){
   var serverAddress = process.env.SERVERADDRESS
 
   const port = await getLambdaServerPort(endpointData)
-  debug("req", endpointData[1], port)
+  debug("req", endpointData[1], port, req.method, req.body)
   
   //debug("server address", serverAddress)
   var lambdaAddress = "http://127.0.0.1:"+port
-  const proxyRes = await fetch(lambdaAddress + req.url, {
+  var options = {
     method: req.method,
     headers: Object.assign({ 'x-forwarded-host': req.headers.host }, req.headers),
-    body: req.body,
     compress: false,
     redirect: 'manual',
     //credentials: "include"
-  })
+  }
+  if (req.method.toLowerCase()!=="get" && req.method.toLowerCase()!=="head"){
+    options.body = req
+  }
+  const proxyRes = await fetch(lambdaAddress + req.url, options)
 
   if (spinner.isSpinning){
     spinner.succeed(url.resolve("/", endpointData[0]) + " ready")
