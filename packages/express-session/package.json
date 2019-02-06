@@ -1,0 +1,13 @@
+{
+  "name": "zero-express-session",
+  "main": "index.js",
+  "version": "0.0.4-alpha.1",
+  "dependencies": {
+    "connect-mongo": "^2.0.3",
+    "connect-redis": "^3.4.0",
+    "cookie-parser": "^1.4.3",
+    "express-session": "^1.15.6",
+    "passport": "^0.4.0",
+    "session-file-store": "^1.2.0"
+  }
+}

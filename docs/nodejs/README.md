@@ -40,6 +40,97 @@ If you send POST request to `/submit` with `json` or `urlencoded` body. It will 
 ## Route Rewrites
 Zero decides routes based on file structure. But sometimes you would want to change `/user?id=luke` to `/user/luke`. To cater this type of routes, **all requests sent to a route that doesn't exist are passed on to the closest parent function**. 
 
-So if you visit `/user/luke` and there is no `./user/luke.js` but there is `./user.js`. Zero will send the request to `/user` and set `req.params` to `['luke']`
+So if you visit `/user/luke` and there is no `./user/luke.js` but there is `./user.js`. Zero will send the request to `/user` and set `req.params` to `['luke']`. Code for this:
 
-Another example: if you visit `/user/luke/messages`. Zero will forward this to `./user.js` and set `req.params` to `['luke', 'messages']`
+```js
+// user.js
+module.exports = function(req, res) {
+  console.log(req.params) // ['luke'] when user visits /user/luke
+  res.send({params: req.params})
+}
+```
+
+Another example: if you visit `/user/luke/messages`. Zero will also forward this to `./user.js` and set `req.params` to `['luke', 'messages']`
+
+## Sessions
+Zero manages sessions on your behalf. You just need to specify where the session data should be stored. Currently Zero supports Redis and MongoDB backends. 
+
+By default the session data is stored in system `tmp` directory. This is fine when developing locally. But not when you want to deploy.
+
+### Using Redis for Sessions
+Zero reads credentials from environment variables. Zero also loads variables from `.env` file in your project root, if it's present.
+
+You can provide a **Connection String / URL** to your store by setting `SESSION_REDIS_URL` environment variable. 
+
+Alternatively, you can provide connection credentials using
+ `SESSION_REDIS_HOST`, `SESSION_REDIS_PASSWORD`, `SESSION_REDIS_PORT` environment variables.
+
+
+### Using MongoDB for Sessions
+Zero reads credentials from environment variables. Zero also loads variables from `.env` file in your project root, if present.
+
+To use MongoDB as your session store, you need to provide MongoDB's [connection string](https://docs.mongodb.com/manual/reference/connection-string/) in `SESSION_MONGODB_URL` environment variable.
+
+### Session TTL
+You can specify when the session should expire by setting `SESSION_TTL` in seconds. By default this TTL is set to 1 year from login.
+
+### Basic Login Example
+
+Here is a very simple example of how to create a basic login system.
+
+First, let's create a basic HTML form:
+```html
+<html>
+
+<body>
+    <form action="/login" method="POST">
+        <label for="username"><b>Username</b></label>
+        <input name="username" type="text" placeholder="Enter Username" required />
+        <br />
+        <label for="password"><b>Password</b></label>
+        <input name="password" type="password" placeholder="Enter Password" required />
+        <br />
+        <button type="submit">Login</button>
+    </form>
+</body>
+
+</html>
+```
+The form takes `username` and `password` and sends `POST` to `/login` API.
+
+Let's create that login API in file `./login.js`. Add the following code:
+
+```js
+// login.js
+
+// This would ideally come from database.
+// Don't forget to hash your passwords.
+const PASSWORDS = {luke: "abcd"} 
+
+module.exports = (req, res)=>{
+  const {username, password} = req.body
+  if (password && PASSWORDS[username] === password){
+    req.login({id: username}, function(err) {
+      if (err) res.sendStatus(403)
+      else res.redirect("/user")
+    })
+  }
+  else{
+    res.sendStatus(403)
+  }
+}
+```
+
+- This checks `req.body` for user-submitted username and password. 
+- Then it checks if the password matches with the saved password.
+- It calls `req.login()` with any data it wants to save in session for this user. You can store name, email, etc here. This object is automatically populated in `req.user` on all future requests by this user. This way you can display user-specific data based on `req.user`.
+
+Example:
+
+```js
+// user.js
+module.exports = (req, res) => {
+  if (req.user) res.send(`Hello ${req.user.id}`)
+  else res.sendStatus(403)
+}
+```

@@ -13,25 +13,9 @@ const debug = require('debug')('core')
 const GLOBALS = require("./globals")
 // log("imports")
 
+const session = require('zero-express-session')
+
 const vm = require('vm');
-var passport = require('passport');
-passport.serializeUser(function(user, done) {
-  done(null, JSON.stringify(user));
-})
-
-passport.deserializeUser(function(id, done) {
-  done(null, JSON.parse(id))
-})
-var SESSION_TTL = parseInt(process.env.SESSION_TTL)
-
-
-var session = require('express-session')
-var FileStore = require('session-file-store')(session)
-// TODO: handle mongo and redis stores.
-var sessionStore = new FileStore({
-  path: path.join(require('os').tmpdir(), "zero-sessions"),
-  ttl: SESSION_TTL
-})
 
 if (!process.argv[2] && process.argv[2]!=="") throw new Error("No basePath provided.")
 if (!process.argv[3]) throw new Error("No entry file provided.")
@@ -70,23 +54,14 @@ function startServer(entryFile, lambdaType/*, handler*/){
     const file = path.resolve(entryFile)
     const app = express()
 
-    app.use(require('cookie-parser')());
+    // bootstrap express app with session
+    session(app)
+
     app.use(require('body-parser').urlencoded({ extended: true }));
     app.use(require('body-parser').json());
     // debug("tempdir", SESSION_TTL, path.join(require('os').tmpdir(), "zero-sessions"))
 
-    app.use(session({
-      store: sessionStore,
-      secret: process.env.SESSION_SECRET, 
-      resave: false, 
-      cookie: { maxAge : SESSION_TTL },
-      saveUninitialized: false 
-    }))
-
-    // Initialize Passport and restore authentication state, if any, from the
-    // session.
-    app.use(passport.initialize());
-    app.use(passport.session());
+    
     app.all([BASEPATH, url.resolve(BASEPATH, "/*")], (req, res)=>{
       // if path has params (like /user/:id/:comment). Split the params into an array.
       // also remove empty params (caused by path ending with slash)
