@@ -2,7 +2,7 @@
 
 Zero is a web server to simplify web development.
 
-With `zero`, you just write your business logic in a mix of Node.js files, React/HTML/MDX frontend pages and static files and `zero` will serve them. Zero abstracts the usual project configuration for routing, bundling, and transpiling to make it easier to get started.
+With `zero`, you just write your business logic in a mix of [Node.js](docs/nodejs/README.md) files, [React](docs/react/README.md)/HTML/MDX frontend pages and static files and `zero` will serve them. Zero abstracts the usual project configuration for routing, bundling, and transpiling to make it easier to get started.
 
 ## Features
 **No Configuration Required**: Your project folder doesn't need any config files. You just place your code and it's automatically compiled, bundled and served.
@@ -78,7 +78,7 @@ export default class extends React.Component {
 
 This is a standard React component. With one additional hook for initial data population:
 
-`getInitialProps` is an `async` static method which is called by `zero` when the page loads. This method can return a plain object which populates props.
+`getInitialProps` is an `async` static method which is called by `zero` when the page loads. This method can return a plain object which populates `props`.
 
 Now go to this URL: `http://localhost:3000/` and you should see the current server time rendered by React while `fetch`-ing an API endpoint you created earlier.
 
@@ -90,8 +90,8 @@ That's it! You just created a web application.
 *TODO*
 
 ## Supported Languages
-- Node.js
-- React
+- [Node.js](docs/nodejs/README.md)
+- [React](docs/react/README.md)
 - Markdown / MDX
 - Python *(soon)*
 

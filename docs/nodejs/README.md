@@ -52,6 +52,57 @@ module.exports = function(req, res) {
 
 Another example: if you visit `/user/luke/messages`. Zero will also forward this to `./user.js` and set `req.params` to `['luke', 'messages']`
 
+## Fetch API
+[`fetch()`](https://developers.google.com/web/updates/2015/03/introduction-to-fetch) allows you to do network requests from your API code.
+
+`fetch` is a `zero`-specific feature for Node.js. It works similar to how it works in browser. Relative URLs (like `/api/messages`) also work.
+
+If you want to `fetch` data from a login-protected path, you should set the `credentials` of the request to `"include"`.
+
+```js
+fetch(url, {
+  credentials: 'include'
+})
+
+```
+
+### Example
+
+If you have a messages API that only works if the user is logged in, like this:
+
+```js
+// api/messages.js
+// sends user's messages from database.
+module.exports = (req, res) => {
+  if (req.user){
+    var msgs = DB.find({user: req.user.id })
+    res.json(msgs)
+  }
+  else{
+    res.sendStatus(403)
+  }
+}
+```
+
+And you want to fetch these messages from another API endpoint, like this:
+```js
+// api/user.js
+module.exports = (req, res) => {
+  var messages = await fetch("/api/messages", {
+    credentials: 'include'
+  })
+    .then((resp) => resp.json())
+  // ... fetch other info
+  res.send({
+    profile: profile,
+    messages: messages
+  })
+  
+}
+```
+
+Zero automatically forwards credentials even for nested `fetch()` requests.
+
 ## Sessions
 Zero manages sessions on your behalf. You just need to specify where the session data should be stored. Currently Zero supports Redis and MongoDB backends. 
 
