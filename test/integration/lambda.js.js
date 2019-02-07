@@ -23,6 +23,13 @@ test('Fetch (relative path)', () => {
   });
 });
 
+test('Fetch (relative path)', () => {
+  // depends on user being logged in (above)
+  return get("/api/fetchWithCredentials", {jar: true, json: true}).then(data => {
+    expect(data.id).toBe('asad');
+  });
+});
+
 
 test('POST (json)', () => {
   // expect.assertions(1);

@@ -24,6 +24,7 @@ if (!process.argv[5]) throw new Error("Server address not provided.")
 if (!process.argv[6]) throw new Error("Lambda ID not provided.")
 
 var BASEPATH = process.argv[2]
+var ENTRYFILE = process.argv[3]
 var SERVERADDRESS = process.argv[5]
 
 // let the lambda save it's bundle files in BUILDPATH/LambdaID folder
@@ -31,7 +32,7 @@ var BUNDLEPATH = process.argv[6]
 debug("Server Address", SERVERADDRESS, "BundlePath", BUNDLEPATH)
 // get handler
 //const handler = handlers[process.argv[4]]
-startServer(process.argv[3], process.argv[4]/*, handler*/).then((port)=>{
+startServer(ENTRYFILE, process.argv[4]/*, handler*/).then((port)=>{
   if (process.send) process.send(port)
   else console.log("PORT", port)
   // log("port sent")
@@ -40,12 +41,32 @@ startServer(process.argv[3], process.argv[4]/*, handler*/).then((port)=>{
 function generateFetch(req){
   return function fetch(uri, options){
     // fix relative path when running on server side.
-    if (uri && uri.startsWith("/")){
+    if (uri && uri.indexOf("://")===-1){
+
       // TODO: figure out what happens when each lambda is running on multiple servers.
       // TODO: figure out how to forward cookies (idea: run getInitialProps in a VM with modified global.fetch that has 'req' access and thus to cookies too)
-      uri = url.resolve(SERVERADDRESS, uri)
+
+      // see if it's a path from root of server
+      if (uri.startsWith("/")){
+        uri = url.resolve(SERVERADDRESS, uri)
+      }
+      // it's a relative path from current address
+      else{
+        //uri = path.join(req.originalUrl, req.originalUrl.endsWith("/")?"":"../", uri)
+        // if the fetch() is called from /blog/index.jsx the relative path ('holiday') should
+        // become /blog/holiday and not /holiday
+        // But if the caller file is /blog.jsx, it should become /holiday
+        var isDirectory = path.basename(ENTRYFILE).toLowerCase().startsWith("index.")
+        uri = path.join(req.originalUrl, isDirectory?"":"../", uri)
+        uri = url.resolve(SERVERADDRESS, uri)
+      }
     }
-    debug("fething", uri, options, SERVERADDRESS)
+
+    if (options && options.credentials && options.credentials === 'include'){
+      options.headers = req.headers
+    }
+    debug("paths",req.originalUrl, req.baseUrl, req.path)
+    debug("fetching", uri, options, SERVERADDRESS)
     return FETCH(uri, options)
   }
 }
@@ -61,8 +82,7 @@ function startServer(entryFile, lambdaType/*, handler*/){
     app.use(require('body-parser').json());
     // debug("tempdir", SESSION_TTL, path.join(require('os').tmpdir(), "zero-sessions"))
 
-    
-    app.all([BASEPATH, url.resolve(BASEPATH, "/*")], (req, res)=>{
+    app.all([BASEPATH, path.join(BASEPATH, "/*")], (req, res)=>{
       // if path has params (like /user/:id/:comment). Split the params into an array.
       // also remove empty params (caused by path ending with slash)
       if (req.params && req.params[0]){

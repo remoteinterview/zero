@@ -4,12 +4,13 @@ import "./style.scss"
 import { Helmet } from 'react-helmet';
 class ClassTypeComponent extends Component {
   static async getInitialProps({ req }){
-    var stories = await fetch("/hn/api/stories").then((resp) => resp.json())
+    var stories = await fetch("api/stories").then((resp) => resp.json())
+    console.log("stories", stories)
     return {data: stories}
   }
 
   render() {
-    console.log("props", this.props.user)
+    //console.log("props", this.props.user)
     return (
       <div>
       <Helmet>
