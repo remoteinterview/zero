@@ -1,5 +1,7 @@
 # Zero Server
 
+[Features](#features) | [Installation](#installation) | [Getting Started](#getting-started) | [Docs](docs/)
+
 Zero is a web server to simplify web development.
 
 With `zero`, you just write your business logic in a mix of [Node.js](docs/nodejs/README.md) files, [React](docs/react/README.md)/[HTML](docs/html/README.md)/[MDX](docs/mdx/README.md) frontend pages and [static files](docs/static/README.md) and `zero` will serve them. Zero abstracts the usual project configuration for routing, bundling, and transpiling to make it easier to get started.
