@@ -1,5 +1,5 @@
 {
-  "name": "zero-lambda-react",
+  "name": "zero-handler-react",
   "main": "index.js",
   "version": "0.0.4-alpha.3",
   "dependencies": {
