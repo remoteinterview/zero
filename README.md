@@ -2,7 +2,7 @@
 
 Zero is a web server to simplify web development.
 
-With `zero`, you just write your business logic in a mix of [Node.js](docs/nodejs/README.md) files, [React](docs/react/README.md)/HTML/MDX frontend pages and static files and `zero` will serve them. Zero abstracts the usual project configuration for routing, bundling, and transpiling to make it easier to get started.
+With `zero`, you just write your business logic in a mix of [Node.js](docs/nodejs/README.md) files, [React](docs/react/README.md)/[HTML](docs/html/README.md)/[MDX](docs/mdx/README.md) frontend pages and [static files](docs/static/README.md) and `zero` will serve them. Zero abstracts the usual project configuration for routing, bundling, and transpiling to make it easier to get started.
 
 ## Features
 **No Configuration Required**: Your project folder doesn't need any config files. You just place your code and it's automatically compiled, bundled and served.
@@ -42,8 +42,8 @@ Create a new folder and add a new file `time.js` in that folder. In this file, e
 const moment = require("moment")
 
 module.exports = (req, res) => {
-	var time = moment().format('LT');   // 11:51 AM
-	res.send({time: time })
+  var time = moment().format('LT');   // 11:51 AM
+  res.send({time: time })
 }
 
 ```
@@ -92,7 +92,8 @@ That's it! You just created a web application.
 ## Supported Languages
 - [Node.js](docs/nodejs/README.md)
 - [React](docs/react/README.md)
-- Markdown / MDX
+- [HTML](docs/html/README.md)
+- [Markdown / MDX](docs/mdx/README.md)
 - Python *(soon)*
 
 
