@@ -1,6 +1,6 @@
 # Zero Server
 
-[Features](#features) | [Installation](#installation) | [Getting Started](#getting-started) | [Docs](docs/)
+[Features](#features) | [Installation](#installation) | [Getting Started](#getting-started) | [Examples](examples/) | [Docs](docs/)
 
 Zero is a web server to simplify web development.
 
@@ -35,7 +35,7 @@ npm install -g zeroserver
 
 Let's start by making a website that tells us server time.
 
-First we create an API endpoint in Node.js to tell us time in JSON.
+First we need to create an API endpoint in Node.js to tell us time in JSON.
 
 Create a new folder and add a new file `time.js` in that folder. In this file, export a function that accepts `Request` and `Response` objects ([like Express](https://expressjs.com/en/4x/api.html#res)):
 
@@ -58,7 +58,7 @@ zero
 
 Running this command will automatically install any dependencies (like *momentjs* here) and start the web server.
 
-Open this URL in the browser: `http://localhost:3000/time`
+Open this URL in the browser: [`http://localhost:3000/time`](http://localhost:3000/time)
 
 You just created an API endpoint 🎉
 
@@ -88,9 +88,6 @@ Now go to this URL: `http://localhost:3000/` and you should see the current serv
 
 That's it! You just created a web application.
 
-## Running on Cloud
-*TODO*
-
 ## Supported Languages
 - [Node.js](docs/nodejs/README.md)
 - [React](docs/react/README.md)
@@ -98,6 +95,12 @@ That's it! You just created a web application.
 - [Markdown / MDX](docs/mdx/README.md)
 - Python *(soon)*
 
-
-## Contributing, License, Examples
+## Running on Cloud
 *TODO*
+
+## Contributing
+*TODO*
+
+## License
+
+Zero is [MIT licensed](LICENSE.md).
