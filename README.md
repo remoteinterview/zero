@@ -8,7 +8,7 @@ With `zero`, you just write your business logic in a mix of [Node.js](docs/nodej
 
 *An example project with different types of pages, all in one folder:*
 
-![A basic mono-repo](docs/header.gif?raw=true "A basic mono-repo")
+![A basic mono-repo](docs/images/header.gif?raw=true "A basic mono-repo")
 
 ## Features
 **No Configuration Required**: Your project folder doesn't need any config files. You just place your code and it's automatically compiled, bundled and served.
@@ -64,7 +64,9 @@ Running this command will automatically install any dependencies (like *momentjs
 
 Open this URL in the browser: [`http://localhost:3000/time`](http://localhost:3000/time)
 
-You just created an API endpoint 🎉
+You just created an API endpoint 🎉:
+
+![Time API](docs/images/timeapi.png?raw=true "Time API")
 
 Keep the server running. Now let's consume our API from a React page, create a new file `index.jsx` and add the following code:
 
@@ -86,7 +88,9 @@ This is a standard React component. With one additional hook for initial data po
 
 `getInitialProps` is an `async` static method which is called by `zero` when the page loads. This method can return a plain object which populates `props`.
 
-Now go to this URL: `http://localhost:3000/` and you should see the current server time rendered by React while `fetch`-ing an API endpoint you created earlier.
+Now go to this URL: `http://localhost:3000/` and you should see the current server time rendered by React while `fetch`-ing an API endpoint you created earlier:
+
+![Time In React](docs/images/timejsx.png?raw=true "Time In React")
 
 `zero` automatically bundles your code and supports server-side rendering. You don't need to fiddle with webpack anymore.
 
