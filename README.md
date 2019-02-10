@@ -111,4 +111,4 @@ That's it! You just created a web application.
 
 ## License
 
-Zero is [MIT licensed](LICENSE.md).
+Zero is [Apache-2.0 licensed](LICENSE.md).
