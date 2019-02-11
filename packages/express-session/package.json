@@ -1,7 +1,7 @@
 {
   "name": "zero-express-session",
   "main": "index.js",
-  "version": "0.0.4-alpha.5",
+  "version": "0.0.4-alpha.6",
   "dependencies": {
     "connect-mongo": "^2.0.3",
     "connect-redis": "^3.4.0",
