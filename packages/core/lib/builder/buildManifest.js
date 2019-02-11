@@ -3,6 +3,7 @@ const konan = require('./getImports')
 const fs = require("fs")
 const path = require('path')
 const debug = require('debug')('core')
+const slash = require("../utils/fixPathSlashes")
 
 async function getFiles(baseSrc) {
   return new Promise((resolve, reject)=>{
@@ -21,7 +22,7 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
 
   var json = await Promise.all(files.map(async (file, i) => {
     const extension = path.extname(file)
-
+    file = slash(file)
     // if old manifest is given and a file filter is given, we skip those not in filter
     if (oldManifest && fileFilter && fileFilter.length>0){
       var normalizedFile = file

@@ -1,6 +1,4 @@
 // child process to run given lambda server
-var dt = Date.now()
-// function log(str){ debug (str, Date.now()-dt); dt = Date.now()}
 const path = require("path"),
       http = require("http"),
       url = require("url"),
@@ -11,7 +9,6 @@ const FETCH = require('node-fetch')
 const debug = require('debug')('core')
 
 const GLOBALS = require("./globals")
-// log("imports")
 
 const session = require('zero-express-session')
 
@@ -30,12 +27,9 @@ var SERVERADDRESS = process.argv[5]
 // let the lambda save it's bundle files in BUILDPATH/LambdaID folder
 var BUNDLEPATH = process.argv[6]
 debug("Server Address", SERVERADDRESS, "BundlePath", BUNDLEPATH)
-// get handler
-//const handler = handlers[process.argv[4]]
 startServer(ENTRYFILE, process.argv[4]/*, handler*/).then((port)=>{
   if (process.send) process.send(port)
   else console.log("PORT", port)
-  // log("port sent")
 })
 
 function generateFetch(req){
@@ -52,7 +46,6 @@ function generateFetch(req){
       }
       // it's a relative path from current address
       else{
-        //uri = path.join(req.originalUrl, req.originalUrl.endsWith("/")?"":"../", uri)
         // if the fetch() is called from /blog/index.jsx the relative path ('holiday') should
         // become /blog/holiday and not /holiday
         // But if the caller file is /blog.jsx, it should become /holiday
@@ -70,7 +63,7 @@ function generateFetch(req){
     return FETCH(uri, options)
   }
 }
-function startServer(entryFile, lambdaType/*, handler*/){
+function startServer(entryFile, lambdaType){
   return new Promise((resolve, reject)=>{
     const file = path.resolve(entryFile)
     const app = express()
@@ -80,9 +73,8 @@ function startServer(entryFile, lambdaType/*, handler*/){
 
     app.use(require('body-parser').urlencoded({ extended: true }));
     app.use(require('body-parser').json());
-    // debug("tempdir", SESSION_TTL, path.join(require('os').tmpdir(), "zero-sessions"))
 
-    app.all([BASEPATH, path.join(BASEPATH, "/*")], (req, res)=>{
+    app.all("*"/*[BASEPATH, path.join(BASEPATH, "/*")]*/, (req, res)=>{
       // if path has params (like /user/:id/:comment). Split the params into an array.
       // also remove empty params (caused by path ending with slash)
       if (req.params && req.params[0]){
@@ -92,7 +84,6 @@ function startServer(entryFile, lambdaType/*, handler*/){
         delete req.params
       }
       try{
-        //debug("TRYING", file, typeof handler)
         var globals = Object.assign({__Zero: {app, req, res, lambdaType, BUNDLEPATH, file, renderError, fetch: generateFetch(req)}}, GLOBALS);
   
         vm.runInNewContext(`
@@ -114,7 +105,6 @@ function startServer(entryFile, lambdaType/*, handler*/){
         renderError(error, req, res)
       }
     })
-    // app.get('/', (req, res) => res.send('Hello World!'))
   
     var listener = app.listen(0, "127.0.0.1", () => {
       debug("listening ", lambdaType, listener.address().port)
