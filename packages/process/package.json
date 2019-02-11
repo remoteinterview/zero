@@ -1,15 +1,15 @@
 {
   "name": "zero-process",
   "main": "index.js",
-  "version": "0.0.4-alpha.6",
+  "version": "0.0.4-alpha.7",
   "dependencies": {
-    "youch": "^2.0.10",
-    "node-fetch": "^2.3.0",
-    "zero-express-session": "^0.0.4-alpha.6",
-    "zero-handler-html": "^0.0.4-alpha.6",
-    "zero-handler-js": "^0.0.4-alpha.6",
-    "zero-handler-react": "^0.0.4-alpha.6",
     "body-parser": "^1.18.3",
-    "express": "^4.16.4"
+    "express": "^4.16.4",
+    "node-fetch": "^2.3.0",
+    "youch": "^2.0.10",
+    "zero-express-session": "^0.0.4-alpha.7",
+    "zero-handler-html": "^0.0.4-alpha.7",
+    "zero-handler-js": "^0.0.4-alpha.7",
+    "zero-handler-react": "^0.0.4-alpha.7"
   }
 }
