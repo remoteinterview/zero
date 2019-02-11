@@ -1,6 +1,6 @@
 {
   "name": "zeroserver",
-  "version": "0.0.4-alpha.4",
+  "version": "0.0.4-alpha.5",
   "description": "",
   "main": "app.js",
   "scripts": {
@@ -33,11 +33,11 @@
     "recursive-copy": "^2.0.9",
     "rimraf": "^2.6.2",
     "youch": "^2.0.10",
-    "zero-express-session": "^0.0.4-alpha.4",
-    "zero-handler-html": "^0.0.4-alpha.4",
-    "zero-handler-js": "^0.0.4-alpha.4",
-    "zero-handler-react": "^0.0.4-alpha.4",
-    "zero-static": "^0.0.4-alpha.4"
+    "zero-express-session": "^0.0.4-alpha.5",
+    "zero-handler-html": "^0.0.4-alpha.5",
+    "zero-handler-js": "^0.0.4-alpha.5",
+    "zero-handler-react": "^0.0.4-alpha.5",
+    "zero-static": "^0.0.4-alpha.5"
   },
   "gitHead": "a834e7be9877ee36dea013b7c52a7e1dd4f6339c"
 }
