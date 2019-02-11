@@ -98,7 +98,8 @@ function getLambdaServerPort(endpointData){
     const lambdaID = getLambdaID(entryFilePath)
     if (lambdaIdToPortMap[lambdaID]) return resolve(lambdaIdToPortMap[lambdaID].port)
     const fork = require('child_process').fork;
-    const program = path.resolve(path.join(__dirname, "./server-process.js"));
+    // const program = path.resolve(path.join(__dirname, "./server-process.js"));
+    const program = require.resolve('zero-process')
     const parameters = [endpointData[0], endpointData[1], endpointData[2], process.env.SERVERADDRESS, "zero-builds/" + lambdaID];
     const options = {
       stdio: [ 'pipe', 'pipe', 'pipe', 'ipc' ]

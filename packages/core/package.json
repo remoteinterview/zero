@@ -13,8 +13,6 @@
   "license": "ISC",
   "dependencies": {
     "@mdx-js/mdx": "^0.16.8",
-    "@zeit/fetch": "^3.0.3",
-    "body-parser": "^1.18.3",
     "chokidar": "^2.0.4",
     "colors": "^1.3.3",
     "debug": "^4.1.1",
@@ -26,18 +24,21 @@
     "konan": "^1.2.1",
     "mkdirp": "^0.5.1",
     "ncp": "^2.0.0",
-    "node-fetch": "^2.3.0",
     "npmi": "^4.0.0",
     "npminstall": "^3.17.0",
     "ora": "^3.0.0",
     "recursive-copy": "^2.0.9",
     "rimraf": "^2.6.2",
-    "youch": "^2.0.10",
-    "zero-express-session": "^0.0.4-alpha.6",
     "zero-handler-html": "^0.0.4-alpha.6",
     "zero-handler-js": "^0.0.4-alpha.6",
     "zero-handler-react": "^0.0.4-alpha.6",
-    "zero-static": "^0.0.4-alpha.6"
+    "zero-static": "^0.0.4-alpha.6",
+    "zero-process": "^0.0.4-alpha.6"
   },
+  "bundledDependencies": [
+    "zero-static", "zero-handler-react", "zero-handler-html", "zero-handler-js", "zero-process",
+    "express", "glob", "ora", "konan", "@mdx-js/mdx", "dotenv", "glob-parent", "rimraf", "del", "debug", "colors",
+    "chokidar"
+  ],
   "gitHead": "a834e7be9877ee36dea013b7c52a7e1dd4f6339c"
 }
