@@ -22,7 +22,7 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
 
   var json = await Promise.all(files.map(async (file, i) => {
     const extension = path.extname(file)
-    file = slash(file)
+    file = path.normalize(file)
     // if old manifest is given and a file filter is given, we skip those not in filter
     if (oldManifest && fileFilter && fileFilter.length>0){
       var normalizedFile = file
@@ -79,7 +79,7 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
 
     // add endpoint path at 0 position for each lambda
     .map((endpoint) => {
-      var trimmedPath = endpoint[0].replace(buildPath, "/")
+      var trimmedPath = slash(endpoint[0]).replace(buildPath, "/")
       trimmedPath = trimmedPath.split('.').slice(0, -1).join('.').toLowerCase() // remove extension
       if (trimmedPath.endsWith("/index")) {
         trimmedPath = trimmedPath.split('/index').slice(0, -1).join('/index') // remove extension

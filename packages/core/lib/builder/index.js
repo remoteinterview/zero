@@ -5,7 +5,7 @@ const buildManifest = require('./buildManifest');
 const installPackages = require("./installPackages")
 const sync = require("./cloneAndWatch")
 const ora = require('ora');
-
+const slash = require("../utils/fixPathSlashes")
 const spinner = ora({
   color: 'green',
   spinner: "star",
@@ -19,7 +19,7 @@ module.exports = async function build(sourcePath, buildPath, onManifest) {
   debug("buildPath", buildPath)
 
   sync({
-    sources: [path.join(sourcePath, '/**/*'), "!zero/**/*"],
+    sources: [path.join(sourcePath, '/**/*')],
     target: buildPath,
     watch: true,
     clean: true

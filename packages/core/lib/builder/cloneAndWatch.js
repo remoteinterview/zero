@@ -8,14 +8,15 @@ const globParent = require('glob-parent');
 const del = require('del');
 require('colors');
 const debug = require('debug')('core')
-
+const slash = require("../utils/fixPathSlashes")
 module.exports = async (options, onWatchUpdate) => {
   var isWatching = false
   const target = options.target
-  const sources = options.sources;
+  const sources = options.sources
   const parents = [...new Set(sources.map(globParent))];
 
   const findTarget = from => {
+    from = slash(from)
     const parent = parents
       .filter(p => from.indexOf(p) >= 0)
       .sort()
@@ -89,7 +90,8 @@ module.exports = async (options, onWatchUpdate) => {
   if (onWatchUpdate) onWatchUpdate("ready")
   // watch
   if (options.watch) {
-    chokidar.watch(sources, {
+    // chokidar glob doesn't work with backward slashes
+    chokidar.watch(sources.map((s)=>slash(s)), {
       ignoreInitial: true
     })
       .on('ready', () => { debug('[WATCHING]'.yellow, sources); isWatching = true })
