@@ -1,6 +1,6 @@
 {
   "name": "zeroserver",
-  "version": "0.0.4-alpha.7",
+  "version": "0.0.4-alpha.8",
   "description": "",
   "main": "app.js",
   "scripts": {
@@ -29,13 +29,12 @@
     "ora": "^3.0.0",
     "recursive-copy": "^2.0.9",
     "rimraf": "^2.6.2",
-    "zero-handler-html": "^0.0.4-alpha.7",
-    "zero-handler-js": "^0.0.4-alpha.7",
-    "zero-handler-react": "^0.0.4-alpha.7",
-    "zero-process": "^0.0.4-alpha.7",
-    "zero-static": "^0.0.4-alpha.7"
+    "zero-handler-html": "^0.0.4-alpha.8",
+    "zero-handler-js": "^0.0.4-alpha.8",
+    "zero-handler-react": "^0.0.4-alpha.8",
+    "zero-process": "^0.0.4-alpha.8",
+    "zero-static": "^0.0.4-alpha.8"
   },
-  "bundledDependencies": [
-  ],
+  "bundledDependencies": [],
   "gitHead": "a834e7be9877ee36dea013b7c52a7e1dd4f6339c"
 }

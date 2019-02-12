@@ -1,7 +1,7 @@
 {
   "name": "zero-static",
   "main": "index.js",
-  "version": "0.0.4-alpha.7",
+  "version": "0.0.4-alpha.8",
   "dependencies": {
     "serve-handler": "^5.0.7"
   },
