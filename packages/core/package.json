@@ -36,23 +36,6 @@
     "zero-static": "^0.0.4-alpha.7"
   },
   "bundledDependencies": [
-    "zero-static",
-    "zero-handler-react",
-    "zero-handler-html",
-    "zero-handler-js",
-    "zero-process",
-    "express",
-    "glob",
-    "ora",
-    "konan",
-    "@mdx-js/mdx",
-    "dotenv",
-    "glob-parent",
-    "rimraf",
-    "del",
-    "debug",
-    "colors",
-    "chokidar"
   ],
   "gitHead": "a834e7be9877ee36dea013b7c52a7e1dd4f6339c"
 }
