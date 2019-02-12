@@ -36,7 +36,8 @@
     "sass-loader": "^7.1.0",
     "style-loader": "^0.23.1",
     "url-loader": "^1.1.2",
-    "webpack": "^4.29.0"
+    "webpack": "^4.29.0",
+    "zero-process": "^0.0.4-alpha.8"
   },
   "gitHead": "9e577043290b2ad1205a24f14c4edf7329c6073d"
 }

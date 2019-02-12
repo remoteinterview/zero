@@ -57,7 +57,7 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
 
     // Python Lambda
     if (extension ===".py") {
-      return [file, "lambda:py"]
+      return [file, "lambda:python"]
     }
 
     if (extension ===".htm" || extension ===".html") {

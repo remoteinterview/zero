@@ -12,25 +12,27 @@ const GLOBALS = require("./globals")
 
 const session = require('zero-express-session')
 
-const vm = require('vm');
+const vm = require('vm')
+var BASEPATH, ENTRYFILE, LAMBDATYPE, SERVERADDRESS, BUNDLEPATH
 
-if (!process.argv[2] && process.argv[2]!=="") throw new Error("No basePath provided.")
-if (!process.argv[3]) throw new Error("No entry file provided.")
-if (!process.argv[4]) throw new Error("No lambda type provided.")
-if (!process.argv[5]) throw new Error("Server address not provided.")
-if (!process.argv[6]) throw new Error("Lambda ID not provided.")
 
-var BASEPATH = process.argv[2]
-var ENTRYFILE = process.argv[3]
-var SERVERADDRESS = process.argv[5]
-
-// let the lambda save it's bundle files in BUILDPATH/LambdaID folder
-var BUNDLEPATH = process.argv[6]
-debug("Server Address", SERVERADDRESS, "BundlePath", BUNDLEPATH)
-startServer(ENTRYFILE, process.argv[4]/*, handler*/).then((port)=>{
-  if (process.send) process.send(port)
-  else console.log("PORT", port)
-})
+module.exports = (handler, basePath, entryFile, lambdaType, serverAddress, BundlePath) =>{
+  if (!basePath && basePath!=="") throw new Error("No basePath provided.")
+  if (!entryFile) throw new Error("No entry file provided.")
+  if (!lambdaType) throw new Error("No lambda type provided.")
+  if (!serverAddress) throw new Error("Server address not provided.")
+  if (!BundlePath) throw new Error("Lambda ID not provided.")
+  BASEPATH = basePath
+  ENTRYFILE = entryFile
+  LAMBDATYPE = lambdaType
+  SERVERADDRESS = serverAddress
+  BUNDLEPATH = BundlePath
+  debug("Server Address", SERVERADDRESS, "BundlePath", BUNDLEPATH)
+  startServer(ENTRYFILE, LAMBDATYPE, handler).then((port)=>{
+    if (process.send) process.send(port)
+    else console.log("PORT", port)
+  })
+}
 
 function generateFetch(req){
   return function fetch(uri, options){
@@ -63,7 +65,8 @@ function generateFetch(req){
     return FETCH(uri, options)
   }
 }
-function startServer(entryFile, lambdaType){
+
+function startServer(entryFile, lambdaType, handler){
   return new Promise((resolve, reject)=>{
     const file = path.resolve(entryFile)
     const app = express()
@@ -84,21 +87,19 @@ function startServer(entryFile, lambdaType){
         delete req.params
       }
       try{
-        var globals = Object.assign({__Zero: {app, req, res, lambdaType, BUNDLEPATH, file, renderError, fetch: generateFetch(req)}}, GLOBALS);
+        var globals = Object.assign({__Zero: {app, handler, req, res, lambdaType, BUNDLEPATH, file, renderError, fetch: generateFetch(req)}}, GLOBALS);
   
         vm.runInNewContext(`
-          const { app, req, res, lambdaType, file, fetch, renderError, BUNDLEPATH } = __Zero;
+          const { app, handler, req, res, lambdaType, file, fetch, renderError, BUNDLEPATH } = __Zero;
           global.fetch = fetch
           global.app = app
-          var handlerModule = require("./handlers")[lambdaType]
-          var handler = require(handlerModule).handler
+          // var handlerModule = require("./handlers")[lambdaType]
+          // var handler = require(handlerModule).handler
           process.on('unhandledRejection', (reason, p) => {
             renderError(reason, req, res)
           })
 
           handler(req, res, file, BUNDLEPATH)
-          
-          
         `, globals)
       }
       catch(error){

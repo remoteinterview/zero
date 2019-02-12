@@ -7,10 +7,7 @@
     "express": "^4.16.4",
     "node-fetch": "^2.3.0",
     "youch": "^2.0.10",
-    "zero-express-session": "^0.0.4-alpha.8",
-    "zero-handler-html": "^0.0.4-alpha.8",
-    "zero-handler-js": "^0.0.4-alpha.8",
-    "zero-handler-react": "^0.0.4-alpha.8"
+    "zero-express-session": "^0.0.4-alpha.8"
   },
   "gitHead": "9e577043290b2ad1205a24f14c4edf7329c6073d"
 }

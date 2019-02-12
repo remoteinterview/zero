@@ -32,7 +32,7 @@
     "zero-handler-html": "^0.0.4-alpha.8",
     "zero-handler-js": "^0.0.4-alpha.8",
     "zero-handler-react": "^0.0.4-alpha.8",
-    "zero-process": "^0.0.4-alpha.8",
+    "zero-handler-python": "^0.0.4-alpha.8",
     "zero-static": "^0.0.4-alpha.8"
   },
   "bundledDependencies": [],

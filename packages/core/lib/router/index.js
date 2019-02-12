@@ -13,6 +13,7 @@ const matchPath = require("./matchPath")
 const staticHandler = require("zero-static").handler
 const path = require('path')
 const url = require("url")
+const handlers = require('./handlers')
 const fetch = require("node-fetch")
 const debug = require('debug')('core')
 const ora = require('ora');
@@ -99,7 +100,7 @@ function getLambdaServerPort(endpointData){
     if (lambdaIdToPortMap[lambdaID]) return resolve(lambdaIdToPortMap[lambdaID].port)
     const fork = require('child_process').fork;
     // const program = path.resolve(path.join(__dirname, "./server-process.js"));
-    const program = require.resolve('zero-process')
+    const program = require.resolve(handlers[endpointData[2]])
     const parameters = [endpointData[0], endpointData[1], endpointData[2], process.env.SERVERADDRESS, "zero-builds/" + lambdaID];
     const options = {
       stdio: [ 'pipe', 'pipe', 'pipe', 'ipc' ]
@@ -107,6 +108,14 @@ function getLambdaServerPort(endpointData){
 
     const child = fork(program, parameters, options);
 
+    child.stdout.on('data', (data) => {
+      console.log(`${data}`)
+    });
+    
+    child.stderr.on('data', (data) => {
+      console.error(`${data}`)
+    });
+    
     // child server sends port via IPC
     child.on('message', message => {
       debug("got Port for", entryFilePath, message)
@@ -120,19 +129,13 @@ function getLambdaServerPort(endpointData){
       del(path.join(process.env.BUILDPATH, "zero-builds", lambdaID, "/**"), {force: true})
       delete lambdaIdToPortMap[lambdaID]
     });
-    child.on('close', () => {
-      debug('subprocess stopped.');
+    child.on('close', (e) => {
+      debug('subprocess stopped.', e);
       del(path.join(process.env.BUILDPATH, "zero-builds", lambdaID, "/**"), {force: true})
       delete lambdaIdToPortMap[lambdaID]
     });
 
-    child.stdout.on('data', (data) => {
-      console.log(`${data}`)
-    });
     
-    child.stderr.on('data', (data) => {
-      console.error(`${data}`)
-    });
   })
 }
 
