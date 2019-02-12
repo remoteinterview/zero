@@ -2,6 +2,7 @@
   "name": "zero",
   "private": true,
   "scripts": {
+    "lerna": "lerna",
     "bootstrap": "lerna bootstrap",
     "example": "zero example",
     "exampletest": "zero test/www",
