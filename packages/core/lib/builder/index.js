@@ -13,6 +13,7 @@ const spinner = ora({
 })
 
 var watchDeferTimeoutID = false
+var pendingFilesChanged = []
 module.exports = async function build(sourcePath, buildPath, onManifest) {
   var currentManifest = false
 
@@ -28,10 +29,14 @@ module.exports = async function build(sourcePath, buildPath, onManifest) {
 
     // recreate manifest
     // wait until files have 'settled'. 
-    if (watchDeferTimeoutID) clearTimeout(watchDeferTimeoutID)
+    if (watchDeferTimeoutID) {
+      clearTimeout(watchDeferTimeoutID)
+      pendingFilesChanged.push(file)
+    }
     watchDeferTimeoutID = setTimeout(async () => {
-      var filesArr = file ? [file] : false
-      var filesUpdated = file ? [] : false
+      var filesArr = pendingFilesChanged.slice(0)
+      pendingFilesChanged = []
+      var filesUpdated = filesArr.length>0 ? [] : false
       filesArr && filesArr.forEach((f) => {
         if (currentManifest.fileToLambdas[f]) {
           filesUpdated = filesUpdated.concat(currentManifest.fileToLambdas[f])

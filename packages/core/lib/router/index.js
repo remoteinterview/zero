@@ -13,7 +13,7 @@ const matchPath = require("./matchPath")
 const staticHandler = require("zero-static").handler
 const path = require('path')
 const url = require("url")
-const handlers = require('./handlers')
+const handlers = require('../handlers')
 const fetch = require("node-fetch")
 const debug = require('debug')('core')
 const ora = require('ora');
@@ -99,8 +99,7 @@ function getLambdaServerPort(endpointData){
     const lambdaID = getLambdaID(entryFilePath)
     if (lambdaIdToPortMap[lambdaID]) return resolve(lambdaIdToPortMap[lambdaID].port)
     const fork = require('child_process').fork;
-    // const program = path.resolve(path.join(__dirname, "./server-process.js"));
-    const program = require.resolve(handlers[endpointData[2]])
+    const program =  handlers[endpointData[2]].process
     const parameters = [endpointData[0], endpointData[1], endpointData[2], process.env.SERVERADDRESS, "zero-builds/" + lambdaID];
     const options = {
       stdio: [ 'pipe', 'pipe', 'pipe', 'ipc' ]
@@ -119,7 +118,7 @@ function getLambdaServerPort(endpointData){
     // child server sends port via IPC
     child.on('message', message => {
       debug("got Port for", entryFilePath, message)
-      lambdaIdToPortMap[lambdaID] = {port: parseInt(message), process: child}
+      lambdaIdToPortMap[lambdaID] = {port: parseInt(message), process: child, endpointData: endpointData}
       resolve(lambdaIdToPortMap[lambdaID].port)
       //if (spinner) spinner.succeed(endpointData[0] + " ready")
     })
@@ -167,7 +166,7 @@ module.exports = (buildPath)=>{
     if (filesUpdated){
       filesUpdated.forEach(async file=>{
         var lambdaID = getLambdaID(file)
-        if (lambdaIdToPortMap[lambdaID]) {
+        if (lambdaIdToPortMap[lambdaID] && shouldKillOnChange(lambdaIdToPortMap[lambdaID].endpointData)) {
           debug("killing", file, lambdaIdToPortMap[lambdaID].port)
           lambdaIdToPortMap[lambdaID].process.kill()
           // delete their bundle if any
@@ -193,4 +192,14 @@ module.exports = (buildPath)=>{
   }
 }
 
+function shouldKillOnChange(endpointData){
+  // get config for this lambda type and see if we 
+  // should restart the process or will the handler manage itself (hmr etc)
+  const config = handlers[endpointData[2]]? handlers[endpointData[2]].config : false
+  if (config){
+    if (config.restartOnFileChange===false) return false
+  }
 
+  // no config, default to killing
+  return true
+}

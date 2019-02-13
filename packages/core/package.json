@@ -12,7 +12,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@mdx-js/mdx": "^0.16.8",
     "chokidar": "^2.0.4",
     "colors": "^1.3.3",
     "debug": "^4.1.1",
@@ -21,7 +20,6 @@
     "express": "^4.16.4",
     "glob": "^7.1.3",
     "glob-parent": "^3.1.0",
-    "konan": "^1.2.1",
     "mkdirp": "^0.5.1",
     "ncp": "^2.0.0",
     "npmi": "^4.0.0",
@@ -33,7 +31,8 @@
     "zero-handler-js": "^0.0.4-alpha.8",
     "zero-handler-react": "^0.0.4-alpha.8",
     "zero-handler-python": "^0.0.4-alpha.8",
-    "zero-static": "^0.0.4-alpha.8"
+    "zero-static": "^0.0.4-alpha.8",
+    "zero-dep-tree-js": "^0.0.4-alpha.8"
   },
   "bundledDependencies": [],
   "gitHead": "a834e7be9877ee36dea013b7c52a7e1dd4f6339c"

@@ -1,9 +1,9 @@
 const glob = require("glob")
-const konan = require('./getImports')
 const fs = require("fs")
 const path = require('path')
 const debug = require('debug')('core')
 const slash = require("../utils/fixPathSlashes")
+const handlers = require('../handlers')
 
 async function getFiles(baseSrc) {
   return new Promise((resolve, reject)=>{
@@ -50,11 +50,6 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
       return [file, "lambda:react"]
     }
 
-    // PHP Lambda
-    if (extension ===".php") {
-      return [file, "lambda:php"]
-    }
-
     // Python Lambda
     if (extension ===".py") {
       return [file, "lambda:python"]
@@ -92,7 +87,7 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
 
     // get all related files (imports/requires) of this lambda
     lambdas = lambdas.map((endpoint) => {
-    endpoint.push( [endpoint[1]].concat(dependancyTree(buildPath, endpoint[1])) )
+    endpoint.push( [endpoint[1]].concat(dependencyTree(endpoint[2], endpoint[1])) )
     return endpoint
   })
 
@@ -110,39 +105,12 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
   return {lambdas, fileToLambdas}
 }
 
-// recursively generate list of (relative) files imported by given file
-function dependancyTree(buildPath, file){
-  const extension = path.extname(file)
-  var deps = []
-  if (!fs.existsSync(file, 'utf8')) return deps
-
-  // js based files
-  if (extension === ".js" || extension === ".jsx"
-      || extension === ".md" || extension === ".mdx"){
-    var imports = konan(file, fs.readFileSync(file, 'utf8'))
-    // only strings for now.
-    imports.strings.forEach((imp)=> {
-      // skip package imports
-      if (imp.startsWith(".")) {
-        // some imports dont have extension. We got to handle those
-        if (path.extname(imp)){
-          deps.push(path.join(path.dirname(file), imp ))
-        }
-        else{
-          var baseName = path.join(path.dirname(file), imp)
-          if ( fs.existsSync( baseName + ".js") ) deps.push(baseName + ".js")
-          else if ( fs.existsSync( baseName + ".jsx") ) deps.push(baseName + ".jsx")
-          else if ( fs.existsSync( baseName + ".json") ) deps.push(baseName + ".json")
-          else if ( fs.existsSync( baseName + ".md") ) deps.push(baseName + ".md")
-          else if ( fs.existsSync( baseName + ".mdx") ) deps.push(baseName + ".mdx")
-        }
-      }
-    })
-  }
-  deps.forEach((dep)=>{
-    deps = deps.concat(dependancyTree(buildPath, dep ))
-  })
-  return deps
+// get all relative files imported by this entryFile
+function dependencyTree(type, entryFile){
+  if (handlers[type].getRelatedFiles)
+    return handlers[type].getRelatedFiles(entryFile)
+  else
+    return [entryFile] //no tree walker found for this lambda type
 }
 
 module.exports = buildManifest
