@@ -13,7 +13,7 @@ With `zero`, you just write your business logic in a mix of [Node.js](docs/nodej
 ## Features
 **No Configuration Required**: Your project folder doesn't need any config files. You just place your code and it's automatically compiled, bundled and served.
 
-**File-based Routing**: If your code resides in `./api/login.js` it's exposed at `http://<SERVER>/api/login`. Inspired by good ol' PHP days.
+**File-system Routing**: If your code resides in `./api/login.js` it's exposed at `http://<SERVER>/api/login`. Inspired by good ol' PHP days.
 
 **Automatically Resolves Dependencies**: If a file does `require('underscore')`, it is automatically installed and resolved. You can always create your own `package.json` file to install a specific version of a package.
 
@@ -95,6 +95,25 @@ Now go to this URL: `http://localhost:3000/` and you should see the current serv
 `zero` automatically bundles your code and supports server-side rendering. You don't need to fiddle with webpack anymore.
 
 That's it! You just created a web application.
+
+## Routing
+### File-system Routing
+Zero serves routes based on file structure. If you write a function that resides in `./api/login.js` it's exposed at `http://<SERVER>/api/login`. Similarly if you put a React page under `./about.jsx` it will be served at `http://<SERVER>/about`
+
+### Route Rewrites
+Sometimes you would want to change `/user?id=luke` to `/user/luke`. To cater this type of routes, **all requests sent to a route that doesn't exist are passed on to the closest parent function**. 
+
+So if you visit `/user/luke` and there is no `./user/luke.js` but there is `./user.js`. Zero will send the request to `/user` and set `req.params` to `['luke']`. Code for this:
+
+```js
+// user.js
+module.exports = function(req, res) {
+  console.log(req.params) // ['luke'] when user visits /user/luke
+  res.send({params: req.params})
+}
+```
+
+Another example: if you visit `/user/luke/messages`. Zero will also forward this to `./user.js` and set `req.params` to `['luke', 'messages']`
 
 ## Supported Languages
 - [Node.js](docs/nodejs/README.md)
