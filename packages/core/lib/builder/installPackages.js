@@ -116,7 +116,7 @@ function writePackageJSON(buildPath, deps){
     // "@babel/polyfill": "^7.2.5",
     "@babel/runtime": "^7.3.1",
     "@mdx-js/tag": "0.16.8",
-
+    "react-hot-loader": "^4.6.5",
     // "@babel/core": "^7.2.2",
     
     // "babel-loader": "^8.0.5",

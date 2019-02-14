@@ -7,40 +7,56 @@ const mdxTransform = require("@mdx-js/mdx").sync
 const webpackConfig = require("./webpack.config")
 const babelConfig = require("./babel.config")
 const crypto = require("crypto");
+const ISDEV = process.env.NODE_ENV!=="production"
+//const devServer = require("./dev-server")
 function sha1(data) {
     return crypto.createHash("sha1").update(data, "binary").digest("hex");
 }
 
-const parse = (filename, raw) => {
-  if (path.extname(filename)===".mdx" || path.extname(filename)===".md"){
-    raw = `import { MDXTag } from "@mdx-js/tag"; ${mdxTransform(raw)}`
-  }
+const wrapInHotLoader = (filename) => {
+  var comp = path.basename(filename)
+  var entry = `var App = require('./${comp}');`
+  entry += 'App = (App && App.default)?App.default : App;'
+  // if (path.extname(filename)===".mdx" || path.extname(filename)===".md"){
+  //   raw = `import { MDXTag } from "@mdx-js/tag"; ${mdxTransform(raw)}`
+  // }
 
-  return babel.transform(raw, {...babelConfig, filename}).code
+  // embed hot-reloader
+  
+  if (ISDEV) entry += `import { hot } from 'react-hot-loader/root'; App = hot(App);`
+
+  entry += "module.exports = App"
+
+  // need to transform hot-loader code
+  return babel.transform(entry, {...babelConfig, filename}).code
 }
 
-const bundle = async (filename, bundlePath) => {
+const bundle = async (filename, bundlePath, basePath, publicBundlePath) => {
   
-  const raw = fs.readFileSync(filename)
-  const component = parse(filename, raw) // transform just the component file in browser friendly version
-  const entry = createEntry(component) // wrap the component with entry and loader
+  //const raw = fs.readFileSync(filename)
+  const hotLoaded = wrapInHotLoader(filename) // transform just the component file in browser friendly version
+  var hotLoadedFileName = path.join(path.dirname(filename), "/hmr."+ sha1(filename) + ".js")
+  fs.writeFileSync(hotLoadedFileName, hotLoaded, 'utf8')
+  const entry = createEntry( path.basename(hotLoadedFileName) ) // wrap the component with entry and loader
   
   // save entry code in a file and feed it to webpack
-  var entryFileName = path.join(path.dirname(filename), "/"+ sha1(filename) + ".js")
+  var entryFileName = path.join(path.dirname(filename), "/entry."+ sha1(filename) + ".js")
   fs.writeFileSync(entryFileName, entry, 'utf8')
-  webpackConfig["entry"] = entryFileName
+  var devPath = `http://localhost:${process.env.PORT}${basePath}/__webpack_hmr`
+  webpackConfig["entry"] = [entryFileName]
+  if (ISDEV) webpackConfig['entry'].unshift(`${require.resolve('webpack-hot-middleware/client')}?path=${basePath}/__webpack_hmr`)
   webpackConfig["output"] = {
+    publicPath: basePath + "/",
     path: bundlePath,
     filename: "bundle.js"
   }
-  const stats = await webpackAsync(webpackConfig)
-  fs.unlinkSync(entryFileName)
-  return stats
+  const {compiler, stats} = await webpackAsync(webpackConfig)
+  return {compiler, stats, webpackConfig}
 }
 
 function webpackAsync(config){
   return new Promise((resolve, reject)=>{
-    webpack(config, (err, stats) => {
+    var compiler = webpack(config, (err, stats) => {
       if (err) {
         return reject(err);
       }
@@ -51,7 +67,7 @@ function webpackAsync(config){
       if (stats.hasWarnings()) {
         console.warn(info.warnings);
       }
-      resolve(stats)
+      resolve({compiler, stats})
     });
   })
 }
@@ -60,23 +76,17 @@ function replaceAll(str, find, replace) {
 }
 
 // current doesn't handle async components
-const createEntry = component => {
-// store exported component in a variable so we can refer to it in following entry code.
-// TODO: resolve this in a non-hacky way.
-//console.log(component)
-component = "var ZeroAppContainer;" + replaceAll(component, "module.exports", "ZeroAppContainer")
-component = replaceAll(component, "exports.default", "ZeroAppContainer")
+const createEntry = componentPath => {
 return(`
-// require("@babel/polyfill");
 var React = require("react")
-${component}
+var App = require('./${componentPath}')
 const { hydrate } = require('react-dom')
 
 
 const props = JSON.parse(
   initial_props.innerHTML
 )
-const el = React.createElement(ZeroAppContainer, props)
+const el = React.createElement(App, props)
 hydrate(el, document.getElementById("_react_root"))
 `)
 }

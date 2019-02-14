@@ -46,15 +46,15 @@ function generateFetch(req){
       if (uri.startsWith("/")){
         uri = url.resolve(SERVERADDRESS, uri)
       }
-      // it's a relative path from current address
-      else{
-        // if the fetch() is called from /blog/index.jsx the relative path ('holiday') should
-        // become /blog/holiday and not /holiday
-        // But if the caller file is /blog.jsx, it should become /holiday
-        var isDirectory = path.basename(ENTRYFILE).toLowerCase().startsWith("index.")
-        uri = path.join(req.originalUrl, isDirectory?"":"../", uri)
-        uri = url.resolve(SERVERADDRESS, uri)
-      }
+      // // it's a relative path from current address
+      // else{
+      //   // if the fetch() is called from /blog/index.jsx the relative path ('holiday') should
+      //   // become /blog/holiday and not /holiday
+      //   // But if the caller file is /blog.jsx, it should become /holiday
+      //   var isDirectory = path.basename(ENTRYFILE).toLowerCase().startsWith("index.")
+      //   uri = path.join(req.originalUrl, isDirectory?"":"../", uri)
+      //   uri = url.resolve(SERVERADDRESS, uri)
+      // }
     }
 
     if (options && options.credentials && options.credentials === 'include'){
@@ -87,10 +87,10 @@ function startServer(entryFile, lambdaType, handler){
         delete req.params
       }
       try{
-        var globals = Object.assign({__Zero: {app, handler, req, res, lambdaType, BUNDLEPATH, file, renderError, fetch: generateFetch(req)}}, GLOBALS);
+        var globals = Object.assign({__Zero: {app, handler, BASEPATH, req, res, lambdaType, BUNDLEPATH, file, renderError, fetch: generateFetch(req)}}, GLOBALS);
   
         vm.runInNewContext(`
-          const { app, handler, req, res, lambdaType, file, fetch, renderError, BUNDLEPATH } = __Zero;
+          const { app, handler, req, res, lambdaType, BASEPATH, file, fetch, renderError, BUNDLEPATH } = __Zero;
           global.fetch = fetch
           global.app = app
           // var handlerModule = require("./handlers")[lambdaType]
@@ -99,7 +99,7 @@ function startServer(entryFile, lambdaType, handler){
             renderError(reason, req, res)
           })
 
-          handler(req, res, file, BUNDLEPATH)
+          handler(req, res, file, BUNDLEPATH, BASEPATH)
         `, globals)
       }
       catch(error){

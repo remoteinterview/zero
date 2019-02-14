@@ -3,7 +3,9 @@ require("./mdx-override") // convert mdx to jsx on import()
 const babelConfig = require("./babel.config")
 require('@babel/register')(babelConfig)
 require('ignore-styles') // ignore css/scss imports on server side.
-
+const ISDEV = process.env.NODE_ENV!=="production"
+const devMiddleware = require('webpack-dev-middleware');
+const hotMiddleware = require('webpack-hot-middleware');
 const debug = require('debug')('react')
 const fs = require('fs')
 const path = require('path')
@@ -22,9 +24,10 @@ const jsonStringify = require('json-stringify-safe')
 const bundle = require('./bundle')
 
 var bundleInfo = false
+var webpackVars = {}
 
 async function generateComponent(req, res, componentPath, bundlePath){
-  var fullBundlePath = path.join(process.env.BUILDPATH, bundlePath)
+  //var fullBundlePath = path.join(process.env.BUILDPATH, bundlePath)
   try{
   var App = require(componentPath)
   }
@@ -43,23 +46,6 @@ async function generateComponent(req, res, componentPath, bundlePath){
     }
     catch(e){
       debug("ERROR::getInitialProps", e)
-    }
-  }
-  
-  if (!bundleInfo){
-    if (!fs.existsSync(fullBundlePath)){
-      mkdirp.sync(fullBundlePath)
-      const stats = await bundle(componentPath, fullBundlePath)
-      // var bundleFiles = await bundle(componentPath, fullBundlePath)
-      // debug("bundle size", bundleFiles.js.length/1024)
-      
-      // if (bundleFiles.js) fs.writeFileSync(path.join(fullBundlePath,"/bundle.js"), bundleFiles.js, 'utf8')
-      // if (bundleFiles.css) fs.writeFileSync(path.join(fullBundlePath,"/bundle.css"), bundleFiles.css, 'utf8')
-    }
-
-    bundleInfo = {
-      js: fs.existsSync( path.join(fullBundlePath,"/bundle.js") ) ? path.join(bundlePath, "/bundle.js") : false,
-      css: fs.existsSync( path.join(fullBundlePath,"/bundle.css") ) ? path.join(bundlePath, "/bundle.css") : false,
     }
   }
 
@@ -105,4 +91,63 @@ const isAsync = fn => fn.constructor.name === 'AsyncFunction'
 const createAsyncElement = async (Component, props) =>
   await Component(props)
 
-module.exports = generateComponent
+
+// run hot reload dev server middleware
+module.exports = async (req, res, componentPath, bundlePath, basePath) => {
+  var fullBundlePath = path.join(process.env.BUILDPATH, bundlePath)
+
+  // generate a bundle
+
+  //invalidate node module's cache in dev mode
+  if (ISDEV) {
+    require.cache[require.resolve(componentPath)]
+    bundleInfo = false
+    // webpackVars = false
+  }
+  
+  if (!bundleInfo) {
+    if (!fs.existsSync(fullBundlePath)) {
+      mkdirp.sync(fullBundlePath)
+      webpackVars = await bundle(componentPath, fullBundlePath, basePath, bundlePath)
+    }
+
+    bundleInfo = {
+      js: fs.existsSync(path.join(fullBundlePath, "/bundle.js")) ? path.join(bundlePath, "/bundle.js") : false,
+      css: fs.existsSync(path.join(fullBundlePath, "/bundle.css")) ? path.join(bundlePath, "/bundle.css") : false,
+    }
+
+    // start a dev server
+    if (ISDEV && !webpackVars['devMid']){
+      console.log("public path", basePath)
+      webpackVars['devMid'] = devMiddleware(webpackVars.compiler, {
+        hot: true,
+        publicPath: basePath,
+        progress: true,
+        logLevel: 'debug',
+        stats: {
+          colors: true,
+          assets: true,
+          chunks: false,
+          modules: false,
+          hash: false,
+        },
+      })
+
+      webpackVars['hotMid'] = hotMiddleware(webpackVars.compiler, {
+        path: basePath + '/__webpack_hmr',
+        heartbeat: 4000,
+      })
+    }
+  }
+
+  if (ISDEV){
+    webpackVars['devMid'](req, res, () => {
+      webpackVars['hotMid'](req, res, () => {
+        generateComponent(req, res, componentPath, bundlePath)
+      })
+    })
+  }
+  else{
+    generateComponent(req, res, componentPath, bundlePath)
+  }
+}
