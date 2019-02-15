@@ -1,6 +1,6 @@
 {
   "name": "zeroserver",
-  "version": "0.0.4-alpha.10",
+  "version": "0.0.4-alpha.11",
   "description": "",
   "main": "app.js",
   "scripts": {
@@ -31,7 +31,7 @@
     "zero-handler-html": "^0.0.4-alpha.9",
     "zero-handler-js": "^0.0.4-alpha.9",
     "zero-handler-python": "^0.0.4-alpha.9",
-    "zero-handler-react": "^0.0.4-alpha.9",
+    "zero-handler-react": "^0.0.4-alpha.11",
     "zero-static": "^0.0.4-alpha.8"
   },
   "bundledDependencies": [],
