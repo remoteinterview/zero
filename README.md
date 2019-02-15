@@ -1,6 +1,6 @@
 <p align="center">
   <h1 align="center">Zero Server</h1>
-  <p align="center">Web framework to simplify web development.</p>
+  <p align="center">Zero configuration web framework.</p>
 </p>
 
 
@@ -14,18 +14,18 @@
 
 ---
 
-**Zero** is a web framework to simplify modern web development. `zero` allows you to build your application without worrying about package management or routing. It is as simple as writing your business logic in a mix of [Node.js](docs/nodejs/README.md), [React](docs/react/README.md), [HTML](docs/html/README.md), [MDX](docs/mdx/README.md), and [static files](docs/static/README.md) and putting them all in a folder. Zero will serve them all. Zero abstracts the usual project configuration for routing, bundling, and transpiling to make it easier to get started.
+**Zero** is a web framework to simplify modern web development. `zero` allows you to build your application without worrying about package management or routing. It is as simple as writing your code in a mix of [Node.js](docs/nodejs/README.md), [React](docs/react/README.md), [HTML](docs/html/README.md), [MDX](docs/mdx/README.md), and [static files](docs/static/README.md) and putting them all in a folder. Zero will serve them all. Zero abstracts the usual project configuration for routing, bundling, and transpiling to make it easier to get started.
 
 *An example project with different types of pages, all in one folder:*
 
 ![A basic mono-repo](docs/images/header.gif?raw=true "A basic mono-repo")
 
 ## Features
-**No Configuration Required**: Your project folder doesn't need any config files. You just place your code and it's automatically compiled, bundled and served.
+**Auto Configuration**: Your project folder doesn't require config files. You just place your code and it's automatically compiled, bundled and served.
 
-**File-system Routing**: If your code resides in `./api/login.js` it's exposed at `http://<SERVER>/api/login`. Inspired by good ol' PHP days.
+**File-system Based Routing**: If your code resides in `./api/login.js` it's exposed at `http://<SERVER>/api/login`. Inspired by good ol' PHP days.
 
-**Automatically Resolves Dependencies**: If a file does `require('underscore')`, it is automatically installed and resolved. You can always create your own `package.json` file to install a specific version of a package.
+**Auto Dependency Resolution**: If a file does `require('underscore')`, it is automatically installed and resolved. You can always create your own `package.json` file to install a specific version of a package.
 
 **Multiple Languages**: Zero is designed to support code written in many languages all under a single project. Imagine this:
 1) Exposing your Tensorflow model as a python API.
@@ -107,7 +107,7 @@ Now go to this URL: `http://localhost:3000/` and you should see the current serv
 That's it! You just created a web application.
 
 ## Routing
-### File-system Routing
+### File-system Based Routing
 Zero serves routes based on file structure. If you write a function that resides in `./api/login.js` it's exposed at `http://<SERVER>/api/login`. Similarly if you put a React page under `./about.jsx` it will be served at `http://<SERVER>/about`
 
 ### Route Rewrites
