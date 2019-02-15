@@ -1,11 +1,11 @@
 {
   "name": "zero-handler-html",
   "main": "index.js",
-  "version": "0.0.4-alpha.8",
+  "version": "0.0.4-alpha.9",
   "dependencies": {
     "mkdirp": "^0.5.1",
     "parcel-bundler": "^1.11.0",
-    "zero-process": "^0.0.4-alpha.8"
+    "zero-process": "^0.0.4-alpha.9"
   },
   "gitHead": "9e577043290b2ad1205a24f14c4edf7329c6073d"
 }

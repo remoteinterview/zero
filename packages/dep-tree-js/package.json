@@ -1,7 +1,7 @@
 {
   "name": "zero-dep-tree-js",
   "main": "index.js",
-  "version": "0.0.4-alpha.8",
+  "version": "0.0.4-alpha.9",
   "dependencies": {
     "@mdx-js/mdx": "^0.16.8",
     "konan": "^1.2.1"
