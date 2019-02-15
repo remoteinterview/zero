@@ -14,7 +14,7 @@
 
 ---
 
-**Zero** is a web framework to simplify modern web development. `zero` allows you to build your application without worrying about package management or routing. It is as simple as writing your code in a mix of [Node.js](docs/nodejs/README.md), [React](docs/react/README.md), [HTML](docs/html/README.md), [MDX](docs/mdx/README.md), and [static files](docs/static/README.md) and putting them all in a folder. Zero will serve them all. Zero abstracts the usual project configuration for routing, bundling, and transpiling to make it easier to get started.
+**Zero** is a web framework to simplify modern web development. It allows you to build your application without worrying about package management or routing. It's as simple as writing your code in a mix of [Node.js](docs/nodejs/README.md), [React](docs/react/README.md), [HTML](docs/html/README.md), [MDX](docs/mdx/README.md), and [static files](docs/static/README.md) and putting them all in a folder. Zero will serve them all. Zero abstracts the usual project configuration for routing, bundling, and transpiling to make it easier to get started.
 
 *An example project with different types of pages, all in one folder:*
 
@@ -35,7 +35,7 @@
 
 All under a single project folder as a single web application.
 
-**Improved Error Handling**: Each endpoints run in their own process. So if `/api/login` crashes for some reason, it doesn't affect `/chatroom` page or `/api/chat` API. Crashed endpoints are restarted automatically when the next user visits them.
+**Improved Error Handling**: Each endpoint run in their own process. So if `/api/login` crashes for some reason, it doesn't affect `/chatroom` page or `/api/chat` API. Crashed endpoints are restarted automatically when the next user visits them.
 
 ## Installation
 
@@ -82,6 +82,8 @@ Keep the server running. Now let's consume our API from a React page, create a n
 
 ```jsx
 // index.jsx
+import React from 'react'
+
 export default class extends React.Component {
   static async getInitialProps(){
     var json = await fetch("/time").then((resp) => resp.json())
