@@ -1,10 +1,20 @@
-# Zero Server
+<p align="center">
+  <h1 align="center">Zero Server</h1>
+  <p align="center">Zero configuration web application framework.</p>
+</p>
 
-[Features](#features) | [Installation](#installation) | [Getting Started](#getting-started) | [Examples](examples/) | [Docs](docs/)
 
-Zero is a web server to simplify web development.
+<p align="center">
+  <a href="#features">Features</a> |
+  <a href="#installation">Installation</a> |
+  <a href="#getting-started">Getting Started</a> |
+  <a href="examples/">Examples</a> |
+  <a href="docs/">Docs</a>
+</p>
 
-With `zero`, you just write your business logic in a mix of [Node.js](docs/nodejs/README.md) files, [React](docs/react/README.md)/[HTML](docs/html/README.md)/[MDX](docs/mdx/README.md) frontend pages and [static files](docs/static/README.md) and `zero` will serve them. Zero abstracts the usual project configuration for routing, bundling, and transpiling to make it easier to get started.
+---
+
+**Zero** is a web framework. It allows you to write your code in a mix of [Node.js](docs/nodejs/README.md), [React](docs/react/README.md), [HTML](docs/html/README.md), [MDX](docs/mdx/README.md), and [static files](docs/static/README.md). Zero will serve them all and requires no configuration. Zero makes it easier to get started.
 
 *An example project with different types of pages, all in one folder:*
 
