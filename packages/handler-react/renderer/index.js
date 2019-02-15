@@ -21,7 +21,7 @@ const {
 const {Helmet} = require( require('path').join(process.env.BUILDPATH, "/node_modules/react-helmet") )
 
 const jsonStringify = require('json-stringify-safe')
-const bundle = require('./bundle_parcel')
+const bundle = require('./bundle')
 
 var bundleInfo = false
 var webpackVars = {}
@@ -102,7 +102,7 @@ module.exports = async (req, res, componentPath, bundlePath, basePath) => {
   // TODO: only invalidate if file has changed and not on each refresh
   if (ISDEV) {
     require.cache[require.resolve(componentPath)]
-    bundleInfo = false
+    //bundleInfo = false
     // webpackVars = false
   }
   

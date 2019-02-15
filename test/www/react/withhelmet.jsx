@@ -1,7 +1,7 @@
 import React from 'react'
 import {Helmet} from "react-helmet";
 
-export default ({user}) => (
+module.exports = ({user}) => (
   <div>
     <Helmet>
         <title>Page Title</title>
