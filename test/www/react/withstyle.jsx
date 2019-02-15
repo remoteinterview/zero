@@ -2,6 +2,6 @@ import React from 'react'
 
 import "./style.scss"
 
-module.exports = ()=>{
+export default ()=>{
   return (<h1 id="heading">Title</h1>)
 }

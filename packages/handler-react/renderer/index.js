@@ -98,7 +98,8 @@ module.exports = async (req, res, componentPath, bundlePath, basePath) => {
 
   // generate a bundle
 
-  //invalidate node module's cache in dev mode
+  // invalidate node module's cache in dev mode
+  // TODO: only invalidate if file has changed and not on each refresh
   if (ISDEV) {
     require.cache[require.resolve(componentPath)]
     bundleInfo = false
@@ -106,7 +107,7 @@ module.exports = async (req, res, componentPath, bundlePath, basePath) => {
   }
   
   if (!bundleInfo) {
-    if (!fs.existsSync(fullBundlePath)) {
+    if (!fs.existsSync(fullBundlePath) || ISDEV) {
       mkdirp.sync(fullBundlePath)
       webpackVars = await bundle(componentPath, fullBundlePath, basePath, bundlePath)
     }
@@ -116,38 +117,39 @@ module.exports = async (req, res, componentPath, bundlePath, basePath) => {
       css: fs.existsSync(path.join(fullBundlePath, "/bundle.css")) ? path.join(bundlePath, "/bundle.css") : false,
     }
 
+    //devServer(webpackVars.compiler, webpackVars.webpackConfig)
     // start a dev server
-    if (ISDEV && !webpackVars['devMid']){
-      console.log("public path", basePath)
-      webpackVars['devMid'] = devMiddleware(webpackVars.compiler, {
-        hot: true,
-        publicPath: basePath,
-        progress: true,
-        logLevel: 'debug',
-        stats: {
-          colors: true,
-          assets: true,
-          chunks: false,
-          modules: false,
-          hash: false,
-        },
-      })
+    // if (ISDEV && !webpackVars['devMid']){
+    //   console.log("public path", basePath)
+    //   webpackVars['devMid'] = devMiddleware(webpackVars.compiler, {
+    //     hot: true,
+    //     publicPath: basePath,
+    //     progress: true,
+    //     logLevel: 'debug',
+    //     stats: {
+    //       colors: true,
+    //       assets: true,
+    //       chunks: false,
+    //       modules: false,
+    //       hash: false,
+    //     },
+    //   })
 
-      webpackVars['hotMid'] = hotMiddleware(webpackVars.compiler, {
-        path: basePath + '/__webpack_hmr',
-        heartbeat: 4000,
-      })
-    }
+    //   webpackVars['hotMid'] = hotMiddleware(webpackVars.compiler, {
+    //     path: basePath + '/__webpack_hmr',
+    //     heartbeat: 4000,
+    //   })
+    // }
   }
 
-  if (ISDEV){
-    webpackVars['devMid'](req, res, () => {
-      webpackVars['hotMid'](req, res, () => {
-        generateComponent(req, res, componentPath, bundlePath)
-      })
-    })
-  }
-  else{
+  // if (ISDEV){
+  //   webpackVars['devMid'](req, res, () => {
+  //     webpackVars['hotMid'](req, res, () => {
+  //       generateComponent(req, res, componentPath, bundlePath)
+  //     })
+  //   })
+  // }
+  // else{
     generateComponent(req, res, componentPath, bundlePath)
-  }
+  // }
 }

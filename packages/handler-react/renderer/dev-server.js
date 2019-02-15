@@ -1,43 +1,37 @@
 var http = require('http');
 var express = require('express')
-// module.exports = (compiler, webpackConfig)=>{
-//   return new Promise((resolve, reject)=>{
-//     var app = express();
 
-//     // Attach the dev middleware to the compiler & the server
-//     app.use(require("webpack-dev-middleware")(compiler, {
-//       logLevel: 'warn', publicPath: webpackConfig.output.publicPath
-//     }))
+//CORS middleware
+var allowCrossDomain = function(req, res, next) {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+  res.header('Access-Control-Allow-Headers', 'Content-Type');
+  next();
+}
 
-//     // Attach the hot middleware to the compiler & the server
-//     app.use(require("webpack-hot-middleware")(compiler, {
-//       log: console.log, path: '/__webpack_hmr', heartbeat: 10 * 1000
-//     }))
 
-//     var server = http.createServer(app);
-//     server.listen(8080, function() {
-//       resolve(server.address().port)
-//       console.log("Dev Server::Listening on %j", server.address().port)
-//     })
-//   })
-// }
+module.exports = ()=>{
+  return new Promise((resolve, reject)=>{
+    var app = express();
+    app.use(allowCrossDomain)
 
-module.exports = (compiler, webpackConfig)=>{
-    /**
-   * This file runs a webpack-dev-server, using the API.
-   *
-   * For more information on the options passed to WebpackDevServer,
-   * see the webpack-dev-server API docs:
-   * https://github.com/webpack/docs/wiki/webpack-dev-server#api
-   */
-  const WebpackDevServer = require('webpack-dev-server');
-  const server = new WebpackDevServer(compiler, {
-    hot: true,
-    filename: webpackConfig.output.filename,
-    publicPath: "/",
-    stats: {
-      colors: true,
-    },
-  });
-  server.listen(8080, 'localhost', function() {});
+    var server = http.createServer(app);
+    server.listen(0, function() {
+      resolve({
+        port: server.address().port, 
+        updateDevMiddleware: (compiler, webpackConfig)=>{
+          // Attach the dev middleware to the compiler & the server
+          app.use(require("webpack-dev-middleware")(compiler, {
+            logLevel: 'silent', hot: true
+          }))
+
+          // Attach the hot middleware to the compiler & the server
+          app.use(require("webpack-hot-middleware")(compiler, {
+            log: false, path: '/__webpack_hmr', heartbeat: 10 * 1000
+          }))
+        }
+      })
+      //console.log("Dev Server::Listening on %j", server.address().port)
+    })
+  })
 }
