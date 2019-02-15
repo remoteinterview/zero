@@ -112,7 +112,7 @@ function writePackageJSON(buildPath, deps){
     // "babel-core": "^6.26.0",
     // "babel-polyfill": "^6.26.0",
     //"babel-loader": "^7.1.5",
-    // "react-helmet": "^5.2.0",
+    "react-helmet": "^5.2.0",
     // "@babel/polyfill": "^7.2.5",
     "@babel/runtime": "^7.3.1",
     "react-hot-loader": "^4.6.5",
