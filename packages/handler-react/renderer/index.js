@@ -101,7 +101,7 @@ module.exports = async (req, res, componentPath, bundlePath, basePath) => {
   // invalidate node module's cache in dev mode
   // TODO: only invalidate if file has changed and not on each refresh
   if (ISDEV) {
-    require.cache[require.resolve(componentPath)]
+    delete require.cache[require.resolve(componentPath)]
     //bundleInfo = false
     // webpackVars = false
   }
