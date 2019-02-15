@@ -21,7 +21,7 @@ const {
 const {Helmet} = require( require('path').join(process.env.BUILDPATH, "/node_modules/react-helmet") )
 
 const jsonStringify = require('json-stringify-safe')
-const bundle = require('./bundle')
+const bundle = require('./bundle_parcel')
 
 var bundleInfo = false
 var webpackVars = {}
