@@ -8,6 +8,7 @@ const globParent = require('glob-parent');
 const del = require('del');
 require('colors');
 const debug = require('debug')('core')
+const ISDEV = process.env.NODE_ENV!=="production"
 const slash = require("../utils/fixPathSlashes")
 module.exports = async (options, onWatchUpdate) => {
   var isWatching = false
@@ -81,7 +82,15 @@ module.exports = async (options, onWatchUpdate) => {
 
   // clean
   if (options.clean) {
-    await del([path.join(target, "/**"), '!' + target, '!'+path.join(target, '/node_modules/**') ], {force: true});
+    var paths = [
+      path.join(target, "/**"), 
+      '!' + target, 
+      '!'+path.join(target, '/node_modules/**')
+    ]
+    // if running in prod mode, also avoid deleting builds.
+    if (!ISDEV) path.push('!'+path.join(target, '/zero-builds/**') )
+
+    await del(paths, {force: true});
   }
 
   // initial copy

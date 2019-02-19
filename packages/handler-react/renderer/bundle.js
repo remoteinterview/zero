@@ -2,13 +2,15 @@ const Bundler = require("./parcelCustom")
 const fs = require('fs')
 const path = require('path')
 const debug = require('debug')('react')
-const crypto = require("crypto");
+const mkdirp = require('mkdirp')
+const crypto = require("crypto")
 const ISDEV = process.env.NODE_ENV!=="production"
 function sha1(data) {
     return crypto.createHash("sha1").update(data, "binary").digest("hex");
 }
 
 module.exports = async (filename, bundlePath, basePath, publicBundlePath) => {
+  mkdirp.sync(bundlePath)
   var entryFileName = path.join(path.dirname(filename), "/entry."+ sha1(filename) + ".js")
   const entry = createEntry( path.basename(filename) )
   // save entry code in a file and feed it to parcel

@@ -19,9 +19,9 @@ async function getFiles(baseSrc) {
 
 function installPackages(buildPath, filterFiles){
   return new Promise(async (resolve, reject)=>{
-    buildPath = buildPath || process.cwd()
     var files = await getFiles(buildPath)
-    files = files.filter((f)=>f.indexOf("node_modules")===-1)
+    files = files.filter((f)=>f.indexOf("node_modules")===-1 && f.indexOf("zero-builds")===-1)
+    // debug("files", files)
     var deps = []
 
     // build a list of packages required by all js files
