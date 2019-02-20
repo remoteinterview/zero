@@ -117,6 +117,10 @@ function getBundleInfo(endpointData){
       lambdaIdToBundleInfo[lambdaID] = {info: message, process: child}
       return resolve( lambdaIdToBundleInfo[lambdaID] )
     })
+
+    child.on('close', ()=>{
+      delete lambdaIdToBundleInfo[lambdaID]
+    })
     child.stdout.on('data', (data) => {
       console.log(`${data}`)
     });

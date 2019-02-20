@@ -23,7 +23,8 @@ module.exports = async (filename, bundlePath, basePath, publicBundlePath) => {
     watch: true,
     hmr: ISDEV,
     logLevel: 2,
-    cache: false,
+    cacheDir: path.join(process.env.BUILDPATH, "_cache", sha1(filename)),
+    cache: true,
     minify: !ISDEV,
     autoinstall: false,
     sourceMaps: false//!ISDEV
