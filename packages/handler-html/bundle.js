@@ -7,10 +7,13 @@ function sha1(data) {
 }
 
 module.exports = async function bundle(entryFile, buildPath, publicPath){
+  buildPath = buildPath + "/html.static" // this causes router to serve our html as static files
+  var fullbuildPath = path.join(process.env.BUILDPATH, buildPath)
+
   const bundler = new Bundler(entryFile, {
-    outDir: buildPath,
+    outDir: fullbuildPath,
     outFile: "index.html",
-    publicUrl: publicPath,
+    publicUrl: "/" + buildPath,
     watch: true,
     hmr: isDev,
     logLevel: 2,
@@ -20,5 +23,7 @@ module.exports = async function bundle(entryFile, buildPath, publicPath){
   });
 
   const bundle = await bundler.bundle();
-  return bundle
+  return {
+    path: fullbuildPath
+  }
 }

@@ -1,7 +1,8 @@
 module.exports = {
   process: require.resolve("./process.js"),
+  bundler: require("./bundle"),
   config: {
-    // in dev mode, parcel provides HMR
-    restartOnFileChange: process.env.NODE_ENV==="production"
+    // the process only serves saved static file
+    restartOnFileChange: false//process.env.NODE_ENV==="production"
   }
 }
