@@ -2,6 +2,7 @@
   "name": "zero-handler-js",
   "main": "index.js",
   "version": "1.0.4",
+  "license": "Apache-2.0",
   "dependencies": {
     "@babel/core": "^7.2.2",
     "@babel/polyfill": "^7.2.5",

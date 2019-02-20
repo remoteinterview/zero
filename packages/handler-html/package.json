@@ -2,6 +2,7 @@
   "name": "zero-handler-html",
   "main": "index.js",
   "version": "1.0.4",
+  "license": "Apache-2.0",
   "dependencies": {
     "mkdirp": "^0.5.1",
     "parcel-bundler": "^1.11.0",

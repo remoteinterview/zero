@@ -18,7 +18,7 @@
 
 *An example project with different types of pages, all in one folder:*
 
-![A basic mono-repo](docs/images/header.gif?raw=true "A basic mono-repo")
+![A basic mono-repo](/docs/images/header.gif?raw=true "A basic mono-repo")
 
 ## Features
 **Auto Configuration**: Your project folder doesn't require config files. You just place your code and it's automatically compiled, bundled and served.
