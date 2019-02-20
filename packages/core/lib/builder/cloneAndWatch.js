@@ -88,7 +88,7 @@ module.exports = async (options, onWatchUpdate) => {
       '!'+path.join(target, '/node_modules/**')
     ]
     // if running in prod mode, also avoid deleting builds.
-    if (!ISDEV) path.push('!'+path.join(target, '/zero-builds/**') )
+    if (!ISDEV) paths.push('!'+path.join(target, '/zero-builds/**') )
 
     await del(paths, {force: true});
   }

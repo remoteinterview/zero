@@ -13,10 +13,10 @@ const GLOBALS = require("./globals")
 const session = require('zero-express-session')
 
 const vm = require('vm')
-var BASEPATH, ENTRYFILE, LAMBDATYPE, SERVERADDRESS, BUNDLEPATH
+var BASEPATH, ENTRYFILE, LAMBDATYPE, SERVERADDRESS, BUNDLEPATH, BUNDLEINFO
 
 
-module.exports = (handler, basePath, entryFile, lambdaType, serverAddress, BundlePath) =>{
+module.exports = (handler, basePath, entryFile, lambdaType, serverAddress, BundlePath, BundleInfo) =>{
   if (!basePath && basePath!=="") throw new Error("No basePath provided.")
   if (!entryFile) throw new Error("No entry file provided.")
   if (!lambdaType) throw new Error("No lambda type provided.")
@@ -27,7 +27,10 @@ module.exports = (handler, basePath, entryFile, lambdaType, serverAddress, Bundl
   LAMBDATYPE = lambdaType
   SERVERADDRESS = serverAddress
   BUNDLEPATH = BundlePath
-  debug("Server Address", SERVERADDRESS, "BundlePath", BUNDLEPATH)
+  BUNDLEINFO = BundleInfo
+  try { BUNDLEINFO = JSON.parse(BUNDLEINFO)} 
+  catch(e){}
+  debug("Server Address", SERVERADDRESS, "BundlePath", BUNDLEPATH, "BundleInfo", BUNDLEINFO)
   startServer(ENTRYFILE, LAMBDATYPE, handler).then((port)=>{
     if (process.send) process.send(port)
     else console.log("PORT", port)
@@ -87,10 +90,13 @@ function startServer(entryFile, lambdaType, handler){
         delete req.params
       }
       try{
-        var globals = Object.assign({__Zero: {app, handler, BASEPATH, req, res, lambdaType, BUNDLEPATH, file, renderError, fetch: generateFetch(req)}}, GLOBALS);
+        var globals = Object.assign({__Zero: {
+          app, handler, BASEPATH, req, res, lambdaType, 
+          BUNDLEPATH, BUNDLEINFO, file, renderError, fetch: generateFetch(req)
+        }}, GLOBALS);
   
         vm.runInNewContext(`
-          const { app, handler, req, res, lambdaType, BASEPATH, file, fetch, renderError, BUNDLEPATH } = __Zero;
+          const { app, handler, req, res, lambdaType, BASEPATH, file, fetch, renderError, BUNDLEPATH, BUNDLEINFO } = __Zero;
           global.fetch = fetch
           global.app = app
           // var handlerModule = require("./handlers")[lambdaType]
@@ -99,7 +105,7 @@ function startServer(entryFile, lambdaType, handler){
             renderError(reason, req, res)
           })
 
-          handler(req, res, file, BUNDLEPATH, BASEPATH)
+          handler(req, res, file, BUNDLEPATH, BASEPATH, BUNDLEINFO)
         `, globals)
       }
       catch(error){

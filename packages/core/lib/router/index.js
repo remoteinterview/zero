@@ -18,8 +18,11 @@ const fetch = require("node-fetch")
 const debug = require('debug')('core')
 const ora = require('ora');
 const del = require('del');
+const fork = require('child_process').fork;
+const forkasync = require('../utils/spawn-async')
 
 var lambdaIdToPortMap = {}
+var lambdaIdToBundleInfo = {}
 var getLambdaID = function(entryFile){
   return require("crypto").createHash('sha1').update(entryFile).digest('hex')
 }
@@ -29,13 +32,17 @@ async function proxyLambdaRequest(req, res, endpointData){
     color: 'green',
     spinner: "star"
   })
-  var lambdaID = getLambdaID(endpointData[1])
-  if (!lambdaIdToPortMap[lambdaID]){
-    spinner.start("Building " + url.resolve("/", endpointData[0]))
-  }
   if (!process.env.SERVERADDRESS){
     process.env.SERVERADDRESS = "http://"+req.headers.host
   }
+  var lambdaID = getLambdaID(endpointData[1])
+
+  if (!lambdaIdToBundleInfo[lambdaID] && handlers[endpointData[2]].bundler){
+    spinner.start("Building " + url.resolve("/", endpointData[0]))
+    await getBundleInfo(endpointData)
+  }
+  spinner.start("Serving " + url.resolve("/", endpointData[0]))
+
   var serverAddress = process.env.SERVERADDRESS
 
   const port = await getLambdaServerPort(endpointData)
@@ -93,14 +100,40 @@ process.on('exit', () => {
 })
 
 
+function getBundleInfo(endpointData){
+  return new Promise(async (resolve, reject)=>{
+    const entryFilePath = endpointData[1]
+    const lambdaID = getLambdaID(entryFilePath)
+    if (lambdaIdToBundleInfo[lambdaID]) return resolve(lambdaIdToBundleInfo[lambdaID])
+    const bundlerProgram =  require.resolve("../builder/bundlerProcess.js")
+    if (!bundlerProgram) return resolve(false)
+    const parameters = [endpointData[0], endpointData[1], endpointData[2], "zero-builds/" + lambdaID];
+    const options = {
+      stdio: [ 'pipe', 'pipe', 'pipe', 'ipc' ]
+    };
+
+    const child = fork(bundlerProgram, parameters, options);
+    child.on('message', message => {
+      lambdaIdToBundleInfo[lambdaID] = {info: message, process: child}
+      return resolve( lambdaIdToBundleInfo[lambdaID] )
+    })
+    child.stdout.on('data', (data) => {
+      console.log(`${data}`)
+    });
+    
+    child.stderr.on('data', (data) => {
+      console.error(`${data}`)
+    });
+  })
+}
+
 function getLambdaServerPort(endpointData){
   return new Promise((resolve, reject)=>{
     const entryFilePath = endpointData[1]
     const lambdaID = getLambdaID(entryFilePath)
     if (lambdaIdToPortMap[lambdaID]) return resolve(lambdaIdToPortMap[lambdaID].port)
-    const fork = require('child_process').fork;
     const program =  handlers[endpointData[2]].process
-    const parameters = [endpointData[0], endpointData[1], endpointData[2], process.env.SERVERADDRESS, "zero-builds/" + lambdaID];
+    const parameters = [endpointData[0], endpointData[1], endpointData[2], process.env.SERVERADDRESS, "zero-builds/" + lambdaID, lambdaIdToBundleInfo[lambdaID]?lambdaIdToBundleInfo[lambdaID].info:""];
     const options = {
       stdio: [ 'pipe', 'pipe', 'pipe', 'ipc' ]
     };
@@ -171,10 +204,15 @@ module.exports = (buildPath)=>{
           lambdaIdToPortMap[lambdaID].process.kill()
           // delete their bundle if any
           await del(path.join(process.env.BUILDPATH, "zero-builds", lambdaID, "/**"), {force: true})
+
           // start the process again
           var endpointData = newManifest.lambdas.find((lambda)=>{
             return lambda[1]===file
           })
+
+          // generate bundle
+          delete lambdaIdToBundleInfo[lambdaID]
+          await getBundleInfo(endpointData)
 
           delete lambdaIdToPortMap[lambdaID]
           debug("starting", endpointData)

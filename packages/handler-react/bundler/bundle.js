@@ -16,7 +16,6 @@ module.exports = async (filename, bundlePath, basePath, publicBundlePath) => {
   // save entry code in a file and feed it to parcel
   fs.writeFileSync(entryFileName, entry, 'utf8')
   // Bundler options
-  
   const bundler = new Bundler(entryFileName, {
     outDir: bundlePath,
     outFile: "bundle.js",
@@ -26,7 +25,8 @@ module.exports = async (filename, bundlePath, basePath, publicBundlePath) => {
     logLevel: 2,
     cache: false,
     minify: !ISDEV,
-    autoinstall: false
+    autoinstall: false,
+    sourceMaps: false//!ISDEV
   })
   //console.log("rootDir", bundler.options.rootDir)
 

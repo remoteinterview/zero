@@ -1,8 +1,8 @@
 // forked from https://github.com/ralphtheninja/await-spawn
-const { spawn } = require('child_process')
+const { spawn, fork } = require('child_process')
 
-module.exports = (...args) => {
-  const child = spawn(...args)
+module.exports = (isFork, ...args) => {
+  const child = isFork ? fork(...args) : spawn(...args)
   var stdout = ""
   var stderr = ""
 
@@ -22,7 +22,7 @@ module.exports = (...args) => {
 //    child.on('error', reject)
 
     child.on('exit', code => {
-      resolve(code)
+      resolve({code, stderr, stdout})
     })
   })
 

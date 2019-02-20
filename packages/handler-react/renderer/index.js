@@ -18,13 +18,20 @@ const {
 const {Helmet} = require( require('path').join(process.env.BUILDPATH, "/node_modules/react-helmet") )
 
 const jsonStringify = require('json-stringify-safe')
-const bundle = require('./bundle')
+// const bundle = require('./bundle')
+// var bundleInfo = false
 
-var bundleInfo = false
-var webpackVars = {}
+async function generateComponent(req, res, componentPath, bundlePath, basePath, bundleInfo){
 
-async function generateComponent(req, res, componentPath, bundlePath){
-  //var fullBundlePath = path.join(process.env.BUILDPATH, bundlePath)
+  // invalidate node module's cache in dev mode
+  // TODO: invalidate nested requires too.
+  // TODO: only invalidate if file has changed and not on each refresh
+  if (ISDEV) {
+    delete require.cache[require.resolve(componentPath)]
+    //console.log("CACHE", require.cache)
+    //delete require.cache
+  }
+
   try{
   var App = require(componentPath)
   }
@@ -89,26 +96,26 @@ const createAsyncElement = async (Component, props) =>
   await Component(props)
 
 
-// run hot reload dev server middleware
-module.exports = async (req, res, componentPath, bundlePath, basePath) => {
-  var fullBundlePath = path.join(process.env.BUILDPATH, bundlePath)
+module.exports = generateComponent
+// module.exports = async (req, res, componentPath, bundlePath, basePath) => {
+//   var fullBundlePath = path.join(process.env.BUILDPATH, bundlePath)
 
-  // invalidate node module's cache in dev mode
-  // TODO: only invalidate if file has changed and not on each refresh
-  if (ISDEV) {
-    delete require.cache[require.resolve(componentPath)]
-  }
+//   // invalidate node module's cache in dev mode
+//   // TODO: only invalidate if file has changed and not on each refresh
+//   if (ISDEV) {
+//     delete require.cache[require.resolve(componentPath)]
+//   }
   
-  if (!bundleInfo) {
-    if (!fs.existsSync(fullBundlePath) || ISDEV) {
-      webpackVars = await bundle(componentPath, fullBundlePath, basePath, bundlePath)
-    }
+//   if (!bundleInfo) {
+//     if (!fs.existsSync(fullBundlePath) || ISDEV) {
+//       webpackVars = await bundle(componentPath, fullBundlePath, basePath, bundlePath)
+//     }
 
-    bundleInfo = {
-      js: fs.existsSync(path.join(fullBundlePath, "/bundle.js")) ? path.join(bundlePath, "/bundle.js") : false,
-      css: fs.existsSync(path.join(fullBundlePath, "/bundle.css")) ? path.join(bundlePath, "/bundle.css") : false,
-    }
-  }
+//     bundleInfo = {
+//       js: fs.existsSync(path.join(fullBundlePath, "/bundle.js")) ? path.join(bundlePath, "/bundle.js") : false,
+//       css: fs.existsSync(path.join(fullBundlePath, "/bundle.css")) ? path.join(bundlePath, "/bundle.css") : false,
+//     }
+//   }
 
-  generateComponent(req, res, componentPath, bundlePath)
-}
+//   generateComponent(req, res, componentPath, bundlePath)
+// }
