@@ -1,7 +1,7 @@
 {
   "name": "zero-express-session",
   "main": "index.js",
-  "version": "0.0.4-alpha.8",
+  "version": "1.0.5-alpha.0",
   "license": "Apache-2.0",
   "dependencies": {
     "connect-mongo": "^2.0.3",
