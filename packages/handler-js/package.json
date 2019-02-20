@@ -1,7 +1,7 @@
 {
   "name": "zero-handler-js",
   "main": "index.js",
-  "version": "0.0.4-alpha.9",
+  "version": "1.0.4",
   "dependencies": {
     "@babel/core": "^7.2.2",
     "@babel/polyfill": "^7.2.5",
@@ -9,7 +9,7 @@
     "@babel/register": "^7.0.0",
     "node-fetch": "^2.3.0",
     "zero-dep-tree-js": "^0.0.4-alpha.9",
-    "zero-process": "^0.0.4-alpha.9"
+    "zero-process": "^1.0.4"
   },
   "gitHead": "9e577043290b2ad1205a24f14c4edf7329c6073d"
 }

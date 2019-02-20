@@ -1,6 +1,6 @@
 {
   "name": "zero",
-  "version": "0.0.4-alpha.12",
+  "version": "1.0.4",
   "description": "",
   "main": "app.js",
   "scripts": {
@@ -28,10 +28,10 @@
     "recursive-copy": "^2.0.9",
     "rimraf": "^2.6.2",
     "zero-dep-tree-js": "^0.0.4-alpha.9",
-    "zero-handler-html": "^0.0.4-alpha.9",
-    "zero-handler-js": "^0.0.4-alpha.9",
+    "zero-handler-html": "^1.0.4",
+    "zero-handler-js": "^1.0.4",
     "zero-handler-python": "^0.0.4-alpha.9",
-    "zero-handler-react": "^0.0.4-alpha.12",
+    "zero-handler-react": "^1.0.4",
     "zero-static": "^0.0.4-alpha.8"
   },
   "bundledDependencies": [],
