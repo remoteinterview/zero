@@ -144,12 +144,12 @@ A zero app is a regular Node.js server. But zero doesn't create `package.json` i
     "start": "NODE_ENV=production zero"
   },
   "dependencies": {
-    "zeroserver": "*"
+    "zero": "*"
   }
 }
 ```
 
-- We add dependency `zeroserver`, so the cloud builder can install `zero` on your server.
+- We add dependency `zero`, so the cloud builder can install `zero` on your server.
 - Add a `"start"` command and also set `NODE_ENV` to `production` so zero generates minified builds.
 
 After this, you can follow the instructions from your cloud provider for deploying a Node.js app.
