@@ -3,8 +3,5 @@
   "main": "index.js",
   "version": "1.0.5-alpha.0",
   "license": "Apache-2.0",
-  "dependencies": {
-    "serve-handler": "^5.0.7"
-  },
   "gitHead": "9e577043290b2ad1205a24f14c4edf7329c6073d"
 }

@@ -13,13 +13,14 @@ const matchPath = require("./matchPath")
 const staticHandler = require("zero-static").handler
 const path = require('path')
 const url = require("url")
-const handlers = require('../handlers')
+const handlers = require('zero-handlers-map')
 const fetch = require("node-fetch")
 const debug = require('debug')('core')
 const ora = require('ora');
 const del = require('del');
 const fork = require('child_process').fork;
 const forkasync = require('../utils/spawn-async')
+const bundlerProgram =  require.resolve("zero-bundler-process")
 
 var lambdaIdToPortMap = {}
 var lambdaIdToBundleInfo = {}
@@ -105,7 +106,7 @@ function getBundleInfo(endpointData){
     const entryFilePath = endpointData[1]
     const lambdaID = getLambdaID(entryFilePath)
     if (lambdaIdToBundleInfo[lambdaID]) return resolve(lambdaIdToBundleInfo[lambdaID])
-    const bundlerProgram =  require.resolve("../builder/bundlerProcess.js")
+    
     if (!bundlerProgram) return resolve(false)
     const parameters = [endpointData[0], endpointData[1], endpointData[2], "zero-builds/" + lambdaID];
     const options = {

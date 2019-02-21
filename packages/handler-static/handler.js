@@ -1,7 +1,5 @@
 const staticHandler = require('serve-handler');
 
-module.exports = (request, response) => {
-  return staticHandler(request, response, {
-    public: process.env.BUILDPATH
-  });
+module.exports = (request, response, file) => {
+  res.sendFile(path.join(process.env.BUILDPATH, file));
 }
