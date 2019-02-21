@@ -3,7 +3,7 @@ const fs = require("fs")
 const path = require('path')
 const debug = require('debug')('core')
 const slash = require("../utils/fixPathSlashes")
-const handlers = require('../handlers')
+const handlers = require('zero-handlers-map')
 
 async function getFiles(baseSrc) {
   return new Promise((resolve, reject)=>{
