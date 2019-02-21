@@ -1,6 +1,6 @@
 {
   "name": "zero",
-  "version": "1.0.5-alpha.3",
+  "version": "1.0.5-alpha.4",
   "description": "",
   "main": "app.js",
   "scripts": {
@@ -27,10 +27,10 @@
     "ora": "^3.0.0",
     "recursive-copy": "^2.0.9",
     "rimraf": "^2.6.2",
-    "zero-bundler-process": "^1.0.5-alpha.3",
+    "zero-bundler-process": "^1.0.5-alpha.4",
     "zero-dep-tree-js": "^1.0.5-alpha.0",
-    "zero-handlers-map": "^1.0.5-alpha.3",
-    "zero-static": "^1.0.5-alpha.3"
+    "zero-handlers-map": "^1.0.5-alpha.4",
+    "zero-static": "^1.0.5-alpha.4"
   },
   "bundledDependencies": [],
   "repository": {
