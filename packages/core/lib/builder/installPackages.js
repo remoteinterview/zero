@@ -7,6 +7,12 @@ var npmi = require('npmi');
 var path = require('path');
 const debug = require('debug')('core')
 
+const babelConfig = {
+  "plugins": [
+    ["@babel/plugin-transform-runtime"]
+  ]
+}
+
 async function getFiles(baseSrc) {
   return new Promise((resolve, reject)=>{
     glob(baseSrc + '/**/*', {nodir: true}, (err, res)=>{
@@ -113,7 +119,7 @@ function writePackageJSON(buildPath, deps){
     // "babel-polyfill": "^6.26.0",
     //"babel-loader": "^7.1.5",
     "react-helmet": "^5.2.0",
-    "@babel/polyfill": "^7.2.5",
+    // "@babel/polyfill": "^7.2.5",
     "@babel/runtime": "^7.3.1",
     "react-hot-loader": "^4.6.5",
     "@mdx-js/tag": "^0.16.8",
@@ -147,10 +153,7 @@ function writePackageJSON(buildPath, deps){
   fs.writeFileSync(path.join(buildPath, "/package.json"), JSON.stringify(pkg), 'utf8')
 
   // // write .babelrc
-  // var babeljson = {
-  //   "plugins": ["babel-plugin-transform-runtime"]
-  // }
-  // fs.writeFileSync(path.join(buildPath, "/.babel.rc"), JSON.stringify(babeljson), 'utf8')
+  fs.writeFileSync(path.join(buildPath, "/.babelrc"), JSON.stringify(babelConfig), 'utf8')
 }
 
 module.exports = installPackages
