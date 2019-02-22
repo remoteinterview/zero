@@ -1,6 +1,8 @@
 const konan = require('./getImports')
 const path = require('path')
 const fs = require('fs')
+const builtInPackages = require('module').builtinModules || []
+
 // recursively generate list of (relative) files imported by given file
 function getRelativeFiles(file){
   const extension = path.extname(file)
@@ -46,8 +48,8 @@ function getPackages(file){
     imports.strings.forEach((imp)=> {
       // trim submodule imports and install main package (ie. 'bootstrap' for: import 'bootstrap/dist/css/bootstrap.min.css')
       imp = imp.split("/")[0]
-      // skip relative imports
-      if (!imp.startsWith(".")) {
+      // skip relative imports and built-in imports (on newer node versions only)
+      if (!imp.startsWith(".") && builtInPackages.indexOf(imp)===-1) {
         deps.push(imp)
       }
     })
