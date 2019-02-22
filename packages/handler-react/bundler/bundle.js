@@ -38,6 +38,7 @@ module.exports = async (filename, bundlePath, basePath, publicBundlePath) => {
 const createEntry = componentPath => {
 return(`
 var React = require("react")
+require("@babel/polyfill");
 
 // we add React to global scope to allow react pages without require('react') in them.
 window.React = React
