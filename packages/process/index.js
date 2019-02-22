@@ -141,7 +141,12 @@ async function renderError(error, req, res){
     
     `
   }).toHTML()
-  res.writeHead(200, {'content-type': 'text/html'})
-  res.write(html)
-  res.end()
+  try{
+    res.writeHead(200, {'content-type': 'text/html'})
+    res.write(html)
+    res.end()
+  }
+  catch(e){
+    // ignore
+  }
 }
