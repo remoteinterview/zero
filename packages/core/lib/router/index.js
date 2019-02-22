@@ -9,6 +9,7 @@
 */
 
 const express = require('express')
+const compression = require('compression')
 const matchPath = require("./matchPath")
 const staticHandler = require("zero-static").handler
 const path = require('path')
@@ -178,6 +179,10 @@ function getLambdaServerPort(endpointData){
 
 module.exports = (buildPath)=>{
   const app = express()
+
+  // compress all responses
+  app.use(compression({threshold: 1}))
+
   var manifest = {lambdas:[], fileToLambdas:{}}
   var forbiddenStaticFiles = []
   app.all("*", (request, response)=>{

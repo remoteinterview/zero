@@ -4,7 +4,8 @@ const path = require("path"),
       url = require("url"),
       //handlers = require("./handlers"),
       Youch = require('youch'),
-      express = require('express')
+      express = require('express'),
+      compression = require('compression')
 const FETCH = require('node-fetch')
 const debug = require('debug')('core')
 
