@@ -4,8 +4,8 @@ const path = require("path"),
       url = require("url"),
       //handlers = require("./handlers"),
       Youch = require('youch'),
-      express = require('express'),
-      compression = require('compression')
+      YouchTerminal = require('youch-terminal'),
+      express = require('express')
 const FETCH = require('node-fetch')
 const debug = require('debug')('core')
 
@@ -123,7 +123,13 @@ function startServer(entryFile, lambdaType, handler){
 
 async function renderError(error, req, res){
   const youch = new Youch(error, req)
-      
+  
+  // print error in terminal
+  youch.toJSON()
+  .then((output) => {
+    console.log(YouchTerminal(output))
+  })
+
   var html = await 
   youch.addLink(({ message }) => {
     var style = `text-decoration: none; border: 1px solid #dcdcdc; padding: 9px 12px;`

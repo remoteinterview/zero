@@ -111,7 +111,7 @@ function getBundleInfo(endpointData){
     if (!bundlerProgram) return resolve(false)
     const parameters = [endpointData[0], endpointData[1], endpointData[2], "zero-builds/" + lambdaID];
     const options = {
-      stdio: [ 'pipe', 'pipe', 'pipe', 'ipc' ]
+      stdio: [ 0, 1, 2, 'ipc' ]
     };
 
     const child = fork(bundlerProgram, parameters, options);
@@ -123,13 +123,13 @@ function getBundleInfo(endpointData){
     child.on('close', ()=>{
       delete lambdaIdToBundleInfo[lambdaID]
     })
-    child.stdout.on('data', (data) => {
-      console.log(`${data}`)
-    });
+    // child.stdout.on('data', (data) => {
+    //   console.log(`${data}`)
+    // });
     
-    child.stderr.on('data', (data) => {
-      console.error(`${data}`)
-    });
+    // child.stderr.on('data', (data) => {
+    //   console.error(`${data}`)
+    // });
   })
 }
 
