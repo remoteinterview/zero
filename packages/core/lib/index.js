@@ -4,6 +4,7 @@ const startRouter = require("./router")
 const path = require("path")
 const fs = require('fs')
 const copyDirectory = require("./utils/copyDirectory")
+const del = require('del');
 const debug = require('debug')('core')
 const mkdirp = require('mkdirp');
 const slash = require("./utils/fixPathSlashes")
@@ -94,7 +95,7 @@ function builder(sourcePath){
       for(var i in manifest.lambdas){
         var endpointData = manifest.lambdas[i]
         var lambdaID = getLambdaID(endpointData[0])
-        console.log(`[${(~~i+1)}/${manifest.lambdas.length}] Building`, endpointData[0], lambdaID)
+        console.log(`[${(~~i+1)}/${manifest.lambdas.length}] Building`, endpointData[0])
         var info = await getBundleInfo(endpointData)
         bundleInfoMap[lambdaID] = {info} //the router needs the data at .info of each key
       }
@@ -105,8 +106,8 @@ function builder(sourcePath){
       // copy zero-builds folder to local folder
       copyDirectory(path.join(process.env.BUILDPATH, "/zero-builds"), path.join(process.env.SOURCEPATH, "/zero-builds"))
 
-      // exit the process
-      process.exit()
+      // clear tmp folder
+      await del([path.join(process.env.BUILDPATH, "/**")], {force: true});
 
 
     }, true)

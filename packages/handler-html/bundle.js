@@ -14,11 +14,11 @@ module.exports = async function bundle(entryFile, buildPath, publicPath){
     outDir: fullbuildPath,
     outFile: "index.html",
     publicUrl: "/" + buildPath,
-    watch: true,
+    watch: !process.env.ISBUILDER,
     hmr: isDev && !process.env.ISBUILDER,
     logLevel: 2,
     cacheDir: path.join(process.env.BUILDPATH, "_cache", sha1(entryFile)),
-    cache: true,
+    cache: !process.env.ISBUILDER,
     minify: !isDev
   });
 
