@@ -26,7 +26,10 @@ async function getFiles(baseSrc) {
 function installPackages(buildPath, filterFiles){
   return new Promise(async (resolve, reject)=>{
     var files = await getFiles(buildPath)
-    files = files.filter((f)=>f.indexOf("node_modules")===-1 && f.indexOf("zero-builds")===-1)
+    files = files.filter((f)=>{
+      f = path.relative(process.env.BUILDPATH, f)
+      return f.indexOf("node_modules")===-1 && f.indexOf("zero-builds")===-1
+    })
     // debug("files", files)
     var deps = []
 

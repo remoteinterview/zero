@@ -21,7 +21,7 @@ module.exports = async (filename, bundlePath, basePath, publicBundlePath) => {
     outFile: "bundle.js",
     publicUrl: publicBundlePath,
     watch: true,
-    hmr: ISDEV,
+    hmr: ISDEV && !process.env.ISBUILDER,
     logLevel: 2,
     cacheDir: path.join(process.env.BUILDPATH, "_cache", sha1(filename)),
     cache: true,

@@ -42,6 +42,16 @@ module.exports = async (options, onWatchUpdate) => {
     });
   };
   const copy = from => {
+    const relativePath = path.relative(process.env.SOURCEPATH, from)
+    if (relativePath.indexOf("node_modules") !== -1){
+      return;
+    }
+
+    // don't copy zero-builds folder (only in dev mode)
+    if (ISDEV && relativePath.indexOf("zero-builds") !== -1){
+      return
+    }
+    
     const to = findTarget(from);
     createDirIfNotExist(to);
     const stats = fs.statSync(from);
@@ -53,6 +63,10 @@ module.exports = async (options, onWatchUpdate) => {
     if (isWatching && onWatchUpdate) onWatchUpdate('add', to) 
   };
   const remove = from => {
+    const relativePath = path.relative(process.env.SOURCEPATH, from)
+    if (relativePath.indexOf("node_modules") !== -1 || relativePath.indexOf("zero-builds") !== -1){
+      return;
+    }
     const to = findTarget(from);
     try{
       fs.unlinkSync(to);
@@ -84,11 +98,13 @@ module.exports = async (options, onWatchUpdate) => {
   if (options.clean) {
     var paths = [
       path.join(target, "/**"), 
-      '!' + target, 
-      '!'+path.join(target, '/node_modules/**')
+      '!' + target
     ]
+    if (!options.cleanModules){
+      paths.push('!'+path.join(target, '/node_modules/**'))
+    }
     // if running in prod mode, also avoid deleting builds.
-    if (!ISDEV) paths.push('!'+path.join(target, '/zero-builds/**') )
+    //if (!ISDEV) paths.push('!'+path.join(target, '/zero-builds/**') )
 
     await del(paths, {force: true});
   }

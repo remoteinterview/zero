@@ -1,6 +1,6 @@
 const waitPort = require('wait-port')
 const path = require("path")
-const startServer = require("../packages/core/lib")
+const startServer = require("../packages/core/lib").server
 
 async function globalSetup () {
   await startServer(path.join(__dirname, "./www"))

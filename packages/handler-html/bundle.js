@@ -15,7 +15,7 @@ module.exports = async function bundle(entryFile, buildPath, publicPath){
     outFile: "index.html",
     publicUrl: "/" + buildPath,
     watch: true,
-    hmr: isDev,
+    hmr: ISDEV && !process.env.ISBUILDER,
     logLevel: 2,
     cacheDir: path.join(process.env.BUILDPATH, "_cache", sha1(entryFile)),
     cache: true,

@@ -16,6 +16,7 @@ const path = require('path')
 const url = require("url")
 const handlers = require('zero-handlers-map')
 const fetch = require("node-fetch")
+const fs = require('fs')
 const debug = require('debug')('core')
 const ora = require('ora');
 const del = require('del');
@@ -25,6 +26,8 @@ const bundlerProgram =  require.resolve("zero-bundler-process")
 
 var lambdaIdToPortMap = {}
 var lambdaIdToBundleInfo = {}
+var updatedManifest = false
+
 var getLambdaID = function(entryFile){
   return require("crypto").createHash('sha1').update(entryFile).digest('hex')
 }
@@ -37,9 +40,10 @@ async function proxyLambdaRequest(req, res, endpointData){
   if (!process.env.SERVERADDRESS){
     process.env.SERVERADDRESS = "http://"+req.headers.host
   }
-  var lambdaID = getLambdaID(endpointData[1])
+  var lambdaID = getLambdaID(endpointData[0])
 
   if (!lambdaIdToBundleInfo[lambdaID] && handlers[endpointData[2]].bundler){
+    //debug("build not found", lambdaID, endpointData[0])
     spinner.start("Building " + url.resolve("/", endpointData[0]))
     await getBundleInfo(endpointData)
   }
@@ -105,7 +109,7 @@ process.on('exit', () => {
 function getBundleInfo(endpointData){
   return new Promise(async (resolve, reject)=>{
     const entryFilePath = endpointData[1]
-    const lambdaID = getLambdaID(entryFilePath)
+    const lambdaID = getLambdaID(endpointData[0])
     if (lambdaIdToBundleInfo[lambdaID]) return resolve(lambdaIdToBundleInfo[lambdaID])
     
     if (!bundlerProgram) return resolve(false)
@@ -136,7 +140,7 @@ function getBundleInfo(endpointData){
 function getLambdaServerPort(endpointData){
   return new Promise((resolve, reject)=>{
     const entryFilePath = endpointData[1]
-    const lambdaID = getLambdaID(entryFilePath)
+    const lambdaID = getLambdaID(endpointData[0])
     if (lambdaIdToPortMap[lambdaID]) return resolve(lambdaIdToPortMap[lambdaID].port)
     const program =  handlers[endpointData[2]].process
     const parameters = [endpointData[0], endpointData[1], endpointData[2], process.env.SERVERADDRESS, "zero-builds/" + lambdaID, lambdaIdToBundleInfo[lambdaID]?lambdaIdToBundleInfo[lambdaID].info:""];
@@ -205,19 +209,37 @@ module.exports = (buildPath)=>{
     manifest = newManifest;
     forbiddenStaticFiles = newForbiddenFiles
 
+    if (!updatedManifest){
+      // this is first update of manifest
+      updatedManifest = true
+
+      // try to load build-info from file (if generated using 'zero build' command)
+      try{
+        var file = fs.readFileSync(path.join(buildPath, "/zero-builds/build-info.json"), 'utf8')
+        lambdaIdToBundleInfo = JSON.parse(file)
+        console.log("loading build info with ", Object.keys(lambdaIdToBundleInfo).length, "keys")
+      }
+      catch(e){
+        // file is probably not present, ignore
+      }
+    }
+
     // kill and restart servers 
     if (filesUpdated){
       filesUpdated.forEach(async file=>{
-        var lambdaID = getLambdaID(file)
+        var lambdaEntryFile = manifest.fileToLambdas[file]
+        if (!lambdaEntryFile) return;
+
+        var lambdaID = getLambdaID(lambdaEntryFile)
         if (lambdaIdToPortMap[lambdaID] && shouldKillOnChange(lambdaIdToPortMap[lambdaID].endpointData)) {
-          debug("killing", file, lambdaIdToPortMap[lambdaID].port)
+          debug("killing", lambdaEntryFile, lambdaIdToPortMap[lambdaID].port)
           lambdaIdToPortMap[lambdaID].process.kill()
           // delete their bundle if any
           await del(path.join(process.env.BUILDPATH, "zero-builds", lambdaID, "/**"), {force: true})
 
           // start the process again
           var endpointData = newManifest.lambdas.find((lambda)=>{
-            return lambda[1]===file
+            return lambda[1]===lambdaEntryFile
           })
 
           // generate bundle

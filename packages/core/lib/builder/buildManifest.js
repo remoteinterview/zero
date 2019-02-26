@@ -14,11 +14,13 @@ async function getFiles(baseSrc) {
   })
 }
 
+const relativePath = (p)=>path.relative(process.env.BUILDPATH, p)
+
 async function buildManifest(buildPath, oldManifest, fileFilter) {
   buildPath = buildPath.endsWith("/") ? buildPath : (buildPath + "/")
   var date = Date.now()
   var files = await getFiles(buildPath)
-  files = files.filter((f) => f.indexOf("node_modules") === -1 && f.indexOf("zero-builds") === -1)
+  files = files.filter((f) => relativePath(f).indexOf("node_modules") === -1 &&  relativePath(f).indexOf("zero-builds") === -1)
 
   var json = await Promise.all(files.map(async (file, i) => {
     const extension = path.extname(file)

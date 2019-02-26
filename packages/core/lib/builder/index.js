@@ -14,7 +14,7 @@ const spinner = ora({
 
 var watchDeferTimeoutID = false
 var pendingFilesChanged = []
-module.exports = async function build(sourcePath, buildPath, onManifest) {
+module.exports = async function build(sourcePath, buildPath, onManifest, isBuilder) {
   var currentManifest = false
 
   debug("buildPath", buildPath)
@@ -22,8 +22,9 @@ module.exports = async function build(sourcePath, buildPath, onManifest) {
   sync({
     sources: [path.join(sourcePath, '/**/*')],
     target: buildPath,
-    watch: true,
-    clean: true
+    watch: isBuilder?false:true,
+    clean: true,
+    cleanModules: isBuilder
   }, async (event, file) => {
     debug("CHANGE", event, file)
 
@@ -49,7 +50,7 @@ module.exports = async function build(sourcePath, buildPath, onManifest) {
       var serverAddress = process.env.SERVERADDRESS || ("http://localhost:" + process.env.PORT)
 
       // check if directory is empty on first run
-      if (event === "ready") {
+      if (!isBuilder && event === "ready") {
         fs.readdir(sourcePath, function (err, files) {
           if (err) {
             // some sort of error
@@ -64,8 +65,11 @@ module.exports = async function build(sourcePath, buildPath, onManifest) {
           }
         });
       }
-      else {
+      else if(!isBuilder) {
         spinner.succeed("Server running on " + serverAddress)
+      }
+      else{
+        spinner.stop()
       }
 
 

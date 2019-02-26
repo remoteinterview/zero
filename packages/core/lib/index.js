@@ -1,7 +1,10 @@
 
 const build = require("./builder")
 const startRouter = require("./router")
-const path = require("path");
+const path = require("path")
+const fs = require('fs')
+const copyDirectory = require("./utils/copyDirectory")
+const debug = require('debug')('core')
 const mkdirp = require('mkdirp');
 const slash = require("./utils/fixPathSlashes")
 var getHash = function(str){
@@ -12,8 +15,8 @@ function setupEnvVariables(sourcePath){
   // Load environment variables from .env file if present
   require('dotenv').config({path: path.resolve(sourcePath, '.env')})
   // Default env variables.
-  process.env.SOURCHPATH = slash(sourcePath)
-  const DEFAULTBUILDPATH = path.join( require("os").tmpdir(), getHash(process.env.SOURCHPATH) )
+  process.env.SOURCEPATH = slash(sourcePath)
+  const DEFAULTBUILDPATH = path.join( require("os").tmpdir(), "zeroservertmp", getHash(process.env.SOURCEPATH) )
   process.env.PORT = process.env.PORT || 3000
   process.env.SESSION_TTL = process.env.SESSION_TTL || 1000 * 60 * 60 * 24 * 365 // 1 year
   process.env.SESSION_SECRET = process.env.SESSION_SECRET || 'k3yb0Ard c@t'
@@ -40,8 +43,7 @@ process.on("SIGINT", function () {
   process.exit();
 });
 
-
-module.exports = async (path)=>{
+function server(path){
   setupEnvVariables(path)
   var updateManifestFn = startRouter(/*manifest, forbiddenFiles,*/ process.env.BUILDPATH)
   return new Promise((resolve, reject)=>{
@@ -50,4 +52,65 @@ module.exports = async (path)=>{
       resolve()
     })
   })
+}
+
+
+// Build beforehand
+const fork = require('child_process').fork;
+const bundlerProgram =  require.resolve("zero-bundler-process")
+var getLambdaID = function(entryFile){
+  return require("crypto").createHash('sha1').update(entryFile).digest('hex')
+}
+
+function getBundleInfo(endpointData){
+  return new Promise(async (resolve, reject)=>{
+    const entryFilePath = endpointData[1]
+    const lambdaID = getLambdaID(endpointData[0])
+    if (!bundlerProgram) return resolve(false)
+    const parameters = [endpointData[0], endpointData[1], endpointData[2], "zero-builds/" + lambdaID];
+    const options = {
+      stdio: [ 0, 1, 2, 'ipc' ]
+    };
+
+    const child = fork(bundlerProgram, parameters, options);
+    child.on('message', message => {
+      resolve(message)
+    })
+  })
+}
+
+
+function builder(sourcePath){
+  //process.env.BUILDPATH = path.join(sourcePath, "zero-builds")
+  process.env.ISBUILDER = "true"
+  process.env.NODE_ENV = "production"
+  var bundleInfoMap = {}
+  setupEnvVariables(sourcePath)
+
+  return new Promise((resolve, reject)=>{
+    build(sourcePath, process.env.BUILDPATH, async (manifest, forbiddenFiles, filesUpdated)=>{
+      //console.log(manifest)
+
+      for(var i in manifest.lambdas){
+        var endpointData = manifest.lambdas[i]
+        var lambdaID = getLambdaID(endpointData[0])
+        console.log(`[${(~~i+1)}/${manifest.lambdas.length}] Building`, endpointData[0], lambdaID)
+        var info = await getBundleInfo(endpointData)
+        bundleInfoMap[lambdaID] = {info} //the router needs the data at .info of each key
+      }
+
+      debug("bundleInfo", bundleInfoMap)
+      fs.writeFileSync(path.join(process.env.BUILDPATH, "/zero-builds/build-info.json"), JSON.stringify(bundleInfoMap), 'utf8')
+
+      // copy zero-builds folder to local folder
+      copyDirectory(path.join(process.env.BUILDPATH, "/zero-builds"), path.join(process.env.SOURCEPATH, "/zero-builds"))
+
+
+    }, true)
+  })
+}
+
+module.exports = {
+  server: server,
+  build: builder
 }

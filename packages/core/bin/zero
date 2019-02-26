@@ -1,3 +1,10 @@
 #!/usr/bin/env node
-var startServer = require('../lib');
-startServer(process.argv[2] || process.cwd())
+var startServer = require('../lib').server;
+var build = require('../lib').build;
+
+if (process.argv[2] ==="build"){
+  build(process.argv[3] || process.cwd())
+}
+else{
+  startServer(process.argv[2] || process.cwd())
+}
