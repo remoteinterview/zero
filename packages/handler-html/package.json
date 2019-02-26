@@ -1,7 +1,7 @@
 {
   "name": "zero-handler-html",
   "main": "index.js",
-  "version": "1.0.5-alpha.10",
+  "version": "1.0.5-alpha.12",
   "license": "Apache-2.0",
   "dependencies": {
     "mkdirp": "^0.5.1",

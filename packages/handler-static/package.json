@@ -1,7 +1,7 @@
 {
   "name": "zero-static",
   "main": "index.js",
-  "version": "1.0.5-alpha.7",
+  "version": "1.0.5-alpha.12",
   "license": "Apache-2.0",
   "gitHead": "9e577043290b2ad1205a24f14c4edf7329c6073d"
 }
