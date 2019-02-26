@@ -141,6 +141,8 @@ A zero app is a regular Node.js server. But zero doesn't create `package.json` i
 {
   "name": "my-zero-app",
   "scripts": {
+    "dev": "zero",
+    "build": "zero build",
     "start": "NODE_ENV=production zero"
   },
   "dependencies": {
@@ -150,7 +152,8 @@ A zero app is a regular Node.js server. But zero doesn't create `package.json` i
 ```
 
 - We add dependency `zero`, so the cloud builder can install `zero` on your server.
-- Add a `"start"` command and also set `NODE_ENV` to `production` so zero generates minified builds.
+- Add a `"start"` command and also set `NODE_ENV` to `production` so zero generates minified builds and disabled HMR etc.
+- Add a `"build"` command to pre-build all files to speed up cold boots. Don't forget to run `npm run build` in your build step (in your Dockerfile, `heroku-postbuild`, etc)
 
 After this, you can follow the instructions from your cloud provider for deploying a Node.js app.
 
