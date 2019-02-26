@@ -105,6 +105,9 @@ function builder(sourcePath){
       // copy zero-builds folder to local folder
       copyDirectory(path.join(process.env.BUILDPATH, "/zero-builds"), path.join(process.env.SOURCEPATH, "/zero-builds"))
 
+      // exit the process
+      process.exit()
+
 
     }, true)
   })
