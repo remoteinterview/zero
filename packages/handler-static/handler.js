@@ -1,13 +1,10 @@
 const path = require('path')
 const url = require('url')
-module.exports = (request, response) => {
-  var file = path.join(process.env.BUILDPATH, url.parse(request.url).pathname)
+const express = require('express')
 
-  // prevent sending files outside project folder.
-  if (!require('path').relative(process.env.BUILDPATH, file).startsWith("..") ){
-    response.sendFile(file);
-  }
-  else{
-    response.sendStatus(404)
-  }
+module.exports = (req, res)=>{
+  const staticMiddleware = express.static(process.env.BUILDPATH)
+  staticMiddleware(req, res, ()=>{
+    res.sendStatus(404)
+  })
 }
