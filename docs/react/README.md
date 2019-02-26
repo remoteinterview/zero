@@ -41,7 +41,7 @@ export default class extends React.Component {
   render() {
     return (
       <div>
-        You have {this.props.message.length} new messages.
+        You have {this.props.messages.length} new messages.
       </div>
     )
   }
