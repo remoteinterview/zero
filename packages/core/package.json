@@ -1,6 +1,6 @@
 {
   "name": "zero",
-  "version": "1.0.5-alpha.15",
+  "version": "1.0.5",
   "description": "",
   "main": "app.js",
   "scripts": {
