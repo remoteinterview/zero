@@ -46,8 +46,7 @@ function getPackages(file){
     var imports = konan(file, fs.readFileSync(file, 'utf8'))
     // only strings for now.
     imports.strings.forEach((imp)=> {
-      // trim submodule imports and install main package (ie. 'bootstrap' for: import 'bootstrap/dist/css/bootstrap.min.css')
-      imp = imp.split("/")[0]
+      imp = trimPackageName(imp);
       // skip relative imports and built-in imports (on newer node versions only)
       if (!imp.startsWith(".") && builtInPackages.indexOf(imp)===-1) {
         deps.push(imp)
@@ -56,6 +55,14 @@ function getPackages(file){
   }
 
   return deps
+}
+
+// trim submodule imports to only install main package (ie. 'bootstrap' for: import 'bootstrap/dist/css/bootstrap.min.css')
+// scoped package names are allowed to have one / - after that they will be trimmed as well
+function trimPackageName(dep) {
+  const regex =  /(@[^\/]*\/[^\/]*)?(^([^@][^\/]*)\/?)?/
+  var matches = dep.match(regex);
+  return matches[1] || matches[3];
 }
 
 module.exports = {
