@@ -46,8 +46,10 @@ function getPackages(file){
     var imports = konan(file, fs.readFileSync(file, 'utf8'))
     // only strings for now.
     imports.strings.forEach((imp)=> {
-      // trim submodule imports and install main package (ie. 'bootstrap' for: import 'bootstrap/dist/css/bootstrap.min.css')
-      imp = imp.split("/")[0]
+      // trim submodule imports and install main package (ie. 'bootstrap' for: import 'bootstrap/dist/css/bootstrap.min.css') - except scoped package names
+      if (!imp.startsWith("@")) {
+        imp = imp.split("/")[0]
+      }
       // skip relative imports and built-in imports (on newer node versions only)
       if (!imp.startsWith(".") && builtInPackages.indexOf(imp)===-1) {
         deps.push(imp)
