@@ -12,6 +12,12 @@
   <a href="docs/">Docs</a>
 </p>
 
+<p align="center">
+  <a href="https://spectrum.chat/zero">
+    <img alt="Join the community on Spectrum" src="https://withspectrum.github.io/badge/badge.svg" />
+  </a>
+</p>
+
 ---
 
 **Zero** is a web framework to simplify modern web development. It allows you to build your application without worrying about package management or routing. It's as simple as writing your code in a mix of [Node.js](docs/nodejs/README.md), [React](docs/react/README.md), [HTML](docs/html/README.md), [MDX](docs/mdx/README.md), and [static files](docs/static/README.md) and putting them all in a folder. Zero will serve them all. Zero abstracts the usual project configuration for routing, bundling, and transpiling to make it easier to get started.
