@@ -163,8 +163,11 @@ A zero app is a regular Node.js server. But zero doesn't create `package.json` i
 
 After this, you can follow the instructions from your cloud provider for deploying a Node.js app.
 
+### Changing Server's Port
+By default zero runs on port `3000`. You can change this by setting the `PORT` environment variable, like this: `PORT=8080 zero`
+
 ## Contributing
-*TODO*
+Please see our [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ## License
 
