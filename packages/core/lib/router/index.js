@@ -226,10 +226,17 @@ module.exports = (buildPath)=>{
 
     // kill and restart servers 
     if (filesUpdated){
-      filesUpdated.forEach(async file=>{
-        var lambdaEntryFile = manifest.fileToLambdas[file]
-        if (!lambdaEntryFile) return;
 
+      // find out which lambdas need updating due to this change
+      var lambdasUpdated = {}
+      filesUpdated.forEach(file=>{
+        var lambdaEntryFiles = manifest.fileToLambdas[file]
+        if (!lambdaEntryFiles || lambdaEntryFiles) return;
+        lambdaEntryFiles.forEach((file)=> lambdasUpdated[file] = true)
+      })
+
+      // update each lambda
+      Object.keys(lambdasUpdated).forEach(async (lambdaEntryFile)=>{
         var lambdaID = getLambdaID(lambdaEntryFile)
         if (lambdaIdToPortMap[lambdaID] && shouldKillOnChange(lambdaIdToPortMap[lambdaID].endpointData)) {
           debug("killing", lambdaEntryFile, lambdaIdToPortMap[lambdaID].port)
