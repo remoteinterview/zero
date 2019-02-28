@@ -10,6 +10,8 @@ require('colors');
 const debug = require('debug')('core')
 const ISDEV = process.env.NODE_ENV!=="production"
 const slash = require("../utils/fixPathSlashes")
+const createDirIfNotExist = require("../utils/createDirIfNotExist.js");
+
 module.exports = async (options, onWatchUpdate) => {
   var isWatching = false
   const target = options.target
@@ -24,23 +26,7 @@ module.exports = async (options, onWatchUpdate) => {
       .reverse()[0];
     return path.join(target, path.relative(parent, from));
   };
-  const createDirIfNotExist = to => {
-    'use strict';
 
-    const dirs = [];
-    let dir = path.dirname(to);
-
-    while (dir !== path.dirname(dir)) {
-      dirs.unshift(dir);
-      dir = path.dirname(dir);
-    }
-
-    dirs.forEach(dir => {
-      if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir);
-      }
-    });
-  };
   const copy = from => {
     const relativePath = path.relative(process.env.SOURCEPATH, from)
     if (relativePath.indexOf("node_modules") !== -1){
