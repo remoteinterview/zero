@@ -4,25 +4,9 @@ const fs = require('fs');
 const path = require('path');
 const debug = require('debug')('core')
 const glob = require('glob');
+const createDirIfNotExist = require('./createDirIfNotExist');
 
 module.exports = (from, to)=>{
-  const createDirIfNotExist = to => {
-    'use strict';
-
-    const dirs = [];
-    let dir = path.dirname(to);
-
-    while (dir !== path.dirname(dir)) {
-      dirs.unshift(dir);
-      dir = path.dirname(dir);
-    }
-
-    dirs.forEach(dir => {
-      if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir);
-      }
-    });
-  };
   const copy = source => {
     // console.log("to", to)
     // console.log("from", from)
