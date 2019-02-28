@@ -17,7 +17,7 @@ jobs:
 
       - run: yarn install
 
-      - run: yarn bootstrap
+      - run: yarn lerna bootstrap --concurrency=2
 
       # run tests!
       - run: DEBUG=core,react yarn test
