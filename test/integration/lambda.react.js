@@ -61,4 +61,13 @@ test('React With SCSS Style', () => {
   });
 });
 
+test('React With Hooks', () => {
+  //expect.assertions(1);
+  return get("/react/withHook").then(data => {
+    const $ = cheerio.load(data)
+    expect($('p').text()).toBe("You clicked 0 times");
+  });
+});
+
+
 // TODO: test webpack output

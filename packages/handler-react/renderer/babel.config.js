@@ -1,12 +1,21 @@
 const ISDEV = process.env.NODE_ENV!=="production"
-var plugins = ['@babel/plugin-transform-runtime','babel-plugin-react-require']
+var plugins = [
+  '@babel/plugin-transform-runtime',
+  'babel-plugin-react-require',
+  [require.resolve("babel-plugin-module-resolver"), {
+    "alias": {
+      "react": require.resolve('react'),
+      "react-dom": require.resolve('react-dom')
+    }
+  }]
+]
 if (ISDEV) plugins.push('react-hot-loader/babel')
 module.exports = {
   presets: [
       '@babel/preset-env',
       '@babel/preset-react'
     ].map(require.resolve),
-  plugins: plugins.map(require.resolve),
+  plugins: plugins.map((pl)=> typeof pl==='string'?require.resolve(pl):pl),
   compact: true,
   minified: process.env.NODE_ENV==="production",
   comments: false,
