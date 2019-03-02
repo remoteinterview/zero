@@ -42,7 +42,7 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
     if (ignore) return false
 
     // check if js file is a js lambda function
-    if (extension === ".js") {
+    if (extension === ".js" || extension === ".ts") {
       return [file, "lambda:js"]
     }
 

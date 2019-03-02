@@ -8,6 +8,7 @@
     "@babel/polyfill": "^7.2.5",
     "@babel/preset-env": "^7.3.1",
     "@babel/register": "^7.0.0",
+    "@babel/preset-typescript": "^7.3.3",
     "node-fetch": "^2.3.0",
     "zero-dep-tree-js": "^1.0.8",
     "zero-process": "^1.0.5-alpha.10"

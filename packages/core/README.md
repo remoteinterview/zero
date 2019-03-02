@@ -134,7 +134,7 @@ module.exports = function(req, res) {
 Another example: if you visit `/user/luke/messages`. Zero will also forward this to `./user.js` and set `req.params` to `['luke', 'messages']`
 
 ## Supported Languages
-- [Node.js](docs/nodejs/README.md)
+- [Node.js](docs/nodejs/README.md) *(JavaScript & TypeScript)*
 - [React](docs/react/README.md) *(JavaScript & TypeScript)*
 - [HTML](docs/html/README.md)
 - [Markdown / MDX](docs/mdx/README.md)

@@ -103,6 +103,19 @@ module.exports = (req, res) => {
 
 Zero automatically forwards credentials even for nested `fetch()` requests.
 
+## TypeScript
+Zero supports writing API endpoints in TypeScript. Any file with `.ts` extension will be parsed as TypeScript. Here is an example handler:
+
+```ts
+// hello.ts
+import * as express from "express";
+
+function handler(req: express.Request, res: express.Response) {
+  res.send("Hello TypeScript")
+}
+export default handler
+```
+
 ## Sessions
 Zero manages sessions on your behalf. You just need to specify where the session data should be stored. Currently Zero supports Redis and MongoDB backends. 
 

@@ -42,3 +42,10 @@ test('POST (json)', () => {
     expect(data.body.a).toBe(2);
   });
 });
+
+test('API With TypeScript', () => {
+  //expect.assertions(1);
+  return get("/api/typescript").then(data => {
+    expect(data).toBe('Hello TypeScript');
+  });
+});
