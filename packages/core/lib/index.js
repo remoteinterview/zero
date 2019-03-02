@@ -8,6 +8,8 @@ const del = require('del');
 const debug = require('debug')('core')
 const mkdirp = require('mkdirp');
 const slash = require("./utils/fixPathSlashes")
+const pkg = require("../package")
+
 var getHash = function(str){
   return require("crypto").createHash('sha1').update(str).digest('hex')
 }
@@ -46,6 +48,7 @@ process.on("SIGINT", function () {
 
 function server(path){
   setupEnvVariables(path)
+  console.log(`\x1b[2m⚡️ Zero ${pkg.version?`v${pkg.version}`:""}\x1b[0m`)
   var updateManifestFn = startRouter(/*manifest, forbiddenFiles,*/ process.env.BUILDPATH)
   return new Promise((resolve, reject)=>{
     build(path, process.env.BUILDPATH, (manifest, forbiddenFiles, filesUpdated)=>{

@@ -217,7 +217,7 @@ module.exports = (buildPath)=>{
       try{
         var file = fs.readFileSync(path.join(buildPath, "/zero-builds/build-info.json"), 'utf8')
         lambdaIdToBundleInfo = JSON.parse(file)
-        console.log("loading build info with ", Object.keys(lambdaIdToBundleInfo).length, "keys")
+        //console.log("loading build info with ", Object.keys(lambdaIdToBundleInfo).length, "keys")
       }
       catch(e){
         // file is probably not present, ignore
