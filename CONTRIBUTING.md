@@ -8,3 +8,6 @@ Run `npm test` to run all tests.
 
 ## Testing in your own app
 Once you run `npm run bootstrap` in this repository's root, it should make `zero` command available to you system-wide. `cd` into your app's directory and just run `zero` to start the server.
+
+## How Zero works.
+Before you dive into the code, it's recommended that you read the [how it works](docs/howitworks.md) page.
