@@ -69,5 +69,12 @@ test('React With Hooks', () => {
   });
 });
 
+test('React With TypeScript', () => {
+  //expect.assertions(1);
+  return get("/react/typescript").then(data => {
+    const $ = cheerio.load(data)
+    expect($('b').text()).toBe("Hello TypeScript");
+  });
+});
 
 // TODO: test webpack output

@@ -135,7 +135,7 @@ Another example: if you visit `/user/luke/messages`. Zero will also forward this
 
 ## Supported Languages
 - [Node.js](docs/nodejs/README.md)
-- [React](docs/react/README.md)
+- [React](docs/react/README.md) *(JavaScript & TypeScript)*
 - [HTML](docs/html/README.md)
 - [Markdown / MDX](docs/mdx/README.md)
 - Python *(soon)*

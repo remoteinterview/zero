@@ -1,7 +1,10 @@
 require("@babel/polyfill")
 require("./mdx-override") // convert mdx to jsx on import()
 const babelConfig = require("./babel.config")
-require('@babel/register')(babelConfig)
+require('@babel/register')({
+  extensions: ['.js', '.jsx', '.tsx', '.ts'], 
+  ...babelConfig
+})
 require('ignore-styles') // ignore css/scss imports on server side.
 const ISDEV = process.env.NODE_ENV!=="production"
 const debug = require('debug')('react')

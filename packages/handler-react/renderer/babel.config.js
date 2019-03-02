@@ -13,7 +13,8 @@ if (ISDEV) plugins.push('react-hot-loader/babel')
 module.exports = {
   presets: [
       '@babel/preset-env',
-      '@babel/preset-react'
+      '@babel/preset-react',
+      '@babel/preset-typescript'
     ].map(require.resolve),
   plugins: plugins.map((pl)=> typeof pl==='string'?require.resolve(pl):pl),
   compact: true,

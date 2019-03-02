@@ -48,7 +48,8 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
 
     // check if a react component
     // md/mdx is also rendered by react lambda
-    if (extension ===".jsx" || extension === ".mdx" || extension === ".md") {
+    if (extension === ".jsx" || extension ===".tsx"
+        || extension === ".mdx" || extension === ".md") {
       return [file, "lambda:react"]
     }
 

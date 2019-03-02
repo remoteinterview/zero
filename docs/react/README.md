@@ -95,3 +95,16 @@ module.exports = ({name}) => (
 ```
 
 Zero will automatically transpile all imported `.scss` files to CSS and bundle them into a single `.css` file.
+
+## TypeScript
+Zero supports React in TypeScript. Just use `.tsx` file extension with your TypeScript React page:
+
+```tsx
+import * as React from "react";
+
+export default class HelloWorld extends React.Component<{}, {}> {
+   render() {
+      return (<b>Hello TypeScript</b>);
+   }
+}
+```
