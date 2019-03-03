@@ -1,6 +1,6 @@
 {
   "name": "zero",
-  "version": "1.0.10-alpha.2",
+  "version": "1.0.10-alpha.3",
   "description": "",
   "main": "app.js",
   "scripts": {
@@ -23,8 +23,8 @@
     "glob-parent": "^3.1.0",
     "mkdirp": "^0.5.1",
     "ncp": "^2.0.0",
-    "ora": "^3.0.0",
     "npmi": "^4.0.0",
+    "ora": "^3.0.0",
     "recursive-copy": "^2.0.9",
     "rimraf": "^2.6.2",
     "zero-bundler-process": "^1.0.10-alpha.0",
