@@ -2,8 +2,9 @@ const getPackages = require('zero-dep-tree-js').getPackages
 const fs = require("fs")
 var glob = require("glob")
 //var { spawnSync } = require("child_process")
-const npminstall = require('npminstall');
-var npmi = require('npmi');
+//const npminstall = require('npminstall');
+//var npmi = require('npmi');
+const pnpm = require('pnpm/lib/main').default
 var path = require('path');
 const debug = require('debug')('core')
 
@@ -65,32 +66,20 @@ function installPackages(buildPath, filterFiles){
       }
     }
     if (!allInstalled) {
+      // now that we have a list. npm install them in our build folder
       writePackageJSON(buildPath, deps)
       debug("installing", deps)
 
-      // now that we have a list. npm install them in our build folder
-      // var out = spawnSync(`cd ${buildPath} && npm i ${deps.join(" ")}`)
-      // debug(out)
-
-      var options = {
-        path: buildPath,				// installation path [default: '.']
-        npmLoad: {				// npm.load(options, callback): this is the "options" given to npm.load()
-          //loglevel: 'silent',	// [default: {loglevel: 'silent'}]
-          progress: false
-        }
-      }
-      npmi(options, function (err, result) {
-        if (err) {
-          if 		(err.code === npmi.LOAD_ERR) 	debug('npm load error');
-          else if (err.code === npmi.INSTALL_ERR) debug('npm install error');
-          reject(err)
-          return debug("errr", err.message);
-        }
-      
+      try{
+        await pnpm(["install", "--loglevel", "warn", "--prefix", buildPath])
         // installed
         debug('Pkgs installed successfully.');
         resolve()
-      });
+        
+      }
+      catch(e){
+        reject(e)
+      }
     }
     else{
       resolve()
@@ -126,6 +115,8 @@ function writePackageJSON(buildPath, deps){
     "@babel/runtime": "^7.3.1",
     "react-hot-loader": "^4.6.5",
     "@mdx-js/tag": "^0.16.8",
+    "@babel/plugin-transform-runtime": "^7.2.0",
+    "@babel/core": "^7.2.2",
     // "@babel/core": "^7.2.2",
     
     // "babel-loader": "^8.0.5",
