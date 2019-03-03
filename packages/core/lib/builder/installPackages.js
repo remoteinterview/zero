@@ -3,8 +3,8 @@ const fs = require("fs")
 var glob = require("glob")
 //var { spawnSync } = require("child_process")
 //const npminstall = require('npminstall');
-//var npmi = require('npmi');
-const pnpm = require('pnpm/lib/main').default
+var npmi = require('npmi');
+// const pnpm = require('pnpm/lib/main').default
 var path = require('path');
 const debug = require('debug')('core')
 
@@ -70,16 +70,36 @@ function installPackages(buildPath, filterFiles){
       writePackageJSON(buildPath, deps)
       debug("installing", deps)
 
-      try{
-        await pnpm(["install", "--loglevel", "warn", "--prefix", buildPath])
+      var options = {
+        path: buildPath,				// installation path [default: '.']
+        npmLoad: {				// npm.load(options, callback): this is the "options" given to npm.load()
+          //loglevel: 'silent',	// [default: {loglevel: 'silent'}]
+          progress: false
+        }
+      }
+      npmi(options, function (err, result) {
+        if (err) {
+          if 		(err.code === npmi.LOAD_ERR) 	debug('npm load error');
+          else if (err.code === npmi.INSTALL_ERR) debug('npm install error');
+          reject(err)
+          return debug("errr", err.message);
+        }
+      
         // installed
         debug('Pkgs installed successfully.');
         resolve()
+      });
+
+      // try{
+      //   await pnpm(["install", "--loglevel", "warn", "--prefix", buildPath])
+      //   // installed
+      //   debug('Pkgs installed successfully.');
+      //   resolve()
         
-      }
-      catch(e){
-        reject(e)
-      }
+      // }
+      // catch(e){
+      //   reject(e)
+      // }
     }
     else{
       resolve()
