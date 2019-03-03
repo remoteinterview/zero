@@ -181,6 +181,18 @@ function getLambdaServerPort(endpointData){
   })
 }
 
+// a promise to keep waiting until manifest is available.
+function waitForManifest(){
+  return new Promise((resolve, reject)=>{
+    var interval = setInterval(()=>{
+      if (updatedManifest) {
+        clearInterval(interval)
+        resolve()
+      }
+    }, 1000)
+  })
+}
+
 module.exports = (buildPath)=>{
   const app = express()
 
@@ -189,7 +201,10 @@ module.exports = (buildPath)=>{
 
   var manifest = {lambdas:[], fileToLambdas:{}}
   var forbiddenStaticFiles = []
-  app.all("*", (request, response)=>{
+  app.all("*", async (request, response)=>{
+    // don't serve requests until first manifest is available
+    if (!updatedManifest) await waitForManifest()
+
     var endpointData = matchPath(manifest, forbiddenStaticFiles, buildPath, request.url)
     debug("match", request.url, endpointData)
     if (endpointData){
