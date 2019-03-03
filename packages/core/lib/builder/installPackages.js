@@ -113,7 +113,12 @@ function writePackageJSON(buildPath, deps){
     "react-helmet": "^5.2.0",
     // "@babel/polyfill": "^7.2.5",
     "@babel/runtime": "^7.3.1",
+
     "react-hot-loader": "^4.6.5",
+    "object-assign":"^4.1.1", 
+    "prop-types":"^15.7.2", 
+    "scheduler":"^0.13.3",
+    
     "@mdx-js/tag": "^0.16.8",
     "@babel/plugin-transform-runtime": "^7.2.0",
     "@babel/core": "^7.2.2",
