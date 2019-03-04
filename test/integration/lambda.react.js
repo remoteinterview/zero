@@ -77,4 +77,13 @@ test('React With TypeScript', () => {
   });
 });
 
+
+test('React With Class Properties', () => {
+  //expect.assertions(1);
+  return get("/react/withClassProperties").then(data => {
+    const $ = cheerio.load(data)
+    expect($('button').text()).toBe("Click Me!");
+  });
+});
+
 // TODO: test webpack output
