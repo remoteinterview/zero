@@ -103,6 +103,10 @@ process.on('exit', () => {
   for (var id in lambdaIdToPortMap){
     lambdaIdToPortMap[id].process.kill()
   }
+
+  for (var id in lambdaIdToBundleInfo){
+    if (lambdaIdToBundleInfo[id].process) lambdaIdToBundleInfo[id].process.kill()
+  }
 })
 
 

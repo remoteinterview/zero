@@ -5,6 +5,7 @@ const buildManifest = require('./buildManifest');
 const installPackages = require("./installPackages")
 const sync = require("./cloneAndWatch")
 const ora = require('ora');
+const ISDEV = process.env.NODE_ENV!=="production"
 const slash = require("../utils/fixPathSlashes")
 const spinner = ora({
   color: 'green',
@@ -22,7 +23,7 @@ module.exports = async function build(sourcePath, buildPath, onManifest, isBuild
   sync({
     sources: [path.join(sourcePath, '/**/*')],
     target: buildPath,
-    watch: isBuilder?false:true,
+    watch: (isBuilder || !ISDEV)?false:true,
     clean: true,
     cleanModules: isBuilder
   }, async (event, file) => {

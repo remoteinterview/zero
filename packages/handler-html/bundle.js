@@ -17,6 +17,7 @@ module.exports = async function bundle(entryFile, buildPath, publicPath){
     watch: !process.env.ISBUILDER,
     hmr: isDev && !process.env.ISBUILDER,
     logLevel: 2,
+    autoinstall: false,
     cacheDir: path.join(process.env.BUILDPATH, "_cache", sha1(entryFile)),
     cache: !process.env.ISBUILDER,
     minify: !isDev
@@ -24,6 +25,6 @@ module.exports = async function bundle(entryFile, buildPath, publicPath){
 
   const bundle = await bundler.bundle();
   return {
-    path: fullbuildPath
+    path: buildPath
   }
 }

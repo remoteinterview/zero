@@ -135,10 +135,14 @@ function writePackageJSON(buildPath, deps){
     "@babel/runtime": "^7.3.1",
     "regenerator-runtime": "^0.12.0",
 
+    "sass": "^1.17.2",
+    "postcss-modules":"1.4.1",
+    "cssnano": "4.1.10",
+
     "react-hot-loader": "^4.6.5",
-    "object-assign":"^4.1.1", 
-    "prop-types":"^15.7.2", 
-    "scheduler":"^0.13.3",
+    // "object-assign":"^4.1.1", 
+    // "prop-types":"^15.7.2", 
+    // "scheduler":"^0.13.3",
     
     "@mdx-js/tag": "^0.16.8",
     "@babel/plugin-transform-runtime": "^7.2.0",

@@ -13,5 +13,5 @@ module.exports = async (req, res, file, bundlePath, basePath, bundleInfo)=>{
   //   const stats = await bundle(file, fullBundlePath, bundlePath)
   //   hasBundled = true
   // }
-  res.sendFile(path.join(bundleInfo.path, "index.html"))
+  res.sendFile(path.join(process.env.BUILDPATH, bundleInfo.path, "index.html"))
 }
