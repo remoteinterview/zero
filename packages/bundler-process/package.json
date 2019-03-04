@@ -1,10 +1,10 @@
 {
   "name": "zero-bundler-process",
-  "version": "1.0.10-alpha.4",
+  "version": "1.0.10-alpha.5",
   "description": "",
   "main": "index.js",
   "license": "Apache-2.0",
   "dependencies": {
-    "zero-handlers-map": "^1.0.10-alpha.4"
+    "zero-handlers-map": "^1.0.10-alpha.5"
   }
 }
