@@ -11,7 +11,8 @@ function getRelativeFiles(file){
 
   // js based files
   if (extension === ".js" || extension === ".jsx"
-      || extension === ".md" || extension === ".mdx"){
+      || extension === ".md" || extension === ".mdx"
+      || extension === ".ts" || extension === ".tsx"){
     var imports = konan(file, fs.readFileSync(file, 'utf8'))
     // only strings for now.
     imports.strings.forEach((imp)=> {
@@ -42,7 +43,8 @@ function getPackages(file){
   var deps = []
   const extension = path.extname(file)
   if (extension === ".js" || extension === ".jsx"
-  || extension === ".md" || extension === ".mdx"){
+  || extension === ".md" || extension === ".mdx"
+  || extension ===".ts" || extension ===".tsx"){
     var imports = konan(file, fs.readFileSync(file, 'utf8'))
     // only strings for now.
     imports.strings.forEach((imp)=> {

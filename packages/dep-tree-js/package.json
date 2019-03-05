@@ -5,6 +5,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@mdx-js/mdx": "^0.16.8",
-    "konan": "^1.2.1"
+    "konan": "^1.2.1",
+    "typescript": "3.3.3333"
   }
 }
