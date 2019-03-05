@@ -1,8 +1,8 @@
-const path = require('path')
-const fs = require('fs')
+const path = require("path");
+const fs = require("fs");
 
 module.exports = to => {
-  'use strict';
+  "use strict";
 
   const dirs = [];
   let dir = path.dirname(to);

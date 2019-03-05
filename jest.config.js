@@ -2,13 +2,13 @@
 // https://jestjs.io/docs/en/configuration.html
 
 module.exports = {
-  rootDir: 'test',
-  testEnvironment: 'node',
+  rootDir: "test",
+  testEnvironment: "node",
   testMatch: [
-    '**/test/integration/**/*.[jt]s?(x)',
-    '**/?(*.)+(spec|test).[jt]s?(x)'
+    "**/test/integration/**/*.[jt]s?(x)",
+    "**/?(*.)+(spec|test).[jt]s?(x)"
   ],
-  globalSetup: '<rootDir>/jest-global-setup.js',
-  globalTeardown: '<rootDir>/jest-global-teardown.js',
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.js']
+  globalSetup: "<rootDir>/jest-global-setup.js",
+  globalTeardown: "<rootDir>/jest-global-teardown.js",
+  setupFilesAfterEnv: ["<rootDir>/jest.setup.js"]
 };

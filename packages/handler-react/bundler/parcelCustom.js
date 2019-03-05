@@ -1,11 +1,11 @@
-var Bundler = require('parcel-bundler');
-var localRequire = require('parcel-bundler/src/utils/localRequire')
-const logger = require('@parcel/logger');
-const config = require('parcel-bundler/src/utils/config');
-const Path = require('path')
-const pkg = require("../package")
+var Bundler = require("parcel-bundler");
+var localRequire = require("parcel-bundler/src/utils/localRequire");
+const logger = require("@parcel/logger");
+const config = require("parcel-bundler/src/utils/config");
+const Path = require("path");
+const pkg = require("../package");
 /// modify parcel to load plugins from zero's folder instead of user's package.json
-Bundler.prototype.loadPlugins = async function(){
+Bundler.prototype.loadPlugins = async function() {
   let relative = Path.join(__dirname, "..");
   if (!pkg) {
     return;
@@ -23,6 +23,6 @@ Bundler.prototype.loadPlugins = async function(){
   } catch (err) {
     logger.warn(err);
   }
-}
+};
 
-module.exports = Bundler
+module.exports = Bundler;

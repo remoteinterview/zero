@@ -3,6 +3,6 @@ module.exports = {
   bundler: require("./bundle"),
   config: {
     // the process only serves saved static file
-    restartOnFileChange: false//process.env.NODE_ENV==="production"
+    restartOnFileChange: false //process.env.NODE_ENV==="production"
   }
-}
+};

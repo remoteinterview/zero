@@ -1,20 +1,26 @@
-const Bundler = require("./parcelCustom")
-const fs = require('fs')
-const path = require('path')
-const debug = require('debug')('react')
-const mkdirp = require('mkdirp')
-const crypto = require("crypto")
-const ISDEV = process.env.NODE_ENV!=="production"
+const Bundler = require("./parcelCustom");
+const fs = require("fs");
+const path = require("path");
+const debug = require("debug")("react");
+const mkdirp = require("mkdirp");
+const crypto = require("crypto");
+const ISDEV = process.env.NODE_ENV !== "production";
 function sha1(data) {
-    return crypto.createHash("sha1").update(data, "binary").digest("hex");
+  return crypto
+    .createHash("sha1")
+    .update(data, "binary")
+    .digest("hex");
 }
 
 module.exports = async (filename, bundlePath, basePath, publicBundlePath) => {
-  mkdirp.sync(bundlePath)
-  var entryFileName = path.join(path.dirname(filename), "/entry."+ sha1(filename) + ".js")
-  const entry = createEntry( path.basename(filename) )
+  mkdirp.sync(bundlePath);
+  var entryFileName = path.join(
+    path.dirname(filename),
+    "/entry." + sha1(filename) + ".js"
+  );
+  const entry = createEntry(path.basename(filename));
   // save entry code in a file and feed it to parcel
-  fs.writeFileSync(entryFileName, entry, 'utf8')
+  fs.writeFileSync(entryFileName, entry, "utf8");
   // Bundler options
   const bundler = new Bundler(entryFileName, {
     outDir: bundlePath,
@@ -27,16 +33,16 @@ module.exports = async (filename, bundlePath, basePath, publicBundlePath) => {
     cache: !process.env.ISBUILDER,
     minify: !ISDEV,
     autoinstall: false,
-    sourceMaps: false//!ISDEV
-  })
+    sourceMaps: false //!ISDEV
+  });
   //console.log("rootDir", bundler.options.rootDir)
 
   const bundle = await bundler.bundle();
-  return bundle
-}
+  return bundle;
+};
 
 const createEntry = componentPath => {
-return(`
+  return `
 var React = require("react")
 // require("@babel/polyfill");
 
@@ -52,5 +58,5 @@ const props = JSON.parse(
 )
 const el = React.createElement(App, props)
 hydrate(el, document.getElementById("_react_root"))
-`)
-}
+`;
+};
