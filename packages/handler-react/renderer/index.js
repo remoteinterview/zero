@@ -46,7 +46,7 @@ async function generateComponent(
   try {
     var App = require(componentPath);
   } catch (e) {
-    console.log(e);
+    if (!ssrCrashWarned) console.log(e);
   }
 
   App = App && App.default ? App.default : App; // cater export default class...
