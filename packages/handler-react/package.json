@@ -1,7 +1,7 @@
 {
   "name": "zero-handler-react",
   "main": "index.js",
-  "version": "1.0.10-alpha.6",
+  "version": "1.0.10-alpha.7",
   "license": "Apache-2.0",
   "dependencies": {
     "@babel/core": "^7.2.2",
@@ -37,7 +37,7 @@
     "webpack": "^4.29.0",
     "webpack-dev-middleware": "^3.5.2",
     "webpack-hot-middleware": "^2.24.3",
-    "zero-dep-tree-js": "^1.0.10-alpha.5",
+    "zero-dep-tree-js": "^1.0.10-alpha.7",
     "zero-process": "^1.0.10-alpha.5"
   },
   "gitHead": "9e577043290b2ad1205a24f14c4edf7329c6073d"
