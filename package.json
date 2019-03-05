@@ -12,7 +12,7 @@
 		"@mdx-js/parcel-plugin-mdx": "^0.20.1",
 		"@mdx-js/tag": "^0.13.1-1",
 		"cheerio": "^1.0.0-rc.2",
-		"jest": "^23.6.0",
+		"jest": "^24.1.0",
 		"lerna": "^3.13.1",
 		"react": "^16.8.3",
 		"request-promise-native": "^1.0.5",
