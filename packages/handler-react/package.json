@@ -34,6 +34,7 @@
     "react": "^16.8.1",
     "react-dom": "^16.8.1",
     "react-hot-loader": "^4.6.5",
+    "typescript": "3.3.3333",
     "webpack": "^4.29.0",
     "webpack-dev-middleware": "^3.5.2",
     "webpack-hot-middleware": "^2.24.3",
