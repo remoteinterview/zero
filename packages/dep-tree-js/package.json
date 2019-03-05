@@ -1,7 +1,7 @@
 {
   "name": "zero-dep-tree-js",
   "main": "index.js",
-  "version": "1.0.10-alpha.7",
+  "version": "1.0.10-alpha.8",
   "license": "Apache-2.0",
   "dependencies": {
     "@mdx-js/mdx": "^0.16.8",
