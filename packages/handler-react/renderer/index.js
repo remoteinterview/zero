@@ -43,53 +43,81 @@ async function generateComponent(req, res, componentPath, bundlePath, basePath, 
   }
 
   App = (App && App.default)?App.default : App // cater export default class...
-  var meta = App.meta || {}
-  var props = {user: req.user, url: {query: req.query, params: req.params}}
-  debug("App", typeof App.getInitialProps === "function")
-  if (App && App.getInitialProps && typeof App.getInitialProps === "function"){
-    try{
-      var newProps = await App.getInitialProps({req, ...props}) || {}
-      props = {...props, ...newProps}
+  if (!App){
+    // component failed to load or was not exported. 
+    if (bundleInfo && bundleInfo.js){
+      // atleast we have a bundle. Disable SSR for this endpoint.
+      console.warn(`\n\n⚠️ SSR didn't work for ${basePath}. Some component might not be SSR compatible.`)
+      var markup = `<!DOCTYPE html>
+        <html>
+          <head>
+            <meta charset="utf-8"/>
+            ${(bundleInfo.css?`<link rel="stylesheet" href="/${bundleInfo.css}">`:"")}
+          </head>
+          <body>
+            <div id="_react_root"></div>
+            <script id='initial_props' type='application/json'>{}</script>
+            <script src="/${bundleInfo.js}"></script>
+          </body>
+        </html>`
+
+        res.write(markup)
+        res.end()
     }
-    catch(e){
-      debug("ERROR::getInitialProps", e)
+    else{
+      throw new Error("Could not render this page. Did you forget to export? See logs for more info.")
     }
   }
+  else{
+    var meta = App.meta || {}
+    var props = {user: req.user, url: {query: req.query, params: req.params}}
+    debug("App", typeof App.getInitialProps === "function")
+    if (App && App.getInitialProps && typeof App.getInitialProps === "function"){
+      try{
+        var newProps = await App.getInitialProps({req, ...props}) || {}
+        props = {...props, ...newProps}
+      }
+      catch(e){
+        debug("ERROR::getInitialProps", e)
+      }
+    }
 
-  const el = isAsync(App)
-    ? await createAsyncElement(App, props)
-    : React.createElement(App, props)
+    const el = isAsync(App)
+      ? await createAsyncElement(App, props)
+      : React.createElement(App, props)
 
-  const html = renderToString(el)
-  const helmet = Helmet.renderStatic()
+    const html = renderToString(el)
+    const helmet = Helmet.renderStatic()
 
-  // determine if the user has provided with <meta charset />, 
-  // if not, add a default tag with utf8
-  var hasCharset = helmet.meta.toComponent().find((meta)=>{
-    return meta.props && (meta.props['charSet'] || meta.props['charset'])
-  })
-  const json = jsonStringify(props)
-  const finalMetaTags = {
-    title: (helmet.title.toComponent()[0].props.children.length>0)? helmet.title.toString() : (meta.title?`<title>${meta.title}</title>`:"")
+    // determine if the user has provided with <meta charset />, 
+    // if not, add a default tag with utf8
+    var hasCharset = helmet.meta.toComponent().find((meta)=>{
+      return meta.props && (meta.props['charSet'] || meta.props['charset'])
+    })
+    const json = jsonStringify(props)
+    const finalMetaTags = {
+      title: (helmet.title.toComponent()[0].props.children.length>0)? helmet.title.toString() : (meta.title?`<title>${meta.title}</title>`:"")
+    }
+    var markup = `<!DOCTYPE html>
+    <html ${helmet.htmlAttributes.toString()}>
+      <head>
+        ${(!hasCharset?'<meta charset="utf-8"/>':'')}
+        ${finalMetaTags.title}
+        ${helmet.meta.toString()}
+        ${helmet.link.toString()}
+        ${(bundleInfo.css?`<link rel="stylesheet" href="/${bundleInfo.css}">`:"")}
+      </head>
+      <body ${helmet.bodyAttributes.toString()}>
+        <div id="_react_root">${html}</div>
+        <script id='initial_props' type='application/json'>${json}</script>
+        <script src="/${bundleInfo.js}"></script>
+      </body>
+    </html>`
+
+    res.write(markup)
+    res.end()
   }
-  var markup = `<!DOCTYPE html>
-  <html ${helmet.htmlAttributes.toString()}>
-    <head>
-      ${(!hasCharset?'<meta charset="utf-8"/>':'')}
-      ${finalMetaTags.title}
-      ${helmet.meta.toString()}
-      ${helmet.link.toString()}
-      ${(bundleInfo.css?`<link rel="stylesheet" href="/${bundleInfo.css}">`:"")}
-    </head>
-    <body ${helmet.bodyAttributes.toString()}>
-      <div id="_react_root">${html}</div>
-      <script id='initial_props' type='application/json'>${json}</script>
-      <script src="/${bundleInfo.js}"></script>
-    </body>
-  </html>`
-
-  res.write(markup)
-  res.end()
+  
 }
 
 
