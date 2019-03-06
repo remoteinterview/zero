@@ -285,13 +285,16 @@ module.exports = buildPath => {
       var lambdasUpdated = {};
       filesUpdated.forEach(file => {
         var lambdaEntryFiles = manifest.fileToLambdas[file];
-        if (!lambdaEntryFiles || lambdaEntryFiles) return;
+        if (!lambdaEntryFiles) return;
         lambdaEntryFiles.forEach(file => (lambdasUpdated[file] = true));
       });
 
       // update each lambda
       Object.keys(lambdasUpdated).forEach(async lambdaEntryFile => {
-        var lambdaID = getLambdaID(lambdaEntryFile);
+        var endpointData = newManifest.lambdas.find(lambda => {
+          return lambda[1] === lambdaEntryFile;
+        });
+        var lambdaID = getLambdaID(endpointData[0]);
         if (
           lambdaIdToPortMap[lambdaID] &&
           shouldKillOnChange(lambdaIdToPortMap[lambdaID].endpointData)
@@ -304,25 +307,22 @@ module.exports = buildPath => {
             { force: true }
           );
 
-          // start the process again
-          var endpointData = newManifest.lambdas.find(lambda => {
-            return lambda[1] === lambdaEntryFile;
-          });
-
           // generate bundle
           delete lambdaIdToBundleInfo[lambdaID];
           await getBundleInfo(endpointData);
-
           delete lambdaIdToPortMap[lambdaID];
+
+          // start the process again
           debug("starting", endpointData);
           if (endpointData) getLambdaServerPort(endpointData);
         }
       });
     } else {
       // kill all servers
-      for (var file in lambdaIdToPortMap) {
+      for (var id in lambdaIdToPortMap) {
         //debug("killing", lambdaIdToPortMap[i].port)
-        lambdaIdToPortMap[getLambdaID(file)].process.kill();
+        if (lambdaIdToPortMap[id] && lambdaIdToPortMap[id].process)
+          lambdaIdToPortMap[id].process.kill();
       }
     }
   };
