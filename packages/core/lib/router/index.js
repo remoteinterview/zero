@@ -75,7 +75,14 @@ async function proxyLambdaRequest(req, res, endpointData) {
   ) {
     options.body = req;
   }
-  const proxyRes = await fetch(lambdaAddress + req.url, options);
+  var proxyRes;
+  try {
+    proxyRes = await fetch(lambdaAddress + req.url, options);
+  } catch (e) {
+    if (spinner.isSpinning) {
+      spinner.fail(url.resolve("/", endpointData[0]) + " failed");
+    }
+  }
 
   if (spinner.isSpinning) {
     spinner.succeed(url.resolve("/", endpointData[0]) + " ready");
