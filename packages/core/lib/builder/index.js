@@ -36,11 +36,11 @@ module.exports = async function build(
     async (event, file) => {
       debug("CHANGE", event, file);
 
+      if (file) pendingFilesChanged.push(file);
       // recreate manifest
       // wait until files have 'settled'.
       if (watchDeferTimeoutID) {
         clearTimeout(watchDeferTimeoutID);
-        pendingFilesChanged.push(file);
       }
       watchDeferTimeoutID = setTimeout(async () => {
         var filesArr = pendingFilesChanged.slice(0);
@@ -48,10 +48,14 @@ module.exports = async function build(
         var filesUpdated = filesArr.length > 0 ? [] : false;
         filesArr &&
           filesArr.forEach(f => {
+            // check if we have lambdas that depend on this file
             if (currentManifest.fileToLambdas[f]) {
               filesUpdated = filesUpdated.concat(
                 currentManifest.fileToLambdas[f]
               );
+            } else {
+              // otherwise just add the file itself.
+              filesUpdated.push(f);
             }
           });
 
