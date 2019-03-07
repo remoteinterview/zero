@@ -1,8 +1,8 @@
 <p align="center">
+  <img src="https://raw.githubusercontent.com/remoteinterview/zero/master/docs/images/logo.png" width="50">
   <h1 align="center">Zero Server</h1>
   <p align="center">Zero configuration web framework.</p>
 </p>
-
 
 <p align="center">
   <a href="#features">Features</a> |
@@ -22,11 +22,12 @@
 
 **Zero** is a web framework to simplify modern web development. It allows you to build your application without worrying about package management or routing. It's as simple as writing your code in a mix of [Node.js](docs/nodejs/README.md), [React](docs/react/README.md), [HTML](docs/html/README.md), [MDX](docs/mdx/README.md), and [static files](docs/static/README.md) and putting them all in a folder. Zero will serve them all. Zero abstracts the usual project configuration for routing, bundling, and transpiling to make it easier to get started.
 
-*An example project with different types of pages, all in one folder:*
+_An example project with different types of pages, all in one folder:_
 
 ![A basic mono-repo](https://raw.githubusercontent.com/remoteinterview/zero/master/docs/images/header.gif "A basic mono-repo")
 
 ## Features
+
 **Auto Configuration**: Your project folder doesn't require config files. You just place your code and it's automatically compiled, bundled and served.
 
 **File-system Based Routing**: If your code resides in `./api/login.js` it's exposed at `http://<SERVER>/api/login`. Inspired by good ol' PHP days.
@@ -34,10 +35,11 @@
 **Auto Dependency Resolution**: If a file does `require('underscore')`, it is automatically installed and resolved. You can always create your own `package.json` file to install a specific version of a package.
 
 **Multiple Languages**: Zero is designed to support code written in many languages all under a single project. Imagine this:
-1) Exposing your Tensorflow model as a python API.
-2) Using React pages to consume it. 
-3) Writing the user login code in Node.js. 
-4) Your landing pages in a mix of HTML or Markdown/MDX.
+
+1. Exposing your Tensorflow model as a python API.
+2. Using React pages to consume it.
+3. Writing the user login code in Node.js.
+4. Your landing pages in a mix of HTML or Markdown/MDX.
 
 All under a single project folder as a single web application.
 
@@ -61,13 +63,12 @@ Create a new folder and add a new file `time.js` in that folder. In this file, e
 
 ```js
 // time.js
-const moment = require("moment")
+const moment = require("moment");
 
 module.exports = (req, res) => {
-  var time = moment().format('LT');   // 11:51 AM
-  res.send({time: time })
-}
-
+  var time = moment().format("LT"); // 11:51 AM
+  res.send({ time: time });
+};
 ```
 
 Once saved, you can `cd` into that folder and start the server like this:
@@ -76,7 +77,7 @@ Once saved, you can `cd` into that folder and start the server like this:
 zero
 ```
 
-Running this command will automatically install any dependencies (like *momentjs* here) and start the web server.
+Running this command will automatically install any dependencies (like _momentjs_ here) and start the web server.
 
 Open this URL in the browser: [`http://localhost:3000/time`](http://localhost:3000/time)
 
@@ -88,16 +89,16 @@ Keep the server running. Now let's consume our API from a React page, create a n
 
 ```jsx
 // index.jsx
-import React from 'react'
+import React from "react";
 
 export default class extends React.Component {
-  static async getInitialProps(){
-    var json = await fetch("/time").then((resp) => resp.json())
-    return {time: json.time}
+  static async getInitialProps() {
+    var json = await fetch("/time").then(resp => resp.json());
+    return { time: json.time };
   }
 
   render() {
-    return <p>Current time is: {this.props.time}</p>
+    return <p>Current time is: {this.props.time}</p>;
   }
 }
 ```
@@ -115,32 +116,55 @@ Now go to this URL: `http://localhost:3000/` and you should see the current serv
 That's it! You just created a web application.
 
 ## Routing
+
 ### File-system Based Routing
+
 Zero serves routes based on file structure. If you write a function that resides in `./api/login.js` it's exposed at `http://<SERVER>/api/login`. Similarly if you put a React page under `./about.jsx` it will be served at `http://<SERVER>/about`
 
 ### Route Rewrites
-Sometimes you would want to change `/user?id=luke` to `/user/luke`. To cater this type of routes, **all requests sent to a route that doesn't exist are passed on to the closest parent function**. 
+
+Sometimes you would want to change `/user?id=luke` to `/user/luke`. To cater this type of routes, **all requests sent to a route that doesn't exist are passed on to the closest parent function**.
 
 So if you visit `/user/luke` and there is no `./user/luke.js` but there is `./user.js`. Zero will send the request to `/user` and set `req.params` to `['luke']`. Code for this:
 
 ```js
 // user.js
 module.exports = function(req, res) {
-  console.log(req.params) // ['luke'] when user visits /user/luke
-  res.send({params: req.params})
-}
+  console.log(req.params); // ['luke'] when user visits /user/luke
+  res.send({ params: req.params });
+};
 ```
 
 Another example: if you visit `/user/luke/messages`. Zero will also forward this to `./user.js` and set `req.params` to `['luke', 'messages']`
 
 ## Supported Languages
-- [Node.js](docs/nodejs/README.md) *(JavaScript & TypeScript)*
-- [React](docs/react/README.md) *(JavaScript & TypeScript)*
+
+- [Node.js](docs/nodejs/README.md) _(JavaScript & TypeScript)_
+- [React](docs/react/README.md) _(JavaScript & TypeScript)_
 - [HTML](docs/html/README.md)
 - [Markdown / MDX](docs/mdx/README.md)
-- Python *(soon)*
+- Python _(soon)_
+
+## Auto Dependency Resolution
+
+If a file does `require('underscore')`, the latest version of that package is automatically installed from NPM and resolved.
+
+But sometimes you want to use a specific version or a dependency from a private repository. You can do that by creating a `package.json` in your project folder and adding dependencies to it. Zero will install those versions instead.
+
+Example (package.json):
+
+```json
+{
+  "name": "myapp",
+  "dependencies": {
+    "underscore": "^1.4.0",
+    "private_ui_pkg": "git+https://github.com/user/repo.git"
+  }
+}
+```
 
 ## Running on Cloud
+
 A zero app is a regular Node.js server. But zero doesn't create `package.json` in your project folder. For most clouds (Heroku, EC2, etc) you probably need `package.json`. You can create one similar to this:
 
 ```json
@@ -163,12 +187,14 @@ A zero app is a regular Node.js server. But zero doesn't create `package.json` i
 
 After this, you can follow the instructions from your cloud provider for deploying a Node.js app.
 
-
 ### Changing Server's Port
+
 By default zero runs on port `3000`. You can change this by setting the `PORT` environment variable, like this: `PORT=8080 zero`
 
 ### Running with Docker
+
 Here is a basic `Dockerfile` you can add to your zero application to Docker-ize it:
+
 ```dockerfile
 FROM node:alpine
 
@@ -191,8 +217,8 @@ WORKDIR /app
 CMD ["zero"]
 ```
 
-
 ## Contributing
+
 Please see our [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ## License
