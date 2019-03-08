@@ -20,14 +20,15 @@ process.on("unhandledRejection", (reason, p) => {
   console.log(reason);
 });
 
-module.exports = (
+module.exports = async (
   handler,
   basePath,
   entryFile,
   lambdaType,
   serverAddress,
   BundlePath,
-  BundleInfo
+  BundleInfo,
+  isModule
 ) => {
   if (!basePath && basePath !== "") throw new Error("No basePath provided.");
   if (!entryFile) throw new Error("No entry file provided.");
@@ -51,10 +52,14 @@ module.exports = (
     "BundleInfo",
     BUNDLEINFO
   );
-  startServer(ENTRYFILE, LAMBDATYPE, handler).then(port => {
-    if (process.send) process.send(port);
-    else console.log("PORT", port);
-  });
+
+  var portOrApp = await startServer(ENTRYFILE, LAMBDATYPE, handler, isModule);
+  if (!isModule) {
+    if (process.send) process.send(portOrApp);
+    else console.log("PORT", portOrApp);
+  } else {
+    return portOrApp;
+  }
 };
 
 function generateFetch(req) {
@@ -88,7 +93,7 @@ function generateFetch(req) {
   };
 }
 
-function startServer(entryFile, lambdaType, handler) {
+function startServer(entryFile, lambdaType, handler, isModule) {
   return new Promise((resolve, reject) => {
     const file = path.resolve(entryFile);
     const app = express();
@@ -147,10 +152,14 @@ function startServer(entryFile, lambdaType, handler) {
       }
     });
 
-    var listener = app.listen(0, "127.0.0.1", () => {
-      debug("listening ", lambdaType, listener.address().port);
-      resolve(listener.address().port);
-    });
+    if (isModule) {
+      resolve(app);
+    } else {
+      var listener = app.listen(0, "127.0.0.1", () => {
+        debug("listening ", lambdaType, listener.address().port);
+        resolve(listener.address().port);
+      });
+    }
   });
 }
 
