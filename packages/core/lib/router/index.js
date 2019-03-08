@@ -49,8 +49,8 @@ async function proxyLambdaRequest(req, res, endpointData) {
     //debug("build not found", lambdaID, endpointData[0])
     spinner.start("Building " + url.resolve("/", endpointData[0]));
     await getBundleInfo(endpointData);
+    spinner.start("Serving " + url.resolve("/", endpointData[0]));
   }
-  spinner.start("Serving " + url.resolve("/", endpointData[0]));
 
   var serverAddress = process.env.SERVERADDRESS;
 

@@ -16,6 +16,10 @@ const session = require("zero-express-session");
 const vm = require("vm");
 var BASEPATH, ENTRYFILE, LAMBDATYPE, SERVERADDRESS, BUNDLEPATH, BUNDLEINFO;
 
+process.on("unhandledRejection", (reason, p) => {
+  console.log(reason);
+});
+
 module.exports = (
   handler,
   basePath,
@@ -131,13 +135,10 @@ function startServer(entryFile, lambdaType, handler) {
           const { app, handler, req, res, lambdaType, BASEPATH, file, fetch, renderError, BUNDLEPATH, BUNDLEINFO } = __Zero;
           global.fetch = fetch
           global.app = app
-          // var handlerModule = require("./handlers")[lambdaType]
-          // var handler = require(handlerModule).handler
-          process.on('unhandledRejection', (reason, p) => {
-            renderError(reason, req, res)
-          })
 
+          
           handler(req, res, file, BUNDLEPATH, BASEPATH, BUNDLEINFO)
+          
         `,
           globals
         );
