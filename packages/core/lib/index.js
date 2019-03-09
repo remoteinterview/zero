@@ -167,6 +167,8 @@ function builder(sourcePath) {
         try {
           await del([path.join(process.env.BUILDPATH, "/**")], { force: true });
         } catch (e) {}
+
+        resolve();
       },
       true
     );
