@@ -60,7 +60,7 @@ module.exports = async function build(
           });
 
         debug("filesUpdated", filesUpdated);
-        const { manifest, forbiddenFiles } = await updateManifest(
+        const { manifest, forbiddenFiles, dependencies } = await updateManifest(
           buildPath,
           currentManifest,
           filesUpdated
@@ -93,7 +93,7 @@ module.exports = async function build(
           spinner.stop();
         }
 
-        onManifest(manifest, forbiddenFiles, filesUpdated);
+        onManifest(manifest, forbiddenFiles, filesUpdated, dependencies);
       }, 1000);
     }
   );
@@ -101,7 +101,7 @@ module.exports = async function build(
 
 async function updateManifest(buildPath, currentManifest, updatedFiles) {
   spinner.start("Updating packages");
-  await installPackages(buildPath, updatedFiles);
+  var deps = await installPackages(buildPath, updatedFiles);
   spinner.start("Generating manifest");
   const manifest = await buildManifest(
     buildPath,
@@ -115,5 +115,5 @@ async function updateManifest(buildPath, currentManifest, updatedFiles) {
     // TODO: see if dependancy tree files are also to be added here or not.
   });
   debug("manifest", manifest);
-  return { manifest, forbiddenFiles };
+  return { manifest, forbiddenFiles, dependencies: deps };
 }

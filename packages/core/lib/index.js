@@ -114,8 +114,13 @@ function builder(sourcePath) {
     build(
       sourcePath,
       process.env.BUILDPATH,
-      async (manifest, forbiddenFiles, filesUpdated) => {
-        //console.log(manifest)
+      async (manifest, forbiddenFiles, filesUpdated, dependencies) => {
+        // clear build folder
+        try {
+          await del([path.join(process.env.SOURCEPATH, "zero-builds", "/**")], {
+            force: true
+          });
+        } catch (e) {}
 
         for (var i in manifest.lambdas) {
           var endpointData = manifest.lambdas[i];
@@ -141,8 +146,27 @@ function builder(sourcePath) {
           path.join(process.env.SOURCEPATH, "/zero-builds")
         );
 
+        // copy package.json
+        mkdirp.sync(path.join(process.env.SOURCEPATH, "/zero-builds/_config"));
+
+        fs.writeFileSync(
+          path.join(
+            process.env.SOURCEPATH,
+            "/zero-builds/_config/package.json"
+          ),
+          fs.readFileSync(path.join(process.env.BUILDPATH, "/package.json"))
+        );
+
+        // copy .babelrc
+        fs.writeFileSync(
+          path.join(process.env.SOURCEPATH, "/zero-builds/_config/.babelrc"),
+          fs.readFileSync(path.join(process.env.BUILDPATH, "/.babelrc"))
+        );
+
         // clear tmp folder
-        await del([path.join(process.env.BUILDPATH, "/**")], { force: true });
+        try {
+          await del([path.join(process.env.BUILDPATH, "/**")], { force: true });
+        } catch (e) {}
       },
       true
     );

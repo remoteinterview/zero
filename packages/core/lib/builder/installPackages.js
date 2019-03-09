@@ -96,7 +96,7 @@ function installPackages(buildPath, filterFiles) {
 
         // installed
         debug("Pkgs installed successfully.");
-        resolve();
+        resolve(deps);
       });
 
       // try{
@@ -110,7 +110,7 @@ function installPackages(buildPath, filterFiles) {
       //   reject(e)
       // }
     } else {
-      resolve();
+      resolve(deps);
     }
   });
 }
