@@ -164,11 +164,16 @@ function builder(sourcePath) {
         );
 
         // clear tmp folder
-        try {
-          await del([path.join(process.env.BUILDPATH, "/**")], { force: true });
-        } catch (e) {}
+        if (!process.env.SKIPTEMPCLEAR) {
+          try {
+            await del([path.join(process.env.BUILDPATH, "/**")], {
+              force: true
+            });
+          } catch (e) {}
+        }
 
-        resolve();
+        // resolve with manifest
+        resolve({ manifest, forbiddenFiles, dependencies });
       },
       true
     );
