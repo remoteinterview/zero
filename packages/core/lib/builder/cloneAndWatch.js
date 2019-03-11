@@ -94,7 +94,7 @@ module.exports = async (options, onWatchUpdate) => {
   }
 
   // initial copy
-  sources.forEach(s => glob.sync(s).forEach(copy));
+  sources.forEach(s => glob.sync(s, { dot: true }).forEach(copy));
 
   if (onWatchUpdate) onWatchUpdate("ready");
   // watch
