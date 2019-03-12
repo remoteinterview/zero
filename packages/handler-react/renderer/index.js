@@ -48,7 +48,7 @@ async function generateComponent(
   } catch (e) {
     if (!ssrCrashWarned) console.log(e);
   }
-
+  res.header("Content-Type", "text/html");
   App = App && App.default ? App.default : App; // cater export default class...
   if (!App) {
     // component failed to load or was not exported.
@@ -133,7 +133,7 @@ async function generateComponent(
         ${helmet.meta.toString()}
         ${helmet.link.toString()}
         ${
-          bundleInfo.css
+          bundleInfo && bundleInfo.css
             ? `<link rel="stylesheet" href="/${bundleInfo.css}">`
             : ""
         }
@@ -141,7 +141,11 @@ async function generateComponent(
       <body ${helmet.bodyAttributes.toString()}>
         <div id="_react_root">${html}</div>
         <script id='initial_props' type='application/json'>${json}</script>
-        <script src="/${bundleInfo.js}"></script>
+        ${
+          bundleInfo && bundleInfo.js
+            ? `<script src="/${bundleInfo.js}"></script>`
+            : ""
+        }
       </body>
     </html>`;
 
