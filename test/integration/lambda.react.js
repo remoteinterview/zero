@@ -102,4 +102,12 @@ test("React With Class Properties", () => {
   });
 });
 
-// TODO: test webpack output
+test("React With No Bundling", () => {
+  //expect.assertions(1);
+  return get("/react/nobundling").then(data => {
+    const $ = cheerio.load(data);
+    expect($("script").length).toBe(0);
+  });
+});
+
+// TODO: test parcel output
