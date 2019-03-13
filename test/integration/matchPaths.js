@@ -27,3 +27,10 @@ test("Hidden files are hidden", () => {
     expect(data && data.indexOf("secret") === -1).toBe(true);
   });
 });
+
+test("Ignore files are ignored", () => {
+  // expect.assertions(1);
+  return get("/ignoredFolder", { json: true }).then(data => {
+    expect(!data || (data && !data.err)).toBe(true);
+  });
+});

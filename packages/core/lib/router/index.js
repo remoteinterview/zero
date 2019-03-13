@@ -252,6 +252,9 @@ module.exports = buildPath => {
       request.url
     );
     debug("match", request.url, endpointData);
+    if (endpointData === "404") {
+      return response.sendStatus(404);
+    }
     if (endpointData) {
       // call relevant handler as defined in manifest
       return proxyLambdaRequest(request, response, endpointData);

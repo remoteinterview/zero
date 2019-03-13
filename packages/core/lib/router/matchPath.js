@@ -1,8 +1,9 @@
 const url = require("url");
 //const fetch = require('node-fetch')
+const PATH = require("path");
 const fs = require("fs");
 const debug = require("debug")("core");
-
+const nodeignore = require("../utils/zeroignore");
 const stripTrailingSlash = str => {
   return str.replace(/^(.+?)\/*?$/, "$1");
 };
@@ -13,6 +14,8 @@ function matchPathWithDictionary(
   buildPath,
   path
 ) {
+  const zeroignore = nodeignore();
+
   path = url.parse(path).pathname;
   path = stripTrailingSlash(path).toLowerCase();
   var staticFile = path.split("/").find(dirname => dirname.endsWith(".static"));
@@ -25,22 +28,24 @@ function matchPathWithDictionary(
     return endpoint[0] === path || endpoint[0] === path + "/index";
   });
 
-  // check if it's a static file and it's not in the forbidden files
-  var staticPath = require("path").join(buildPath, path);
-  var hiddenSourceFile = path
-    .split("/")
-    .find(dirname => dirname.startsWith("_"));
-  if (
-    !hiddenSourceFile &&
-    !staticFile &&
-    fs.existsSync(staticPath) &&
-    fs.statSync(staticPath).isFile() &&
-    forbiddenStaticFiles.indexOf(staticPath) === -1
-  ) {
-    return false;
-  }
-
+  // didn't match any lambda.
   if (!match) {
+    // check if it's a static file and it's not in the forbidden/ignored files
+    var staticPath = PATH.join(buildPath, path);
+    var hiddenSourceFile = zeroignore.ignores(
+      PATH.relative(buildPath, staticPath) || "index"
+    );
+
+    if (
+      !hiddenSourceFile &&
+      !staticFile &&
+      fs.existsSync(staticPath) &&
+      fs.statSync(staticPath).isFile() &&
+      forbiddenStaticFiles.indexOf(staticPath) === -1
+    ) {
+      return false; // it is a valid public static file
+    }
+
     // check for partial match now ie. query is: /login/username and endpoint will be /login
     // reverse sort to have closest/deepest match at [0] ie. [ "/login/abc/def", "/login/abc", "/login" ]
     var matches = Manifest.lambdas
@@ -61,7 +66,7 @@ function matchPathWithDictionary(
     return match;
   }
 
-  return false;
+  return "404"; // not found
 }
 
 module.exports = matchPathWithDictionary;

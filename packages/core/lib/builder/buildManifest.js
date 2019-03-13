@@ -4,6 +4,7 @@ const path = require("path");
 const debug = require("debug")("core");
 const slash = require("../utils/fixPathSlashes");
 const handlers = require("zero-handlers-map");
+const nodeignore = require("../utils/zeroignore");
 
 async function getFiles(baseSrc) {
   return new Promise((resolve, reject) => {
@@ -18,6 +19,8 @@ const relativePath = p => path.relative(process.env.BUILDPATH, p);
 
 async function buildManifest(buildPath, oldManifest, fileFilter) {
   buildPath = buildPath.endsWith("/") ? buildPath : buildPath + "/";
+  var zeroignore = nodeignore();
+
   var date = Date.now();
   var files = await getFiles(buildPath);
   files = files.filter(
@@ -42,12 +45,9 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
           else return false;
         }
       }
-      // first check if filename (or the folder it resides in) begines with underscore _. ignore those.
-      var ignore = file
-        .replace(buildPath, "")
-        .split("/")
-        .find(dirname => dirname.startsWith("_"));
-      if (ignore) return false;
+      // first check if filename (or the folder it resides in) is in zeroignore, ignore those.
+      var fileRelative = relativePath(file);
+      if (zeroignore.ignores(fileRelative)) return false;
 
       // check if js file is a js lambda function
       if (extension === ".js" || extension === ".ts") {
