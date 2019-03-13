@@ -163,6 +163,29 @@ Example (package.json):
 }
 ```
 
+## .zeroignore file
+
+By default, Zero compiles and serves all files in your project. But most of the time, you don't want to expose a certain file or folder. You can add `.zeroignore` file to prevent Zero from serving that file as a valid route.
+
+### Example
+
+In a project with following structure:
+
+```
+- project/
+-- components/
+-- api/
+-- index.jsx
+```
+
+You probably don't want to expose `components` directory. To do this, you can create `.zeroignore` file with the following text:
+
+```
+components
+```
+
+This will prevent your users from accessing `/components` path directly.
+
 ## Running on Cloud
 
 A zero app is a regular Node.js server. But zero doesn't create `package.json` in your project folder. For most clouds (Heroku, EC2, etc) you probably need `package.json`. You can create one similar to this:
