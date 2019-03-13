@@ -127,7 +127,7 @@ function builder(sourcePath) {
           var lambdaID = getLambdaID(endpointData[0]);
           console.log(
             `[${~~i + 1}/${manifest.lambdas.length}] Building`,
-            endpointData[0]
+            endpointData[0] || "/"
           );
           var info = await getBundleInfo(endpointData);
           bundleInfoMap[lambdaID] = { info }; //the router needs the data at .info of each key
