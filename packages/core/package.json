@@ -2,7 +2,7 @@
   "name": "zero",
   "version": "1.0.12-alpha.6",
   "description": "",
-  "main": "app.js",
+  "main": "lib/index.js",
   "scripts": {
     "example": "cd example && zero"
   },
