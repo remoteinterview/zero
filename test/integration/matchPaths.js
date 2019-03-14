@@ -34,3 +34,17 @@ test("Ignore files are ignored", () => {
     expect(!data || (data && !data.err)).toBe(true);
   });
 });
+
+test("Static file sibling to index", () => {
+  // expect.assertions(1);
+  return get("/html/text.txt").then(data => {
+    expect(data).toBe("text");
+  });
+});
+
+test("Static file sibling to non-index files", () => {
+  // expect.assertions(1);
+  return get("/react/text.txt").then(data => {
+    expect(data).toBe("text");
+  });
+});
