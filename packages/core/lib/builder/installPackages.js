@@ -42,6 +42,16 @@ function installPackages(buildPath, filterFiles) {
     // debug("files", files)
     var deps = [];
 
+    // see if we need to include typescript. It's a heavy dep :(
+    files.forEach(file => {
+      if (
+        deps.indexOf("typescript") === -1 &&
+        (path.extname(file) === ".ts" || path.extname(file) === ".tsx")
+      ) {
+        deps.push("typescript");
+      }
+    });
+
     // build a list of packages required by all js files
     files.forEach(file => {
       if (
