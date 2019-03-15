@@ -1,10 +1,11 @@
 {
-  "name": "zero-handler-html",
+  "name": "zero-builder-html",
   "main": "index.js",
-  "version": "1.0.12-alpha.8",
+  "version": "1.0.12-alpha.0",
   "license": "Apache-2.0",
   "dependencies": {
-    "zero-process": "^1.0.12-alpha.0"
+    "mkdirp": "^0.5.1",
+    "parcel-bundler": "^1.11.0"
   },
   "gitHead": "9e577043290b2ad1205a24f14c4edf7329c6073d"
 }

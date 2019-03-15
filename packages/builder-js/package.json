@@ -1,13 +1,11 @@
 {
-  "name": "zero-handler-react",
+  "name": "zero-builder-js",
   "main": "index.js",
   "version": "1.0.12-alpha.8",
   "license": "Apache-2.0",
   "dependencies": {
-    "debug": "^4.1.1",
-    "react": "^16.8.1",
-    "react-dom": "^16.8.1",
-    "zero-process": "^1.0.12-alpha.0"
+    "parcel-bundler": "^1.11.0",
+    "zero-dep-tree-js": "^1.0.10-alpha.8"
   },
   "gitHead": "9e577043290b2ad1205a24f14c4edf7329c6073d"
 }

@@ -15,6 +15,7 @@ const staticHandler = require("zero-static").handler;
 const path = require("path");
 const url = require("url");
 const handlers = require("zero-handlers-map");
+const builders = require("zero-builders-map");
 const fetch = require("node-fetch");
 const fs = require("fs");
 const debug = require("debug")("core");
@@ -22,7 +23,7 @@ const ora = require("ora");
 const del = require("del");
 const fork = require("child_process").fork;
 const forkasync = require("../utils/spawn-async");
-const bundlerProgram = require.resolve("zero-bundler-process");
+const bundlerProgram = require.resolve("zero-builder-process");
 
 var lambdaIdToPortMap = {};
 var lambdaIdToBundleInfo = {};
@@ -45,7 +46,11 @@ async function proxyLambdaRequest(req, res, endpointData) {
   }
   var lambdaID = getLambdaID(endpointData[0]);
 
-  if (!lambdaIdToBundleInfo[lambdaID] && handlers[endpointData[2]].bundler) {
+  if (
+    !lambdaIdToBundleInfo[lambdaID] &&
+    builders[endpointData[2]] &&
+    builders[endpointData[2]].bundler
+  ) {
     //debug("build not found", lambdaID, endpointData[0])
     spinner.start("Building " + url.resolve("/", endpointData[0]));
     await getBundleInfo(endpointData);
