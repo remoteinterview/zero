@@ -6,7 +6,6 @@
   "dependencies": {
     "@mdx-js/mdx": "^0.16.8",
     "@mdx-js/parcel-plugin-mdx": "^0.17.4",
-    "json-stringify-safe": "^5.0.1",
     "mkdirp": "^0.5.1",
     "parcel-bundler": "^1.11.0",
     "zero-dep-tree-js": "^1.0.10-alpha.8"
