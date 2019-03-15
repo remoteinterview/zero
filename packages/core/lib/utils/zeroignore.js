@@ -12,7 +12,13 @@ from becoming a lambda
 const nodeignore = require("ignore").default;
 const path = require("path");
 const fs = require("fs");
-const DEFAULTIGNORES = ["_*", ".*", "package.json"];
+const DEFAULTIGNORES = [
+  "_*",
+  ".*",
+  "package.json",
+  "Dockerfile",
+  "zero-deploy"
+];
 
 // keep global instance of zeroignore to avoid
 // reading .zeroignore again and again

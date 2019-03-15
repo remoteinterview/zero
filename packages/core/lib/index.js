@@ -104,9 +104,9 @@ function getBundleInfo(endpointData) {
 }
 
 function builder(sourcePath) {
-  //process.env.BUILDPATH = path.join(sourcePath, "zero-builds")
   process.env.ISBUILDER = "true";
   process.env.NODE_ENV = "production";
+  console.log(`\x1b[2m⚡️ Zero ${pkg.version ? `v${pkg.version}` : ""}\x1b[0m`);
   var bundleInfoMap = {};
   setupEnvVariables(sourcePath);
 
