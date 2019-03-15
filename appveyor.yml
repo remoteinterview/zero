@@ -1,5 +1,8 @@
 image: ubuntu
 
+environment:
+  nodejs_version: "8"
+
 install:
 - npm install
 

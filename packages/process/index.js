@@ -98,6 +98,8 @@ function startServer(entryFile, lambdaType, handler, isModule) {
     const file = path.resolve(entryFile);
     const app = express();
 
+    app.disable("x-powered-by");
+
     // bootstrap express app with session
     session(app);
 
