@@ -115,7 +115,10 @@ async function proxyLambdaRequest(req, res, endpointData) {
 }
 
 // if server exits, kill the child processes too.
-process.on("exit", () => {
+process.on("SIGTERM", cleanProcess);
+process.on("exit", cleanProcess);
+
+function cleanProcess() {
   for (var id in lambdaIdToPortMap) {
     lambdaIdToPortMap[id].process.kill();
   }
@@ -124,7 +127,7 @@ process.on("exit", () => {
     if (lambdaIdToBundleInfo[id].process)
       lambdaIdToBundleInfo[id].process.kill();
   }
-});
+}
 
 function getBundleInfo(endpointData) {
   return new Promise(async (resolve, reject) => {

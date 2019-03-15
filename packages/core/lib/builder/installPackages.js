@@ -10,6 +10,7 @@ const debug = require("debug")("core");
 
 const babelConfig = {
   plugins: [
+    "babel-plugin-react-require",
     ["@babel/plugin-transform-runtime"],
     [
       "@babel/plugin-proposal-class-properties",
@@ -153,6 +154,7 @@ function writePackageJSON(buildPath, deps) {
     "@mdx-js/tag": "^0.16.8",
     "@babel/plugin-transform-runtime": "^7.2.0",
     "@babel/plugin-proposal-class-properties": "^7.3.4",
+    "babel-plugin-react-require": "^3.1.1",
     "@babel/core": "^7.2.2"
     // "@babel/core": "^7.2.2",
 

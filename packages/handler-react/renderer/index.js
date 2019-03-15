@@ -1,17 +1,20 @@
-require("@babel/polyfill");
-require("./mdx-override"); // convert mdx to jsx on import()
-const babelConfig = require("./babel.config");
-require("@babel/register")({
-  extensions: [".js", ".jsx", ".tsx", ".ts"],
-  ...babelConfig
-});
-require("ignore-styles"); // ignore css/scss imports on server side.
-const ISDEV = process.env.NODE_ENV !== "production";
+//const ISDEV = process.env.NODE_ENV !== "production";
 const debug = require("debug")("react");
-const fs = require("fs");
+//const fs = require("fs");
 const path = require("path");
-const React = require("react");
-const { renderToString } = require("react-dom/server");
+//const React = require("react");
+//const { renderToString } = require("react-dom/server");
+
+// we use client's react libraries to avoid two instances of React.
+// this fixes react hooks: https://reactjs.org/warnings/invalid-hook-call-warning.html
+const React = require(require("path").join(
+  process.env.BUILDPATH,
+  "/node_modules/react"
+));
+const { renderToString } = require(require("path").join(
+  process.env.BUILDPATH,
+  "/node_modules/react-dom/server"
+));
 
 // we use client's helmet instance to avoid two Helmet instances to be loaded.
 // see: https://github.com/nfl/react-helmet/issues/125
@@ -22,8 +25,6 @@ const { Helmet } = require(require("path").join(
 ));
 
 const jsonStringify = require("json-stringify-safe");
-// const bundle = require('./bundle')
-// var bundleInfo = false
 var ssrCrashWarned = false;
 
 async function generateComponent(
@@ -34,17 +35,8 @@ async function generateComponent(
   basePath,
   bundleInfo
 ) {
-  // invalidate node module's cache in dev mode
-  // TODO: invalidate nested requires too.
-  // TODO: only invalidate if file has changed and not on each refresh
-  if (ISDEV) {
-    delete require.cache[require.resolve(componentPath)];
-    //console.log("CACHE", require.cache)
-    //delete require.cache
-  }
-
   try {
-    var App = require(componentPath);
+    var App = require(path.join(process.env.BUILDPATH, bundleInfo.jsNode));
   } catch (e) {
     if (!ssrCrashWarned) console.log(e);
   }
@@ -166,25 +158,3 @@ const isAsync = fn => fn.constructor.name === "AsyncFunction";
 const createAsyncElement = async (Component, props) => await Component(props);
 
 module.exports = generateComponent;
-// module.exports = async (req, res, componentPath, bundlePath, basePath) => {
-//   var fullBundlePath = path.join(process.env.BUILDPATH, bundlePath)
-
-//   // invalidate node module's cache in dev mode
-//   // TODO: only invalidate if file has changed and not on each refresh
-//   if (ISDEV) {
-//     delete require.cache[require.resolve(componentPath)]
-//   }
-
-//   if (!bundleInfo) {
-//     if (!fs.existsSync(fullBundlePath) || ISDEV) {
-//       webpackVars = await bundle(componentPath, fullBundlePath, basePath, bundlePath)
-//     }
-
-//     bundleInfo = {
-//       js: fs.existsSync(path.join(fullBundlePath, "/bundle.js")) ? path.join(bundlePath, "/bundle.js") : false,
-//       css: fs.existsSync(path.join(fullBundlePath, "/bundle.css")) ? path.join(bundlePath, "/bundle.css") : false,
-//     }
-//   }
-
-//   generateComponent(req, res, componentPath, bundlePath)
-// }
