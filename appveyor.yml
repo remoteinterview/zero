@@ -1,0 +1,13 @@
+image: ubuntu
+
+install:
+- npm install
+
+build_script:
+- npm run lerna bootstrap --concurrency=2
+
+test_script:
+- DEBUG=core,react
+- npm test
+
+build: off
