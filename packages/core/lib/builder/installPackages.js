@@ -94,7 +94,9 @@ function installPackages(buildPath, filterFiles) {
         npmLoad: {
           // npm.load(options, callback): this is the "options" given to npm.load()
           //loglevel: 'silent',	// [default: {loglevel: 'silent'}]
-          progress: false
+          //loglevel: "verbose",
+          progress: false,
+          "prefer-offline": true
         }
       };
       npmi(options, function(err, result) {
