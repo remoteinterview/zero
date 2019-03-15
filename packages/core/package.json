@@ -1,6 +1,6 @@
 {
   "name": "zero",
-  "version": "1.0.12-alpha.7",
+  "version": "1.0.12-alpha.8",
   "description": "",
   "main": "lib/index.js",
   "scripts": {
@@ -25,9 +25,9 @@
     "mkdirp": "^0.5.1",
     "npmi": "^4.0.0",
     "ora": "^3.0.0",
-    "zero-bundler-process": "^1.0.12-alpha.5",
+    "zero-bundler-process": "^1.0.12-alpha.8",
     "zero-dep-tree-js": "^1.0.10-alpha.8",
-    "zero-handlers-map": "^1.0.12-alpha.5",
+    "zero-handlers-map": "^1.0.12-alpha.8",
     "zero-static": "^1.0.10-alpha.8"
   },
   "bundledDependencies": [],
