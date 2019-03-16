@@ -65,6 +65,10 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
         return [file, "lambda:react"];
       }
 
+      if (extension === ".vue") {
+        return [file, "lambda:vue"];
+      }
+
       // Python Lambda
       if (extension === ".py") {
         return [file, "lambda:python"];

@@ -42,13 +42,17 @@ function installPackages(buildPath, filterFiles) {
     // debug("files", files)
     var deps = [];
 
-    // see if we need to include typescript. It's a heavy dep :(
+    // see if we need to include additional optional deps.
     files.forEach(file => {
       if (
         deps.indexOf("typescript") === -1 &&
         (path.extname(file) === ".ts" || path.extname(file) === ".tsx")
       ) {
         deps.push("typescript");
+      }
+
+      if (deps.indexOf("vue") === -1 && path.extname(file) === ".vue") {
+        deps.push("vue", "vue-hot-reload-api", "vue-meta");
       }
     });
 

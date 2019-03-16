@@ -6,6 +6,7 @@
   "dependencies": {
     "zero-builder-html": "^1.0.12-alpha.9",
     "zero-builder-js": "^1.0.12-alpha.9",
+    "zero-builder-vue": "^1.0.12-alpha.9",
     "zero-builder-react": "^1.0.12-alpha.10"
   }
 }
