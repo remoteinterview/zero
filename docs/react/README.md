@@ -19,7 +19,7 @@ You can now run `zero` command in this folder and open [`http://localhost:3000/`
 
 For each React page, zero does the following for you:
 
-- Transpilation and bundling (with webpack and babel).
+- Transpilation and bundling (with Parcel).
 - Bundle CSS/SASS/SCSS.
 - Server rendering, so you don't see blank page until JS loads.
 - Inject session data into `this.props`.

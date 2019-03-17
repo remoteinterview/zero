@@ -28,12 +28,33 @@ async function generateComponent(
     // component failed to load or was not exported.
     clientOnlyRender(req, res, bundleInfo, basePath);
   } else {
-    // var props = {
-    //   user: req.user,
-    //   url: { query: req.query, params: req.params }
-    // };
+    var props = {
+      user: req.user,
+      url: { query: req.query, params: req.params }
+    };
+    debug("App", typeof App.asyncData === "function");
+    if (App && App.asyncData && typeof App.asyncData === "function") {
+      try {
+        var newProps = (await App.asyncData({ req, ...props })) || {};
+        props = { ...props, ...newProps };
+      } catch (e) {
+        debug("ERROR::asyncData", e);
+      }
+    }
 
     try {
+      // const componentData = App.data
+      // App.data = ()=>{
+      //   const obj = componentData()
+      //   // merge with props
+
+      //   return props
+      // }
+      // Object.keys(props).forEach(function(key) {
+      //   App.set(App.data, key, props[key])
+      // });
+
+      // console.log(App.data)
       const app = new Vue(App);
       const html = await renderer.renderToString(app);
       const {
