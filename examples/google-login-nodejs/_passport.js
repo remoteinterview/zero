@@ -1,5 +1,5 @@
-var GOOGLE_ID="687758388964-575uio0ghn52ihu9r5pi3dredeb0aqla.apps.googleusercontent.com",
-GOOGLE_SECRET="Rj1_vD60AeNHBDeRy8gXxB4e"
+var GOOGLE_ID="YOURGOOGLEID.apps.googleusercontent.com",
+GOOGLE_SECRET="Rj2_vDGoogleSecretgXxB4e"
 var GoogleStrategy = require('passport-google-oauth').OAuth2Strategy,
     passport = require("passport")
 
