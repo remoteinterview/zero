@@ -1,7 +1,7 @@
 {
   "name": "zero-handler-react",
   "main": "index.js",
-  "version": "1.0.12-alpha.11",
+  "version": "1.0.12-alpha.12",
   "license": "Apache-2.0",
   "dependencies": {
     "debug": "^4.1.1",
