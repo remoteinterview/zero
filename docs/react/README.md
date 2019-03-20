@@ -49,6 +49,14 @@ Notice that to load data, we use `getInitialProps` which is an async static meth
 
 This method runs on server end. Data returned from `getInitialProps` is serialized when server rendering. Make sure the returned object from getInitialProps is a plain Object and not using Date, Map or Set.
 
+`getInitialProps` is passed an object as argument with following values:
+
+- **req** - The standard [Express Request](https://expressjs.com/en/4x/api.html#req) object for this request.
+- **user** - When a user is logged in, this object contains the session data you stored when authenticating this user. [Read more](https://github.com/remoteinterview/zero/tree/master/docs/nodejs#sessions).
+- **url** - This object contains further two keys:
+  - **query**: Query parameters passed to the request. Like if you URL called was `/post?id=1`, `url.query` will be `{id: 1}`.
+  - **params**: An array of URL parameters, available when the page was called with some additional child path. Like: `/post/1/details`, `url.params` will be `['1', 'details']`.
+
 ## Fetch API
 
 [`fetch()`](https://developers.google.com/web/updates/2015/03/introduction-to-fetch) allows you to do network requests both in server-side code (like `getInitialProps`) and on client-side (like `componentDidMount`). `fetch()` works the same on both the server and client.

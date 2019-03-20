@@ -55,7 +55,7 @@ async function generateComponent(
       // });
 
       // console.log(App.data)
-      const app = new Vue(App);
+      const app = new Vue({ ...App, props: props });
       const html = await renderer.renderToString(app);
       const {
         title,

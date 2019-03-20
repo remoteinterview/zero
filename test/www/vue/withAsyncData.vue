@@ -1,6 +1,6 @@
 <template>
   <div>
-    {{ params[0] }}
+    {{ url }}
   </div>
 </template>
 

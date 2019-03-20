@@ -77,7 +77,7 @@ const createEntry = componentPath => {
   Vue.use(Meta, {
     keyName: "head"
   })
-  const App = new Vue(Page)
+  const App = new Vue({...Page, props: {b:"3"}})
   if (typeof window === 'undefined'){
     module.exports = App
   }
