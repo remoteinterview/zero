@@ -9,6 +9,7 @@
   <a href="#installation">Installation</a> |
   <a href="#getting-started">Getting Started</a> |
   <a href="examples/">Examples</a> |
+  <a href="#running-on-cloud">Running on Cloud</a> |
   <a href="docs/">Docs</a>
 </p>
 
@@ -189,7 +190,7 @@ This will prevent your users from accessing `/components` path directly.
 
 ## Running on Cloud
 
-A zero app is a regular Node.js server. But zero doesn't create `package.json` in your project folder. For most clouds (Heroku, EC2, etc) you probably need `package.json`. You can create one similar to this:
+A Zero app is a regular Node.js server. But zero doesn't create `package.json` in your project folder. For most clouds (Heroku, EC2, etc) you probably need `package.json`. You can create one similar to this:
 
 ```json
 {
@@ -210,6 +211,10 @@ A zero app is a regular Node.js server. But zero doesn't create `package.json` i
 - Add a `"build"` command to pre-build all files to speed up cold boots. Don't forget to run `npm run build` in your build step (in your Dockerfile, `heroku-postbuild`, etc)
 
 After this, you can follow the instructions from your cloud provider for deploying a Node.js app.
+
+### Heroku Buildpack
+
+We provide an official [Buildpack for Heroku](https://github.com/remoteinterview/zero-heroku-buildpack). If you are deploying on Heroku, this is the easiest way.
 
 ### Changing Server's Port
 
