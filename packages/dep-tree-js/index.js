@@ -16,7 +16,8 @@ function getRelativeFiles(file) {
     extension === ".md" ||
     extension === ".mdx" ||
     extension === ".ts" ||
-    extension === ".tsx"
+    extension === ".tsx" ||
+    extension === ".vue"
   ) {
     var imports = konan(file, fs.readFileSync(file, "utf8"));
     // only strings for now.
@@ -36,6 +37,11 @@ function getRelativeFiles(file) {
           else if (fs.existsSync(baseName + ".md")) deps.push(baseName + ".md");
           else if (fs.existsSync(baseName + ".mdx"))
             deps.push(baseName + ".mdx");
+          else if (fs.existsSync(baseName + ".ts")) deps.push(baseName + ".ts");
+          else if (fs.existsSync(baseName + ".tsx"))
+            deps.push(baseName + ".tsx");
+          else if (fs.existsSync(baseName + ".vue"))
+            deps.push(baseName + ".vue");
         }
       }
     });
@@ -55,7 +61,8 @@ function getPackages(file) {
     extension === ".md" ||
     extension === ".mdx" ||
     extension === ".ts" ||
-    extension === ".tsx"
+    extension === ".tsx" ||
+    extension === ".vue"
   ) {
     var imports = konan(file, fs.readFileSync(file, "utf8"));
     // only strings for now.

@@ -6,6 +6,8 @@
   "dependencies": {
     "@mdx-js/mdx": "^0.16.8",
     "konan": "^1.2.1",
-    "typescript": "3.3.3333"
+    "typescript": "3.3.3333",
+    "@vue/component-compiler-utils": "^2.6.0",
+    "vue-template-compiler": "^2.6.10"
   }
 }

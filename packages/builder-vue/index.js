@@ -1,3 +1,4 @@
 module.exports = {
-  bundler: require("./bundler")
+  bundler: require("./bundler"),
+  getRelatedFiles: require("zero-dep-tree-js").getRelativeFiles
 };

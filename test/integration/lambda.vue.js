@@ -14,17 +14,17 @@ test("Vue Simple", () => {
   });
 });
 
-// test("React With Imports", () => {
-//   //expect.assertions(1);
-//   return get("/vue/withimports").then(data => {
-//     const $ = cheerio.load(data);
-//     expect(
-//       $("body")
-//         .text()
-//         .trim()
-//     ).toBe("246react-stateless");
-//   });
-// });
+test.only("React With Imports", () => {
+  //expect.assertions(1);
+  return get("/vue/withimports").then(data => {
+    const $ = cheerio.load(data);
+    expect(
+      $("body")
+        .text()
+        .trim()
+    ).toBe("2, 4, 6");
+  });
+});
 
 test("Vue With Head/Meta Tags", () => {
   //expect.assertions(1);
