@@ -3,7 +3,7 @@
 const fs = require("fs");
 const path = require("path");
 const chokidar = require("chokidar");
-const glob = require("glob");
+const glob = require("fast-glob");
 const globParent = require("glob-parent");
 const del = require("del");
 require("colors");

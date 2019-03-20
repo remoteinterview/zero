@@ -1,4 +1,4 @@
-const glob = require("glob");
+const glob = require("fast-glob");
 const fs = require("fs");
 const path = require("path");
 const debug = require("debug")("core");
@@ -7,12 +7,8 @@ const handlers = require("zero-handlers-map");
 const nodeignore = require("../utils/zeroignore");
 
 async function getFiles(baseSrc) {
-  return new Promise((resolve, reject) => {
-    glob(baseSrc + "/**/*", { nodir: true, dot: true }, (err, res) => {
-      if (err) return reject(err);
-      resolve(res);
-    });
-  });
+  //baseSrc = baseSrc.endsWith("/")?baseSrc:(baseSrc+"/")
+  return glob(path.join(baseSrc, "/**"), { onlyFiles: true, dot: true });
 }
 
 const relativePath = p => path.relative(process.env.BUILDPATH, p);

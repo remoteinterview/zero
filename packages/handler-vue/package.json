@@ -6,9 +6,9 @@
   "dependencies": {
     "debug": "^4.1.1",
     "json-stringify-safe": "^5.0.1",
-    "vue": "^2.6.9",
+    "vue": "^2.6.10",
     "vue-meta": "^1.5.8",
-    "vue-server-renderer": "^2.6.9",
+    "vue-server-renderer": "^2.6.10",
     "zero-process": "^1.0.12-alpha.11"
   },
   "gitHead": "9e577043290b2ad1205a24f14c4edf7329c6073d"

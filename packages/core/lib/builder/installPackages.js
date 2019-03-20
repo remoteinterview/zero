@@ -1,6 +1,6 @@
 const getPackages = require("zero-dep-tree-js").getPackages;
 const fs = require("fs");
-var glob = require("glob");
+var glob = require("fast-glob");
 //var { spawnSync } = require("child_process")
 //const npminstall = require('npminstall');
 var npmi = require("npmi");
@@ -22,12 +22,7 @@ const babelConfig = {
 };
 
 async function getFiles(baseSrc) {
-  return new Promise((resolve, reject) => {
-    glob(baseSrc + "/**/*", { nodir: true }, (err, res) => {
-      if (err) return reject(err);
-      resolve(res);
-    });
-  });
+  return glob(path.join(baseSrc, "/**"), { onlyFiles: true });
 }
 
 function installPackages(buildPath, filterFiles) {

@@ -3,17 +3,12 @@
 const fs = require("fs");
 const path = require("path");
 const debug = require("debug")("core");
-const glob = require("glob");
+const glob = require("fast-glob");
 const createDirIfNotExist = require("./createDirIfNotExist");
 
 module.exports = (from, to) => {
   const copy = source => {
-    // console.log("to", to)
-    // console.log("from", from)
-    // console.log("source", source)
-    // console.log("relative", path.relative(from, source))
     const target = path.join(to, path.relative(from, source));
-    // console.log("target", "target", "\n\n\n")
     createDirIfNotExist(target);
     const stats = fs.statSync(source);
     if (stats.isDirectory()) {
