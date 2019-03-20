@@ -1,7 +1,15 @@
+const localRequire = lib => {
+  return require(require("path").join(
+    process.env.BUILDPATH,
+    "/node_modules/",
+    lib
+  ));
+};
+
 const debug = require("debug")("vue");
 const path = require("path");
-const Vue = require("vue/dist/vue");
-const VueMeta = require("vue-meta");
+const Vue = localRequire("vue/dist/vue");
+const VueMeta = localRequire("vue-meta");
 const renderer = require("vue-server-renderer").createRenderer();
 const jsonStringify = require("json-stringify-safe");
 

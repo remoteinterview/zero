@@ -1,28 +1,22 @@
-//const ISDEV = process.env.NODE_ENV !== "production";
+const localRequire = lib => {
+  return require(require("path").join(
+    process.env.BUILDPATH,
+    "/node_modules/",
+    lib
+  ));
+};
 const debug = require("debug")("react");
-//const fs = require("fs");
 const path = require("path");
-//const React = require("react");
-//const { renderToString } = require("react-dom/server");
 
 // we use client's react libraries to avoid two instances of React.
 // this fixes react hooks: https://reactjs.org/warnings/invalid-hook-call-warning.html
-const React = require(require("path").join(
-  process.env.BUILDPATH,
-  "/node_modules/react"
-));
-const { renderToString } = require(require("path").join(
-  process.env.BUILDPATH,
-  "/node_modules/react-dom/server"
-));
+const React = localRequire("react");
+const { renderToString } = localRequire("react-dom/server");
 
 // we use client's helmet instance to avoid two Helmet instances to be loaded.
 // see: https://github.com/nfl/react-helmet/issues/125
 // and https://stackoverflow.com/questions/45822925/react-helmet-outputting-empty-strings-on-server-side
-const { Helmet } = require(require("path").join(
-  process.env.BUILDPATH,
-  "/node_modules/react-helmet"
-));
+const { Helmet } = localRequire("react-helmet");
 
 const jsonStringify = require("json-stringify-safe");
 var ssrCrashWarned = false;
