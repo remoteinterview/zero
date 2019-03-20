@@ -14,7 +14,7 @@ test("Vue Simple", () => {
   });
 });
 
-test.only("React With Imports", () => {
+test("React With Imports", () => {
   //expect.assertions(1);
   return get("/vue/withimports").then(data => {
     const $ = cheerio.load(data);
@@ -37,6 +37,19 @@ test("Vue With Head/Meta Tags", () => {
     ).toBe("My Title");
   });
 });
+
+test("Vue With asyncData", () => {
+  //expect.assertions(1);
+  return get("/vue/withAsyncData/?id=abc").then(data => {
+    const $ = cheerio.load(data);
+    expect(
+      $("body")
+        .text()
+        .trim()
+    ).toBe("abc");
+  });
+});
+
 /*
 test("React With Custom Meta Charset", () => {
   //expect.assertions(1);

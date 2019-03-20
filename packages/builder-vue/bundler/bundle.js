@@ -74,15 +74,21 @@ const createEntry = componentPath => {
   import Vue from 'vue';
   import Meta from 'vue-meta'
   import Page from './${componentPath}';
+  const PageExt = Vue.extend(Page);
   Vue.use(Meta, {
     keyName: "head"
   })
-  const App = new Vue({...Page, props: {b:"3"}})
+
+  //const App = new Vue(PageExt)
   if (typeof window === 'undefined'){
-    module.exports = App
+    module.exports = new Vue(PageExt)
   }
   else{
-    window.__ZEROAPP = App
+    new PageExt({
+      el: '#__ZERO',
+      data: window.__ZERO_ASYNCDATA
+    })
+    delete window.__ZERO_ASYNCDATA
   }
   
 `;

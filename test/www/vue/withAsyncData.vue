@@ -1,6 +1,8 @@
 <template>
   <div>
-    {{ url }}
+    <!-- title: {{ value }}
+    renderer: {{ renderer }} -->
+    {{ url.query.id }}
   </div>
 </template>
 
@@ -12,7 +14,10 @@ module.exports = {
     }
   },
   asyncData: function (props){
-    return {a:"abc"}
+    return {
+      url: props.url,
+      renderer: typeof window === 'undefined' ? "server": "client"
+    }
   }
 }
 </script>

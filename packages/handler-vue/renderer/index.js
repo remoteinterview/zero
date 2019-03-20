@@ -3,6 +3,7 @@ const path = require("path");
 const Vue = require("vue/dist/vue");
 const VueMeta = require("vue-meta");
 const renderer = require("vue-server-renderer").createRenderer();
+const jsonStringify = require("json-stringify-safe");
 
 Vue.use(VueMeta, {
   keyName: "head"
@@ -28,35 +29,31 @@ async function generateComponent(
     // component failed to load or was not exported.
     clientOnlyRender(req, res, bundleInfo, basePath);
   } else {
+    // load asyncData if function exposed
+    var asyncData = {};
     var props = {
       user: req.user,
       url: { query: req.query, params: req.params }
     };
-    debug("App", typeof App.asyncData === "function");
     if (App && App.asyncData && typeof App.asyncData === "function") {
       try {
-        var newProps = (await App.asyncData({ req, ...props })) || {};
-        props = { ...props, ...newProps };
+        asyncData = (await App.asyncData({ req, ...props })) || {};
       } catch (e) {
         debug("ERROR::asyncData", e);
       }
     }
 
+    // render the component
     try {
-      // const componentData = App.data
-      // App.data = ()=>{
-      //   const obj = componentData()
-      //   // merge with props
+      // get component's data as we will be merging it with asyncData from above
+      var appData = {};
+      if (typeof App.data === "function") appData = App.data();
+      else if (App.data) appData = App.data;
+      const app = new Vue({ ...App, data: { ...appData, ...asyncData } });
 
-      //   return props
-      // }
-      // Object.keys(props).forEach(function(key) {
-      //   App.set(App.data, key, props[key])
-      // });
-
-      // console.log(App.data)
-      const app = new Vue({ ...App, props: props });
+      // render everything to string
       const html = await renderer.renderToString(app);
+      const json = jsonStringify(asyncData);
       const {
         title,
         htmlAttrs,
@@ -89,8 +86,9 @@ async function generateComponent(
     ${script.text({ body: true })}
     ${
       bundleInfo && bundleInfo.js
-        ? `<script src="/${bundleInfo.js}"></script>
-            <script>window.__ZEROAPP.$mount('#__ZERO')</script>`
+        ? `<script>window.__ZERO_ASYNCDATA=${json}</script><script src="/${
+            bundleInfo.js
+          }"></script>`
         : ""
     }
   </body>
