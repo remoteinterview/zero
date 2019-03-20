@@ -1,13 +1,13 @@
 {
   "name": "zero-dep-tree-js",
   "main": "index.js",
-  "version": "1.0.10-alpha.8",
+  "version": "1.0.12-alpha.13",
   "license": "Apache-2.0",
   "dependencies": {
     "@mdx-js/mdx": "^0.16.8",
+    "@vue/component-compiler-utils": "^2.6.0",
     "konan": "^1.2.1",
     "typescript": "3.3.3333",
-    "@vue/component-compiler-utils": "^2.6.0",
     "vue-template-compiler": "^2.6.10"
   }
 }
