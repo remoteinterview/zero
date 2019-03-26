@@ -10,7 +10,7 @@ const FETCH = require("node-fetch");
 const debug = require("debug")("core");
 
 const GLOBALS = require("./globals");
-
+const compression = require("compression");
 const session = require("zero-express-session");
 
 const vm = require("vm");
@@ -102,6 +102,9 @@ function startServer(entryFile, lambdaType, handler, isModule) {
 
     // bootstrap express app with session
     session(app);
+
+    // compress all responses
+    app.use(compression({ threshold: 1 }));
 
     app.use(require("body-parser").urlencoded({ extended: true }));
     app.use(require("body-parser").json());
