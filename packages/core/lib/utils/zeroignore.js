@@ -1,4 +1,4 @@
-/* 
+/*
 a wrapper around node-ignore with default ignores added.
 zeroignore works on file-level and restricts exposing ignored files
 from becoming lambdas/handlers or even static public files.
@@ -16,6 +16,7 @@ const DEFAULTIGNORES = [
   "_*",
   ".*",
   "package.json",
+  "package-lock.json",
   "Dockerfile",
   "zero-deploy"
 ];
