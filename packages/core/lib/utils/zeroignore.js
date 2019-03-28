@@ -15,6 +15,7 @@ const fs = require("fs");
 const DEFAULTIGNORES = [
   "_*",
   ".*",
+  "node_modules/*",
   "package.json",
   "package-lock.json",
   "Dockerfile",
