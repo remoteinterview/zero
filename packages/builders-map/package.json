@@ -1,12 +1,12 @@
 {
   "name": "zero-builders-map",
   "main": "index.js",
-  "version": "1.0.12-alpha.13",
+  "version": "1.0.12",
   "license": "Apache-2.0",
   "dependencies": {
     "zero-builder-html": "^1.0.12-alpha.9",
     "zero-builder-js": "^1.0.12-alpha.13",
     "zero-builder-react": "^1.0.12-alpha.13",
-    "zero-builder-vue": "^1.0.12-alpha.13"
+    "zero-builder-vue": "^1.0.12"
   }
 }

@@ -1,7 +1,7 @@
 {
   "name": "zero-builder-vue",
   "main": "index.js",
-  "version": "1.0.12-alpha.13",
+  "version": "1.0.12",
   "license": "Apache-2.0",
   "dependencies": {
     "mkdirp": "^0.5.1",
