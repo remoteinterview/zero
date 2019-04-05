@@ -201,7 +201,7 @@ A Zero app is a regular Node.js server. But zero doesn't create `package.json` i
     "start": "NODE_ENV=production zero"
   },
   "dependencies": {
-    "zero": "*"
+    "zero": "latest"
   }
 }
 ```
@@ -209,6 +209,7 @@ A Zero app is a regular Node.js server. But zero doesn't create `package.json` i
 - We add dependency `zero`, so the cloud builder can install `zero` on your server.
 - Add a `"start"` command and also set `NODE_ENV` to `production` so zero generates minified builds and disabled HMR etc.
 - Add a `"build"` command to pre-build all files to speed up cold boots. Don't forget to run `npm run build` in your build step (in your Dockerfile, `heroku-postbuild`, etc)
+- If your cloud has an option to set environment variables / config variables (to store secrets, API keys, etc), these variables are automatically passed to your code and can be accessed as you normally would. In node, using `process.env.MY_SECRET`. You should never commit your local `.env` file to your code.
 
 After this, you can follow the instructions from your cloud provider for deploying a Node.js app.
 
