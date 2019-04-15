@@ -49,7 +49,7 @@ module.exports = async function build(
         filesArr &&
           filesArr.forEach(f => {
             // check if we have lambdas that depend on this file
-            if (currentManifest.fileToLambdas[f]) {
+            if (currentManifest && currentManifest.fileToLambdas[f]) {
               filesUpdated = filesUpdated.concat(
                 currentManifest.fileToLambdas[f]
               );

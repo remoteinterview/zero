@@ -5,3 +5,4 @@ example
 dist
 zero-builds
 *.log
+test/www/package.json

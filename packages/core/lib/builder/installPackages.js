@@ -4,9 +4,13 @@ var glob = require("fast-glob");
 //var { spawnSync } = require("child_process")
 //const npminstall = require('npminstall');
 var npmi = require("npmi");
+var npm = require("global-npm");
 // const pnpm = require('pnpm/lib/main').default
 var path = require("path");
 const debug = require("debug")("core");
+
+var firstRun = true;
+//process.on('unhandledRejection', up => { throw up });
 
 const babelConfig = {
   plugins: [
@@ -83,9 +87,13 @@ function installPackages(buildPath, filterFiles) {
         });
       } catch (e) {}
     }
-    if (!allInstalled) {
+    if (!allInstalled || firstRun) {
+      // we must run npm i on first boot,
+      // so we are sure pkg.json === node_modules
+      firstRun = false;
+
       // now that we have a list. npm install them in our build folder
-      writePackageJSON(buildPath, deps);
+      await writePackageJSON(buildPath, deps);
       debug("installing", deps);
 
       var options = {
@@ -95,7 +103,8 @@ function installPackages(buildPath, filterFiles) {
           //loglevel: 'silent',	// [default: {loglevel: 'silent'}]
           //loglevel: "verbose",
           progress: false,
-          "prefer-offline": true
+          "prefer-offline": true,
+          audit: false
         }
       };
       npmi(options, function(err, result) {
@@ -127,12 +136,16 @@ function installPackages(buildPath, filterFiles) {
   });
 }
 
-function writePackageJSON(buildPath, deps) {
+async function writePackageJSON(buildPath, deps) {
   // first load current package.json if present
   var pkgjsonPath = path.join(buildPath, "/package.json");
+  var newDepsFound = false;
   var pkg = {
-    name: "zeroapp",
+    name: "zero-app",
     private: true,
+    scripts: {
+      start: "zero"
+    },
     dependencies: {}
   };
   if (fs.existsSync(pkgjsonPath)) {
@@ -189,22 +202,61 @@ function writePackageJSON(buildPath, deps) {
   }
 
   // append user's imported packages (only if not already defined in package.json)
-  deps.forEach(dep => {
-    if (!pkg.dependencies[dep]) pkg.dependencies[dep] = "*";
-  });
+  for (var i in deps) {
+    const dep = deps[i];
+    if (!pkg.dependencies[dep]) {
+      newDepsFound = true;
+      pkg.dependencies[dep] = await getNPMVersion(dep);
+    }
+  }
+  // deps.forEach(dep => {
 
+  // });
+
+  // write a pkg.json into tmp buildpath
   fs.writeFileSync(
     path.join(buildPath, "/package.json"),
-    JSON.stringify(pkg),
+    JSON.stringify(pkg, null, 2),
     "utf8"
   );
 
   // // write .babelrc
   fs.writeFileSync(
     path.join(buildPath, "/.babelrc"),
-    JSON.stringify(babelConfig),
+    JSON.stringify(babelConfig, null, 2),
     "utf8"
   );
+
+  // also save any newfound deps into user's pkg.json
+  // in sourcepath. But minus our hardcoded depsJson
+
+  if (newDepsFound) {
+    Object.keys(depsJson).forEach(key => {
+      delete pkg.dependencies[key];
+    });
+    console.log(`\n\x1b[2mUpdating package.json\x1b[0m\n`);
+    fs.writeFileSync(
+      path.join(process.env.SOURCEPATH, "/package.json"),
+      JSON.stringify(pkg, null, 2),
+      "utf8"
+    );
+  }
+}
+
+function getNPMVersion(pkgName) {
+  return new Promise((resolve, reject) => {
+    npm.load({}, err => {
+      //process.stdout.write(`\x1b[2m- Resolving ${pkgName}@`)
+      npm.commands.show([pkgName, "version"], (err, view) => {
+        //process.stdout.write('\x1b[0m')
+        try {
+          resolve(`^${Object.keys(view)[0]}`);
+        } catch (e) {
+          resolve("latest");
+        }
+      });
+    });
+  });
 }
 
 module.exports = installPackages;
