@@ -139,7 +139,7 @@ To use MongoDB as your session store, you need to provide MongoDB's [connection 
 
 ### Using DynamoDB for Sessions
 
-Zero reads AWS credentials from [environment variables](https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/loading-node-credentials-environment.html) `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`. You must also specify the name of the table by setting the environment variable `SESSION_DYNAMODB_TABLE`.
+Zero reads AWS credentials from [environment variables](https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/loading-node-credentials-environment.html) `AWS_ACCESS_KEY_ID` (or `AWS_ID`) and `AWS_SECRET_ACCESS_KEY` (or `AWS_SECRET`). You must also specify the name of the table by setting the environment variable `SESSION_DYNAMODB_TABLE`.
 
 To use [DynamoDB TTL](http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/TTL.html), enable it on the table and select the `expires` field.
 

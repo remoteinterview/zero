@@ -31,9 +31,17 @@ module.exports = session => {
   // check if AWS+Dynamodb creds are provided
   else if (process.env.SESSION_DYNAMODB_TABLE) {
     const DynamoDBStore = require("connect-dynamodb")({ session: session });
-    return new DynamoDBStore({
-      table: process.env.SESSION_DYNAMODB_TABLE
-    });
+    var config = {
+      table: process.env.SESSION_DYNAMODB_TABLE,
+      AWSConfigJSON: {
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID || process.env.AWS_ID,
+        secretAccessKey:
+          process.env.AWS_SECRET_ACCESS_KEY || process.env.AWS_SECRET,
+        region: process.env.AWS_REGION || "us-east-1"
+      }
+    };
+
+    return new DynamoDBStore(config);
   }
   // fallback to filestore, best for local dev.
   else {
