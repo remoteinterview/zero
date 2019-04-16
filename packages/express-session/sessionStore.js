@@ -28,6 +28,13 @@ module.exports = session => {
       url: process.env.SESSION_MONGODB_URL
     });
   }
+  // check if AWS+Dynamodb creds are provided
+  else if (process.env.SESSION_DYNAMODB_TABLE) {
+    const DynamoDBStore = require("connect-dynamodb")({ session: session });
+    return new DynamoDBStore({
+      table: process.env.SESSION_DYNAMODB_TABLE
+    });
+  }
   // fallback to filestore, best for local dev.
   else {
     const FileStore = require("session-file-store")(session);

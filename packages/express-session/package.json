@@ -4,6 +4,7 @@
   "version": "1.0.10-alpha.8",
   "license": "Apache-2.0",
   "dependencies": {
+    "connect-dynamodb": "^2.0.3",
     "connect-mongo": "^2.0.3",
     "connect-redis": "^3.4.0",
     "cookie-parser": "^1.4.3",

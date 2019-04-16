@@ -137,6 +137,12 @@ Zero reads credentials from environment variables. Zero also loads variables fro
 
 To use MongoDB as your session store, you need to provide MongoDB's [connection string](https://docs.mongodb.com/manual/reference/connection-string/) in `SESSION_MONGODB_URL` environment variable.
 
+### Using DynamoDB for Sessions
+
+Zero reads AWS credentials from [environment variables](https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/loading-node-credentials-environment.html) `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`. You must also specify the name of the table by setting the environment variable `SESSION_DYNAMODB_TABLE`.
+
+To use [DynamoDB TTL](http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/TTL.html), enable it on the table and select the `expires` field.
+
 ### Session TTL
 
 You can specify when the session should expire by setting `SESSION_TTL` in seconds. By default this TTL is set to 1 year from login.
