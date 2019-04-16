@@ -34,9 +34,9 @@ module.exports = session => {
     var config = {
       table: process.env.SESSION_DYNAMODB_TABLE,
       AWSConfigJSON: {
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID || process.env.AWS_ID,
+        accessKeyId: process.env.AWS_ID || process.env.AWS_ACCESS_KEY_ID,
         secretAccessKey:
-          process.env.AWS_SECRET_ACCESS_KEY || process.env.AWS_SECRET,
+          process.env.AWS_SECRET || process.env.AWS_SECRET_ACCESS_KEY,
         region: process.env.AWS_REGION || "us-east-1"
       }
     };
