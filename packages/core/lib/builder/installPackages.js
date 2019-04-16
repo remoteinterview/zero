@@ -1,6 +1,7 @@
 const getPackages = require("zero-dep-tree-js").getPackages;
 const fs = require("fs");
 var glob = require("fast-glob");
+const deepmerge = require("deepmerge");
 //var { spawnSync } = require("child_process")
 //const npminstall = require('npminstall');
 var npmi = require("npmi");
@@ -41,8 +42,17 @@ function installPackages(buildPath, filterFiles) {
     // debug("files", files)
     var deps = [];
 
+    var pkgJsonChanged = false;
+
     // see if we need to include additional optional deps.
     files.forEach(file => {
+      // if pkg.json is changed
+      if (
+        path.relative(process.env.BUILDPATH, file).toLowerCase() ===
+        "package.json"
+      ) {
+        pkgJsonChanged = true;
+      }
       if (
         deps.indexOf("typescript") === -1 &&
         (path.extname(file) === ".ts" || path.extname(file) === ".tsx")
@@ -87,7 +97,7 @@ function installPackages(buildPath, filterFiles) {
         });
       } catch (e) {}
     }
-    if (!allInstalled || firstRun) {
+    if (!allInstalled || firstRun || pkgJsonChanged) {
       // we must run npm i on first boot,
       // so we are sure pkg.json === node_modules
       firstRun = false;
@@ -209,9 +219,6 @@ async function writePackageJSON(buildPath, deps) {
       pkg.dependencies[dep] = await getNPMVersion(dep);
     }
   }
-  // deps.forEach(dep => {
-
-  // });
 
   // write a pkg.json into tmp buildpath
   fs.writeFileSync(
@@ -220,10 +227,26 @@ async function writePackageJSON(buildPath, deps) {
     "utf8"
   );
 
-  // // write .babelrc
+  // // merge babelrc with user's babelrc (if present in user project)
+  var babelPath = path.join(buildPath, "/.babelrc");
+  var babelSrcPath = path.join(process.env.SOURCEPATH, "/.babelrc");
+  var finalBabelConfig = {};
+  if (fs.existsSync(babelSrcPath)) {
+    try {
+      var userBabelConfig = JSON.parse(fs.readFileSync(babelSrcPath));
+      finalBabelConfig = deepmerge(babelConfig, userBabelConfig);
+    } catch (e) {
+      // couldn't read the file
+      finalBabelConfig = babelConfig;
+    }
+  } else {
+    finalBabelConfig = babelConfig;
+  }
+
+  //console.log(JSON.stringify(finalBabelConfig, null, 2))
   fs.writeFileSync(
-    path.join(buildPath, "/.babelrc"),
-    JSON.stringify(babelConfig, null, 2),
+    babelPath,
+    JSON.stringify(finalBabelConfig, null, 2),
     "utf8"
   );
 
