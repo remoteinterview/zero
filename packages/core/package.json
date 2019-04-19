@@ -26,6 +26,7 @@
     "mkdirp": "^0.5.1",
     "npmi": "^4.0.0",
     "ora": "^3.0.0",
+    "yarn": "^1.15.2",
     "zero-builder-process": "^1.0.12",
     "zero-builders-map": "^1.0.12",
     "zero-dep-tree-js": "^1.0.12-alpha.13",

@@ -2,11 +2,8 @@ const getPackages = require("zero-dep-tree-js").getPackages;
 const fs = require("fs");
 var glob = require("fast-glob");
 const deepmerge = require("deepmerge");
-//var { spawnSync } = require("child_process")
-//const npminstall = require('npminstall');
-var npmi = require("npmi");
-var npm = require("global-npm");
-// const pnpm = require('pnpm/lib/main').default
+var { spawn } = require("child_process");
+
 var path = require("path");
 const debug = require("debug")("core");
 
@@ -25,6 +22,35 @@ const babelConfig = {
     ]
   ]
 };
+
+function runYarn(cwd, args, resolveOutput) {
+  var yarnPath = require.resolve("yarn/bin/yarn");
+  return new Promise((resolve, reject) => {
+    var child = spawn(yarnPath, args || [], {
+      cwd: cwd,
+      stdio: !resolveOutput ? "inherit" : undefined
+    });
+    var output = "";
+    if (resolveOutput) {
+      child.stdout.on("data", data => {
+        output += data;
+      });
+    }
+
+    child.on("exit", code => {
+      resolve(output);
+    });
+  });
+}
+
+async function getNPMVersion(pkgName) {
+  var json = await runYarn(
+    process.env.BUILDPATH,
+    ["info", pkgName, "version", "--json"],
+    true
+  );
+  return JSON.parse(json).data;
+}
 
 async function getFiles(baseSrc) {
   return glob(path.join(baseSrc, "/**"), { onlyFiles: true });
@@ -106,40 +132,11 @@ function installPackages(buildPath, filterFiles) {
       await writePackageJSON(buildPath, deps);
       debug("installing", deps);
 
-      var options = {
-        path: buildPath, // installation path [default: '.']
-        npmLoad: {
-          // npm.load(options, callback): this is the "options" given to npm.load()
-          //loglevel: 'silent',	// [default: {loglevel: 'silent'}]
-          //loglevel: "verbose",
-          progress: false,
-          "prefer-offline": true,
-          audit: false
-        }
-      };
-      npmi(options, function(err, result) {
-        if (err) {
-          if (err.code === npmi.LOAD_ERR) debug("npm load error");
-          else if (err.code === npmi.INSTALL_ERR) debug("npm install error");
-          reject(err);
-          return debug("errr", err.message);
-        }
-
+      runYarn(buildPath).then(() => {
         // installed
         debug("Pkgs installed successfully.");
         resolve(deps);
       });
-
-      // try{
-      //   await pnpm(["install", "--loglevel", "warn", "--prefix", buildPath])
-      //   // installed
-      //   debug('Pkgs installed successfully.');
-      //   resolve()
-
-      // }
-      // catch(e){
-      //   reject(e)
-      // }
     } else {
       resolve(deps);
     }
@@ -257,29 +254,13 @@ async function writePackageJSON(buildPath, deps) {
     Object.keys(depsJson).forEach(key => {
       delete pkg.dependencies[key];
     });
-    console.log(`\n\x1b[2mUpdating package.json\x1b[0m\n`);
+    console.log(`\x1b[2mUpdating package.json\x1b[0m\n`);
     fs.writeFileSync(
       path.join(process.env.SOURCEPATH, "/package.json"),
       JSON.stringify(pkg, null, 2),
       "utf8"
     );
   }
-}
-
-function getNPMVersion(pkgName) {
-  return new Promise((resolve, reject) => {
-    npm.load({}, err => {
-      //process.stdout.write(`\x1b[2m- Resolving ${pkgName}@`)
-      npm.commands.show([pkgName, "version"], (err, view) => {
-        //process.stdout.write('\x1b[0m')
-        try {
-          resolve(`^${Object.keys(view)[0]}`);
-        } catch (e) {
-          resolve("latest");
-        }
-      });
-    });
-  });
 }
 
 module.exports = installPackages;

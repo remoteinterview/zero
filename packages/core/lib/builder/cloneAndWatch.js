@@ -89,7 +89,7 @@ module.exports = async (options, onWatchUpdate) => {
     var paths = [path.join(target, "/**"), "!" + target];
     if (!options.cleanModules) {
       paths.push("!" + path.join(target, "/node_modules/**"));
-      paths.push("!" + path.join(target, "/package-lock.json"));
+      //paths.push("!" + path.join(target, "/package-lock.json"));
       paths.push("!" + path.join(target, "/yarn.lock"));
     }
     // if running in prod mode, also avoid deleting builds.

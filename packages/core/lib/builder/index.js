@@ -100,7 +100,8 @@ module.exports = async function build(
 };
 
 async function updateManifest(buildPath, currentManifest, updatedFiles) {
-  spinner.start("Updating packages");
+  console.log("⬇️  Updating packages");
+  //spinner.start("Updating packages");
   var deps = await installPackages(buildPath, updatedFiles);
   spinner.start("Generating manifest");
   const manifest = await buildManifest(
