@@ -29,7 +29,10 @@ module.exports = async (options, onWatchUpdate) => {
 
   const copy = from => {
     const relativePath = path.relative(process.env.SOURCEPATH, from);
-    if (relativePath.indexOf("node_modules") !== -1) {
+    if (
+      relativePath.indexOf("node_modules") !== -1 ||
+      relativePath.indexOf(".git") !== -1
+    ) {
       return;
     }
 
