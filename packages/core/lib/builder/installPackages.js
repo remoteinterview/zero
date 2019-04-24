@@ -44,12 +44,20 @@ function runYarn(cwd, args, resolveOutput) {
 }
 
 async function getNPMVersion(pkgName) {
-  var json = await runYarn(
-    process.env.BUILDPATH,
-    ["info", pkgName, "version", "--json"],
-    true
-  );
-  return JSON.parse(json).data;
+  try {
+    var json = await runYarn(
+      process.env.BUILDPATH,
+      ["info", pkgName, "version", "--json"],
+      true
+    );
+    return JSON.parse(json).data;
+  } catch (e) {
+    debug(
+      `[yarn ${pkgName} version]`,
+      "couldn't fetch package info. Returning `latest`"
+    );
+    return "latest";
+  }
 }
 
 async function getFiles(baseSrc) {
