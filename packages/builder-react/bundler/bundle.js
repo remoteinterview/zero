@@ -1,4 +1,3 @@
-const Bundler = require("./parcelCustom");
 const fs = require("fs");
 const path = require("path");
 const debug = require("debug")("react");
@@ -19,6 +18,7 @@ module.exports = async (
   publicBundlePath,
   targetNode
 ) => {
+  const Bundler = require("./parcelCustom");
   mkdirp.sync(bundlePath);
 
   if (!targetNode) {

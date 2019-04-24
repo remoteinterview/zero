@@ -1,4 +1,3 @@
-const Bundler = require("parcel-bundler");
 const path = require("path");
 var isDev = process.env.NODE_ENV !== "production";
 const crypto = require("crypto");
@@ -10,6 +9,7 @@ function sha1(data) {
 }
 
 module.exports = async function bundle(entryFile, buildPath, publicPath) {
+  const Bundler = require("parcel-bundler");
   buildPath = buildPath + "/_node"; // this causes router to not expose the bundle publicly
   var fullbuildPath = path.join(process.env.BUILDPATH, buildPath);
 

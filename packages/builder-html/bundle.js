@@ -1,4 +1,3 @@
-const Bundler = require("parcel-bundler");
 const path = require("path");
 var isDev = process.env.NODE_ENV !== "production";
 const crypto = require("crypto");
@@ -10,6 +9,7 @@ function sha1(data) {
 }
 
 module.exports = async function bundle(entryFile, buildPath, publicPath) {
+  const Bundler = require("parcel-bundler");
   buildPath = buildPath + "/html.static"; // this causes router to serve our html as static files
   var fullbuildPath = path.join(process.env.BUILDPATH, buildPath);
 
