@@ -48,3 +48,22 @@ test("Static file sibling to non-index files", () => {
     expect(data).toBe("text");
   });
 });
+
+test("path which is similar to a valid lambda but not really", () => {
+  // expect.assertions(1);
+  return get("/headings").then(data => {
+    expect(data).toBe("Hello");
+  });
+});
+
+test("child path to a valid lambda", () => {
+  // expect.assertions(1);
+  return get("/react/stateless/doesntexist").then(data => {
+    const $ = cheerio.load(data);
+    expect(
+      $("body")
+        .text()
+        .trim()
+    ).toBe("react-stateless");
+  });
+});
