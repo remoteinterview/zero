@@ -5,8 +5,8 @@ const fs = require("fs");
 
 async function globalSetup() {
   const www = path.join(__dirname, "./www");
-  if (fs.existsSync(path.join(www, "package.json")))
-    fs.unlinkSync(path.join(www, "package.json"));
+  // if (fs.existsSync(path.join(www, "package.json")))
+  //   fs.unlinkSync(path.join(www, "package.json"));
   await startServer(path.join(__dirname, "./www"));
 
   await waitPort({

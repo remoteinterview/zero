@@ -191,6 +191,7 @@ async function writePackageJSON(buildPath, deps) {
     // "scheduler":"^0.13.3",
 
     "@mdx-js/tag": "^0.16.8",
+    "@mdx-js/react": "^1.0.6",
     "@babel/plugin-transform-runtime": "^7.2.0",
     "@babel/plugin-proposal-class-properties": "^7.3.4",
     "babel-plugin-react-require": "^3.1.1",
