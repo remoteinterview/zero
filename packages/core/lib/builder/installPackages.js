@@ -3,7 +3,7 @@ const fs = require("fs");
 var glob = require("fast-glob");
 const deepmerge = require("deepmerge");
 var { spawn } = require("child_process");
-
+const commonDeps = require("zero-common-deps");
 var path = require("path");
 const debug = require("debug")("core");
 
@@ -77,8 +77,6 @@ function installPackages(buildPath, filterFiles) {
     var deps = [];
 
     var pkgJsonChanged = false;
-
-    // see if we need to include additional optional deps.
     files.forEach(file => {
       // if pkg.json is changed
       if (
@@ -86,16 +84,6 @@ function installPackages(buildPath, filterFiles) {
         "package.json"
       ) {
         pkgJsonChanged = true;
-      }
-      if (
-        deps.indexOf("typescript") === -1 &&
-        (path.extname(file) === ".ts" || path.extname(file) === ".tsx")
-      ) {
-        deps.push("typescript");
-      }
-
-      if (deps.indexOf("vue") === -1 && path.extname(file) === ".vue") {
-        deps.push("vue", "vue-hot-reload-api", "vue-meta");
       }
     });
 
@@ -170,44 +158,7 @@ async function writePackageJSON(buildPath, deps) {
   }
 
   // the base packages required by zero
-  var depsJson = {
-    react: "^16.8.1",
-    "react-dom": "^16.8.1",
-    // "babel-core": "^6.26.0",
-    // "babel-polyfill": "^6.26.0",
-    //"babel-loader": "^7.1.5",
-    "react-helmet": "^5.2.0",
-    // "@babel/polyfill": "^7.2.5",
-    "@babel/runtime": "^7.3.1",
-    "regenerator-runtime": "^0.12.0",
-
-    sass: "^1.17.2",
-    "postcss-modules": "1.4.1",
-    cssnano: "4.1.10",
-
-    "react-hot-loader": "^4.6.5",
-    // "object-assign":"^4.1.1",
-    // "prop-types":"^15.7.2",
-    // "scheduler":"^0.13.3",
-
-    "@mdx-js/tag": "^0.16.8",
-    "@mdx-js/react": "^1.0.6",
-    "@babel/plugin-transform-runtime": "^7.2.0",
-    "@babel/plugin-proposal-class-properties": "^7.3.4",
-    "babel-plugin-react-require": "^3.1.1",
-    "@babel/core": "^7.2.2"
-    // "@babel/core": "^7.2.2",
-
-    // "babel-loader": "^8.0.5",
-    // "css-loader": "2.1.0",
-    // "file-loader": "3.0.1",
-    // "node-sass": "4.11.0",
-    // "sass-loader": "7.1.0",
-    // "style-loader": "0.23.1",
-    // "url-loader": "1.1.2",
-    // "mini-css-extract-plugin": "^0.5.0",
-    // "@mdx-js/loader": "^0.16.8"
-  };
+  var depsJson = commonDeps.dependenciesWithLocalPaths();
 
   if (pkg.dependencies) {
     Object.keys(depsJson).forEach(key => {
