@@ -228,8 +228,13 @@ Here is a basic `Dockerfile` you can add to your zero application to Docker-ize 
 ```dockerfile
 FROM node:alpine
 
+
+# Install dependencies via apk
+RUN apk update && apk upgrade \
+    && apk add --no-cache python  g++ make \
+    && rm -rf /var/cache/apk/*
+
 # Install zero globally
-RUN apk update && apk upgrade && apk add --no-cache python
 RUN npm install --quiet --no-progress --unsafe-perm -g zero
 
 # Add current folder to /app
