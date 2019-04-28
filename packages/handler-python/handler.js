@@ -1,13 +1,31 @@
-//const mkdirp = require('mkdirp')
+const pythonExe = require("./pythonExe")();
+var spawn = require("child_process").spawn;
 const path = require("path");
-//const bundle = require('./bundle')
-const fs = require("fs");
-const which = require("which");
-const pythonExists = which.sync("python", { nothrow: true });
-const python3Exists = which.sync("python3", { nothrow: true });
 
-module.exports = async (req, res, file, bundlePath, basePath, bundleInfo) => {
-  const pythonExe = python3Exists || pythonExists;
-  if (!pythonExe) throw new Error("No 'python' found in the PATH.");
-  res.send("Python handler is coming soon.");
+module.exports = async (
+  basePath,
+  entryFile,
+  lambdaType,
+  serverAddress,
+  BundlePath,
+  BundleInfo,
+  isModule
+) => {
+  return new Promise((resolve, reject) => {
+    var child = spawn(
+      pythonExe,
+      [path.join(__dirname, "entryfile.py"), basePath, entryFile],
+      {
+        stdio: [0, 1, 2, "ipc"]
+      }
+    );
+
+    child.on("message", function(message) {
+      // TODO: only send port after flask is running so we can remove this timeout hack
+      setTimeout(() => {
+        if (!isModule) process.send(message);
+        resolve(message); //TODO: return an express app not port
+      }, 100);
+    });
+  });
 };

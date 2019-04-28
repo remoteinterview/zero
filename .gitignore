@@ -6,3 +6,4 @@ dist
 zero-builds
 *.log
 test/www/package.json
+packages/handler-python/get-pip.py
