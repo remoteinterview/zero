@@ -19,6 +19,7 @@ const DEFAULTIGNORES = [
   "package.json",
   "package-lock.json",
   "Dockerfile",
+  "requirements.txt",
   "zero-deploy"
 ];
 
