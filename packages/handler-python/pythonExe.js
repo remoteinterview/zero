@@ -8,7 +8,7 @@ module.exports = () => {
   const pythonExe = python3Exists || pythonExists;
   if (!pythonExe)
     throw new Error(
-      "No 'python' found in the PATH. You need to install Python."
+      "No 'python' found in the PATH. Zero needs Python3 to serve '.py' files.\nHow to install: https://www.python.org/downloads/."
     );
   //console.log("spawning child", pythonExe, [path.join(__dirname, "entryfile.py"), basePath, entryFile])
   return pythonExe;

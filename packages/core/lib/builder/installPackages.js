@@ -1,6 +1,6 @@
 const getPackages = require("zero-dep-tree-js").getPackages;
 const fs = require("fs");
-const os = require('os');
+const os = require("os");
 var glob = require("fast-glob");
 const deepmerge = require("deepmerge");
 var { spawn } = require("child_process");
@@ -25,15 +25,23 @@ const babelConfig = {
 };
 
 function runYarn(cwd, args, resolveOutput) {
+  const isWin = os.platform() === "win32";
   var yarnPath = require.resolve("yarn/bin/yarn");
-  if (os.platform() === 'win32'){
-    yarnPath = path.join(path.dirname(yarnPath), "yarn.cmd")
+  if (isWin) {
+    yarnPath = path.join(path.dirname(yarnPath), "yarn.cmd");
   }
   return new Promise((resolve, reject) => {
+    debug("yarn", yarnPath, args);
     var child = spawn(yarnPath, args || [], {
       cwd: cwd,
       stdio: !resolveOutput ? "inherit" : undefined
     });
+    if (isWin) {
+      // a windows bug. need to press enter sometimes
+      process.stdin.write("\n");
+      process.stdin.end();
+    }
+
     var output = "";
     if (resolveOutput) {
       child.stdout.on("data", data => {
@@ -42,6 +50,7 @@ function runYarn(cwd, args, resolveOutput) {
     }
 
     child.on("exit", code => {
+      debug("yarn completed");
       resolve(output);
     });
   });
@@ -132,7 +141,7 @@ function installPackages(buildPath, filterFiles) {
       await writePackageJSON(buildPath, deps);
       debug("installing", deps);
 
-      runYarn(buildPath).then(() => {
+      runYarn(buildPath, ["install"]).then(() => {
         // installed
         debug("Pkgs installed successfully.");
         resolve(deps);

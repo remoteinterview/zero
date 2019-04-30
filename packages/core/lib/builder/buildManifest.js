@@ -71,7 +71,7 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
       if (extension === ".py") {
         // also run python first run if not run already
         if (!pythonFirstRunCompleted) {
-          pythonFirstRun(buildPath);
+          pythonFirstRun(buildPath).catch(e => console.error(e));
           pythonFirstRunCompleted = true;
         }
         return [file, "lambda:python"];
