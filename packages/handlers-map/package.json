@@ -1,12 +1,12 @@
 {
   "name": "zero-handlers-map",
   "main": "index.js",
-  "version": "1.0.16-alpha.1",
+  "version": "1.0.16-alpha.2",
   "license": "Apache-2.0",
   "dependencies": {
     "zero-handler-html": "^1.0.13-alpha.3",
     "zero-handler-js": "^1.0.13-alpha.3",
-    "zero-handler-python": "^1.0.16-alpha.1",
+    "zero-handler-python": "^1.0.16-alpha.2",
     "zero-handler-react": "^1.0.13-alpha.3",
     "zero-handler-vue": "^1.0.13-alpha.3",
     "zero-static": "^1.0.10-alpha.8"

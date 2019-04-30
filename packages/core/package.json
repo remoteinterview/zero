@@ -1,6 +1,6 @@
 {
   "name": "zero",
-  "version": "1.0.16-alpha.1",
+  "version": "1.0.16-alpha.2",
   "description": "",
   "main": "lib/index.js",
   "scripts": {
@@ -31,7 +31,7 @@
     "zero-builders-map": "^1.0.14-alpha.0",
     "zero-common-deps": "^1.0.16-alpha.0",
     "zero-dep-tree-js": "^1.0.14-alpha.0",
-    "zero-handlers-map": "^1.0.16-alpha.1",
+    "zero-handlers-map": "^1.0.16-alpha.2",
     "zero-static": "^1.0.10-alpha.8"
   },
   "bundledDependencies": [],

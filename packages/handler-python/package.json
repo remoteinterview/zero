@@ -1,7 +1,7 @@
 {
   "name": "zero-handler-python",
   "main": "index.js",
-  "version": "1.0.16-alpha.1",
+  "version": "1.0.16-alpha.2",
   "license": "Apache-2.0",
   "dependencies": {
     "which": "^1.3.1",
