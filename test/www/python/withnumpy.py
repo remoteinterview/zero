@@ -4,7 +4,7 @@ import numpy as np
 def handler():
   arr = np.array([2,3,5]).tolist()
   return jsonify(
-      username="aaaa",
+      msg="numpy",
       email="a@h.com",
       arr=arr
   )
