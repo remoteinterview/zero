@@ -4,10 +4,11 @@ const fs = require("fs");
 const path = require("path");
 const which = require("which");
 var spawn = require("child_process").spawn;
-const pythonExe = require("./pythonExe")();
+const getPythonExe = require("./pythonExe");
 
 // downloads get-pip.py if not present already
 module.exports = async () => {
+  const pythonExe = getPythonExe();
   var pip = getPipExe();
   if (pip) return pip;
 
