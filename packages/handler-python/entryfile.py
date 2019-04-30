@@ -3,6 +3,7 @@ import imp
 import socket
 import sys
 from flask import Flask
+from waitress import serve
 
 # Make relative imports for the child handler
 sys.path.append(os.path.dirname(os.path.realpath(sys.argv[2])))
@@ -28,15 +29,9 @@ def importFromURI(uri, absl=False):
 
 app = Flask(__name__)
 
-# import logging
-# log = logging.getLogger('flask')
-# log.setLevel(logging.ERROR)
 
-
-
-print("hosting", sys.argv[1] + '/')
-@app.route(sys.argv[1] + '/', defaults={'path': ''})
-@app.route(sys.argv[1] +'/<path:path>')
+@app.route(sys.argv[1] + '/', defaults={'path': ''},  methods = ['GET', 'POST'])
+@app.route(sys.argv[1] +'/<path:path>', methods = ['GET', 'POST'])
 def root(path):
   module = importFromURI(sys.argv[2], True)
   return module.handler()
@@ -47,6 +42,5 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock.bind(('localhost', 0))
 port = sock.getsockname()[1]
 sock.close()
-print("python running", port)
 os.write(3, bytes(str(port) + '\n', 'utf8'))
-app.run(port=port, debug=False)
+serve(app, host='0.0.0.0', port=port, _quiet=True)

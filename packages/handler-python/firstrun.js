@@ -10,7 +10,7 @@ module.exports = async (buildPath, pipPath) => {
   if (!pipPath) pipPath = await installPip();
 
   // fix requirements.txt
-  var reqFile = ["flask==0.12.2"].join("\n");
+  var reqFile = ["flask==0.12.2", "waitress==1.3.0"].join("\n");
   var reqFilePath = path.join(buildPath, "requirements.txt");
   if (fs.existsSync(reqFilePath)) {
     reqFile += "\n" + fs.readFileSync(reqFilePath, "utf8");
@@ -22,11 +22,23 @@ module.exports = async (buildPath, pipPath) => {
       return index == self.indexOf(elem) && elem.trim() !== "";
     })
     .join("\n");
-  // console.log("reqFile", reqFile, pipPath)
+  // write new req.txt
+  fs.writeFileSync(reqFilePath, reqFile, "utf8");
+
+  // install using pip
   return new Promise((resolve, reject) => {
-    var child = spawn(pipPath, ["install", "-r", reqFilePath], {
-      stdio: [0, 1, 2]
+    var child = spawn(pipPath, ["install", "-r", reqFilePath]);
+    child.stdout.on("data", msg => {
+      msg = msg
+        .toString()
+        .split("\n")
+        .filter(m => {
+          return m.indexOf("already satisfied") === -1;
+        })
+        .join("\n");
+      process.stdout.write(msg);
     });
+    child.stderr.on("data", m => process.stderr.write(m));
     child.on("close", () => {
       // console.log("Requirements install completed.")
       resolve();

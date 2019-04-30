@@ -21,3 +21,21 @@ test("Pip Module Import (Numpy)", () => {
     expect(data.msg).toBe("numpy");
   });
 });
+
+// with query param
+test("Query Param", () => {
+  return get("/python/queryparam?name=asad", {}).then(data => {
+    expect(data).toBe("Hello, asad");
+  });
+});
+
+test("POST (form data)", () => {
+  // expect.assertions(1);
+
+  return get("/python/postdata/", {
+    method: "POST",
+    formData: { email: "email@domain.com", password: "pass" }
+  }).then(data => {
+    expect(data).toBe(`Got email@domain.com`);
+  });
+});
