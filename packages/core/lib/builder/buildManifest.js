@@ -5,6 +5,8 @@ const debug = require("debug")("core");
 const slash = require("../utils/fixPathSlashes");
 const handlers = require("zero-handlers-map");
 const nodeignore = require("../utils/zeroignore");
+const pythonFirstRun = require("zero-handlers-map")["lambda:python"].firstrun;
+var pythonFirstRunCompleted = false;
 
 async function getFiles(baseSrc) {
   //baseSrc = baseSrc.endsWith("/")?baseSrc:(baseSrc+"/")
@@ -67,6 +69,11 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
 
       // Python Lambda
       if (extension === ".py") {
+        // also run python first run if not run already
+        if (!pythonFirstRunCompleted) {
+          pythonFirstRun(buildPath);
+          pythonFirstRunCompleted = true;
+        }
         return [file, "lambda:python"];
       }
 
