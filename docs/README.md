@@ -20,3 +20,5 @@ Zero currently supports the following type of code files, click on each to furth
 ### [Markdown / MDX (`.md`, `.mdx`)](mdx)
 
 ### [Vue (`.vue`)](vue/)
+
+### [Python (`.py`)](python/)

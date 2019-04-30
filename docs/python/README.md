@@ -14,6 +14,10 @@ def handler():
 
 The above file exports a function named `handler`. When you visit [http://127.0.0.1:3000/hello](http://127.0.0.1:3000/hello), Zero calls `handler()` and the response is sent back to browser.
 
+## Before You Start
+
+You must [install Python3](https://www.python.org/downloads/) before using Zero for Python.
+
 ## Printing To Console
 
 It's common to use `print()` for debugging. You must use `flush=True` for your print statements to work. Like this: `print("Hello", flush=True)`
