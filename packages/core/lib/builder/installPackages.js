@@ -1,6 +1,6 @@
 const getPackages = require("zero-dep-tree-js").getPackages;
 const fs = require("fs");
-const os = require("os");
+const os = require('os');
 var glob = require("fast-glob");
 const deepmerge = require("deepmerge");
 var { spawn } = require("child_process");
@@ -26,8 +26,8 @@ const babelConfig = {
 
 function runYarn(cwd, args, resolveOutput) {
   var yarnPath = require.resolve("yarn/bin/yarn");
-  if (os.platform() === "win32") {
-    yarnPath = path.join(path.dirname(yarnPath), "yarn.cmd");
+  if (os.platform() === 'win32'){
+    yarnPath = path.join(path.dirname(yarnPath), "yarn.cmd")
   }
   return new Promise((resolve, reject) => {
     var child = spawn(yarnPath, args || [], {
