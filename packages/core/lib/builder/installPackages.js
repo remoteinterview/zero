@@ -90,16 +90,6 @@ function installPackages(buildPath, filterFiles) {
     var deps = [];
 
     var pkgJsonChanged = false;
-    files.forEach(file => {
-      // if pkg.json is changed
-      if (
-        path.relative(process.env.BUILDPATH, file).toLowerCase() ===
-        "package.json"
-      ) {
-        pkgJsonChanged = true;
-      }
-    });
-
     // build a list of packages required by all js files
     files.forEach(file => {
       if (
@@ -111,6 +101,15 @@ function installPackages(buildPath, filterFiles) {
         return;
       }
 
+      // if pkg.json is changed
+      if (
+        path.relative(process.env.BUILDPATH, file).toLowerCase() ===
+        "package.json"
+      ) {
+        pkgJsonChanged = true;
+      }
+
+      // extract imports
       deps = deps.concat(getPackages(file));
     });
 
@@ -133,6 +132,7 @@ function installPackages(buildPath, filterFiles) {
       } catch (e) {}
     }
     if (!allInstalled || firstRun || pkgJsonChanged) {
+      debug("yarn install hit", !!allInstalled, !!firstRun, !!pkgJsonChanged);
       // we must run npm i on first boot,
       // so we are sure pkg.json === node_modules
       firstRun = false;
