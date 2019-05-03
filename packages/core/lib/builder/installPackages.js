@@ -32,6 +32,9 @@ function runYarn(cwd, args, resolveOutput) {
   }
   return new Promise((resolve, reject) => {
     debug("yarn", yarnPath, args);
+    if (!isWin) {
+      fs.chmodSync(yarnPath, "755");
+    } // make it executable
     var child = spawn(yarnPath, args || [], {
       cwd: cwd,
       stdio: !resolveOutput ? "inherit" : undefined
