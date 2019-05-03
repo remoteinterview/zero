@@ -3,7 +3,7 @@ const fs = require("fs");
 const os = require("os");
 var glob = require("fast-glob");
 const deepmerge = require("deepmerge");
-var { spawn } = require("child_process");
+var { fork } = require("child_process");
 const commonDeps = require("zero-common-deps");
 var path = require("path");
 const debug = require("debug")("core");
@@ -26,16 +26,12 @@ const babelConfig = {
 
 function runYarn(cwd, args, resolveOutput) {
   const isWin = os.platform() === "win32";
-  var yarnPath = require.resolve("yarn/bin/yarn");
-  if (isWin) {
-    yarnPath = path.join(path.dirname(yarnPath), "yarn.cmd");
-  }
+  var yarnPath = require.resolve("yarn/bin/yarn.js");
+
   return new Promise((resolve, reject) => {
     debug("yarn", yarnPath, args);
-    if (!isWin) {
-      fs.chmodSync(yarnPath, "755");
-    } // make it executable
-    var child = spawn(yarnPath, args || [], {
+
+    var child = fork(yarnPath, args || [], {
       cwd: cwd,
       stdio: !resolveOutput ? "inherit" : undefined
     });
