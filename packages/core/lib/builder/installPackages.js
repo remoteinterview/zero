@@ -171,7 +171,9 @@ async function writePackageJSON(buildPath, deps) {
   }
 
   // the base packages required by zero
-  var depsJson = commonDeps.dependenciesWithLocalPaths();
+  var depsJson = process.env.ISBUILDER
+    ? commonDeps.dependencies()
+    : commonDeps.dependenciesWithLocalPaths();
 
   if (pkg.dependencies) {
     Object.keys(depsJson).forEach(key => {
