@@ -42,5 +42,5 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock.bind(('localhost', 0))
 port = sock.getsockname()[1]
 sock.close()
-os.write(3, bytes(str(port) + '\n', 'utf8'))
+os.write(4, bytes(str(port) + '\n', 'utf8'))
 serve(app, host='0.0.0.0', port=port, _quiet=True)

@@ -16,14 +16,16 @@ module.exports = async (
       pythonExe,
       [path.join(__dirname, "entryfile.py"), basePath, entryFile],
       {
-        stdio: [0, 1, 2, "ipc"]
+        stdio: [0, 1, 2, "ipc", "pipe"]
       }
     );
-    child.on("message", function(message) {
+
+    // we open a 4th stdio as IPC doesn't work on windows for python->node
+    child.stdio[4].on("data", function(message) {
       // TODO: only send port after flask is running so we can remove this timeout hack
       setTimeout(() => {
-        if (!isModule) process.send(message);
-        resolve(message); //TODO: return an express app not port
+        if (!isModule) process.send(message.toString());
+        resolve(message.toString()); //TODO: return an express app not port
       }, 100);
     });
   });
