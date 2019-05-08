@@ -8,7 +8,6 @@ const path = require("path");
 module.exports = async (buildPath, pipPath) => {
   // make pip available (if not present)
   if (!pipPath) pipPath = await installPip();
-
   // fix requirements.txt
   var reqFile = ["flask==0.12.2", "waitress==1.3.0"].join("\n");
   var reqFilePath = path.join(buildPath, "requirements.txt");
@@ -27,7 +26,13 @@ module.exports = async (buildPath, pipPath) => {
 
   // install using pip
   return new Promise((resolve, reject) => {
-    var child = spawn(pipPath, ["install", "-r", reqFilePath]);
+    const processName = typeof pipPath === "string" ? pipPath : pipPath[0];
+    const defaultArgs = ["install", "-r", reqFilePath];
+    const args =
+      typeof pipPath === "string"
+        ? defaultArgs
+        : pipPath.slice(1).concat(defaultArgs);
+    var child = spawn(processName, args);
     child.stdout.on("data", msg => {
       msg = msg
         .toString()

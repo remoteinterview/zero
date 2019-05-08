@@ -37,8 +37,10 @@ function runYarn(cwd, args, resolveOutput) {
     });
     if (isWin) {
       // a windows bug. need to press enter sometimes
-      process.stdin.write("\n");
-      process.stdin.end();
+      try {
+        process.stdin.write("\n");
+        process.stdin.end();
+      } catch (e) {}
     }
 
     var output = "";

@@ -19,7 +19,6 @@ module.exports = async (
         stdio: [0, 1, 2, "ipc"]
       }
     );
-
     child.on("message", function(message) {
       // TODO: only send port after flask is running so we can remove this timeout hack
       setTimeout(() => {
