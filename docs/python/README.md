@@ -1,7 +1,5 @@
 # Python
 
-_Only available in [zero@beta](https://www.npmjs.com/package/zero/v/beta) right now._
-
 Zero allows you to define your API endpoints as individual functions. Each such function resides in it's own file. The function should be named `handler`. If your function resides in `./api/process.py` file, it's exposed at `http://<SERVER>/api/process`.
 
 Zero uses [flask](http://flask.pocoo.org/) internally. Which means you can use any of the awesome flask imports like `jsonify` and `request`.
