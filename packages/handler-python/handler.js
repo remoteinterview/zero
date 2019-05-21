@@ -1,6 +1,7 @@
 const pythonExe = require("./pythonExe")();
 var spawn = require("child_process").spawn;
 const path = require("path");
+const expressWrap = require("./expressWrap");
 
 module.exports = async (
   basePath,
@@ -24,8 +25,11 @@ module.exports = async (
     child.stdio[4].on("data", function(message) {
       // TODO: only send port after flask is running so we can remove this timeout hack
       setTimeout(() => {
-        if (!isModule) process.send(message.toString());
-        resolve(message.toString()); //TODO: return an express app not port
+        if (isModule) resolve(expressWrap(message.toString().trim()));
+        else {
+          process.send(message.toString());
+          resolve(message.toString());
+        }
       }, 100);
     });
   });

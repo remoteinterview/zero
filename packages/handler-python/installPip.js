@@ -23,9 +23,7 @@ module.exports = async () => {
         console.log("Pip installation completed.");
         resolve(pip);
       } else {
-        console.log(
-          "Pip installation failed. Please install manually. \nInstructions: "
-        );
+        console.log("Pip installation failed. Please install manually.");
       }
     });
   });
