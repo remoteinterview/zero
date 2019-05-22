@@ -134,33 +134,43 @@ function builder(sourcePath) {
         }
 
         debug("bundleInfo", bundleInfoMap);
+        mkdirp.sync(path.join(process.env.BUILDPATH, "zero-builds"));
         fs.writeFileSync(
-          path.join(process.env.BUILDPATH, "/zero-builds/build-info.json"),
+          path.join(process.env.BUILDPATH, "zero-builds", "build-info.json"),
           JSON.stringify(bundleInfoMap),
           "utf8"
         );
 
         // copy zero-builds folder to local folder
         copyDirectory(
-          path.join(process.env.BUILDPATH, "/zero-builds"),
-          path.join(process.env.SOURCEPATH, "/zero-builds")
+          path.join(process.env.BUILDPATH, "zero-builds"),
+          path.join(process.env.SOURCEPATH, "zero-builds")
         );
 
         // copy package.json
-        mkdirp.sync(path.join(process.env.SOURCEPATH, "/zero-builds/_config"));
+        mkdirp.sync(
+          path.join(process.env.SOURCEPATH, "zero-builds", "_config")
+        );
 
         fs.writeFileSync(
           path.join(
             process.env.SOURCEPATH,
-            "/zero-builds/_config/package.json"
+            "zero-builds",
+            "_config",
+            "package.json"
           ),
-          fs.readFileSync(path.join(process.env.BUILDPATH, "/package.json"))
+          fs.readFileSync(path.join(process.env.BUILDPATH, "package.json"))
         );
 
         // copy .babelrc
         fs.writeFileSync(
-          path.join(process.env.SOURCEPATH, "/zero-builds/_config/.babelrc"),
-          fs.readFileSync(path.join(process.env.BUILDPATH, "/.babelrc"))
+          path.join(
+            process.env.SOURCEPATH,
+            "zero-builds",
+            "_config",
+            ".babelrc"
+          ),
+          fs.readFileSync(path.join(process.env.BUILDPATH, ".babelrc"))
         );
 
         // clear tmp folder

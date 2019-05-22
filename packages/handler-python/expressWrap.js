@@ -3,7 +3,6 @@ const fetch = require("node-fetch");
 
 async function proxyRequest(port, req, res) {
   var lambdaAddress = "http://127.0.0.1:" + port;
-  console.log("fwding to ", port, lambdaAddress, "aa", req.url);
   var options = {
     method: req.method,
     headers: Object.assign(
@@ -52,8 +51,8 @@ async function proxyRequest(port, req, res) {
 
 module.exports = port => {
   const app = express();
+  app.set("x-powered-by", false);
   app.all("*", (req, res) => {
-    console.log("req.url", req.url);
     proxyRequest(port, req, res);
   });
   return app;
