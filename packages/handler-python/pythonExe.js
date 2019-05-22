@@ -5,8 +5,14 @@ const pythonExists = which.sync("python", { nothrow: true });
 const python3Exists = which.sync("python3", { nothrow: true });
 const pythonWinExists = which.sync("py", { nothrow: true });
 
+// We can override/force which python binary to use by using PYTHONBIN to point to it
+var customPythonExe;
+if (process.env.PYTHONBIN) {
+  customPythonExe = process.env.PYTHONBIN;
+}
 module.exports = () => {
-  const pythonExe = python3Exists || pythonExists || pythonWinExists;
+  const pythonExe =
+    customPythonExe || python3Exists || pythonExists || pythonWinExists;
   if (!pythonExe)
     throw new Error(
       "No 'python' found in the PATH. Zero needs Python3 to serve '.py' files.\nHow to install: https://www.python.org/downloads/."

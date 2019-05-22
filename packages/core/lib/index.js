@@ -20,6 +20,9 @@ function setupEnvVariables(sourcePath) {
   // Load environment variables from .env file if present
   require("dotenv").config({ path: path.resolve(sourcePath, ".env") });
   // Default env variables.
+  process.env.PATH +=
+    ":" + path.join(__dirname, "..", "node_modules", "yarn", "bin");
+  console.log("PATH", process.env.PATH);
   process.env.SOURCEPATH = slash(sourcePath);
   const DEFAULTBUILDPATH = path.join(
     require("os").tmpdir(),
