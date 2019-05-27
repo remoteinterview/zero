@@ -16,13 +16,25 @@ var getHash = function(str) {
     .digest("hex");
 };
 
+function resolveYarn() {
+  var yPath;
+  try {
+    var p = require.resolve("yarn/bin/yarn");
+    if (p) {
+      yPath = path.dirname(p);
+    }
+  } catch (e) {}
+
+  // fallback
+  if (!yPath) {
+    yPath = path.join(__dirname, "..", "node_modules", "yarn", "bin");
+  }
+}
 function setupEnvVariables(sourcePath) {
   // Load environment variables from .env file if present
   require("dotenv").config({ path: path.resolve(sourcePath, ".env") });
   // Default env variables.
-  process.env.PATH +=
-    ":" + path.join(__dirname, "..", "node_modules", "yarn", "bin");
-  console.log("PATH", process.env.PATH);
+  process.env.PATH += ":" + resolveYarn();
   process.env.SOURCEPATH = slash(sourcePath);
   const DEFAULTBUILDPATH = path.join(
     require("os").tmpdir(),
