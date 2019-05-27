@@ -29,6 +29,8 @@ function resolveYarn() {
   if (!yPath) {
     yPath = path.join(__dirname, "..", "node_modules", "yarn", "bin");
   }
+
+  return yPath;
 }
 function setupEnvVariables(sourcePath) {
   // Load environment variables from .env file if present
