@@ -122,21 +122,42 @@ That's it! You just created a web application.
 
 Zero serves routes based on file structure. If you write a function that resides in `./api/login.js` it's exposed at `http://<SERVER>/api/login`. Similarly if you put a React page under `./about.jsx` it will be served at `http://<SERVER>/about`
 
-### Route Rewrites
+### 404 Page
 
-Sometimes you would want to change `/user?id=luke` to `/user/luke`. To cater this type of routes, **all requests sent to a route that doesn't exist are passed on to the closest parent function**.
+Create a `./404.js` file (or a `.jsx`, `.vue`, .`py`, etc) to catch all requests to pages that don't exist.
 
-So if you visit `/user/luke` and there is no `./user/luke.js` but there is `./user.js`. Zero will send the request to `/user` and set `req.params` to `['luke']`. Code for this:
+### Dynamic Routes (Pretty URL Slugs)
+
+Zero decides routes based on file structure. Most projects also require dynamic routes like `/user/luke` and `/user/anakin`. Where `luke` and `anakin` are parameters. Zero natively supports this type of routes: any file or folder that **starts with \$** is considered a dynamic route.
+
+So if you create `./user/$username.js` and then from browser visit `/user/luke`, Zero will send that request to `$username.js` file and set `req.params` to `{username: 'luke'}`. Code for this:
 
 ```js
-// user.js
+/*
+project/
+└── user/
+    └── $username.js <- this file
+*/
 module.exports = function(req, res) {
-  console.log(req.params); // ['luke'] when user visits /user/luke
+  console.log(req.params); // = {username: 'luke'} when user visits /user/luke
   res.send({ params: req.params });
 };
 ```
 
-Another example: if you visit `/user/luke/messages`. Zero will also forward this to `./user.js` and set `req.params` to `['luke', 'messages']`
+Parameters apply to folder-names too. Another example: if you want to cater `/user/luke/messages` route, you can handle this with following directory structure:
+
+```
+project/
+└── user/
+    └── $username/
+        └── index.js
+        └── messages.js
+```
+
+- `index.js` handles `/user/:username` routes.
+- `messages.js` handles `/user/:username/messages` routes.
+
+**Tip:** `$` is used by Bash for variables. So it might be confusing when you do `cd $username` or `mkdir $username` and nothing happens. The right way to do this is escaping the `$` ie. `cd \$username` or `mkdir \$username`.
 
 ## Supported Languages
 

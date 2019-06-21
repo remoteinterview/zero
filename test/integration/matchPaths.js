@@ -59,13 +59,19 @@ test("Static file sibling to non-index files", () => {
 
 test("path which is similar to a valid lambda but not really", () => {
   // expect.assertions(1);
-  return get("/headings")
-    .then(data => {
-      //expect(data).toBe("Hello");
-    })
-    .catch(e => {
-      expect(e.statusCode).toBe(404);
-    });
+  return get("/api/fetcho", { json: true }).then(data => {
+    expect(data[404]).toBe(true);
+  });
+  // .catch(e => {
+  //   expect(e.statusCode).toBe(404);
+  // });
+});
+
+test("404 page works", () => {
+  // expect.assertions(1);
+  return get("/this/doesntexist", { json: true }).then(data => {
+    expect(data[404]).toBe(true);
+  });
 });
 
 // test("child path to a valid lambda", () => {

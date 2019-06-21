@@ -60,7 +60,16 @@ function matchPathWithDictionary(
     return match;
   }
 
-  return "404"; // not found
+  // see if a /404 path exists on manifest
+  var forOFor;
+  Manifest.lambdas.forEach(endpoint => {
+    if (endpoint[0] === "/404") {
+      var newEndpoint = [path, ...endpoint.slice(1)];
+      //console.log("end", newEndpoint)
+      forOFor = newEndpoint;
+    }
+  });
+  return forOFor || "404"; // not found
 }
 
 function matchPath(patternPath, givenPath) {
