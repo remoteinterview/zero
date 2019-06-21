@@ -99,9 +99,15 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
       var trimmedPath = slash(endpoint[0]).replace(buildPath, "/");
       trimmedPath = trimmedPath
         .split(".")
-        .slice(0, -1)
+        .slice(0, -1) // remove extension
         .join(".")
-        .toLowerCase(); // remove extension
+        // lowercase path except $paramNames
+        .split("/")
+        .map(p => {
+          if (!p.startsWith("$")) return p.toLowerCase();
+          return p;
+        })
+        .join("/");
       if (trimmedPath.endsWith("/index")) {
         trimmedPath = trimmedPath
           .split("/index")

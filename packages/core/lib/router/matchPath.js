@@ -48,25 +48,60 @@ function matchPathWithDictionary(
 
     // check for partial match now ie. query is: /login/username and endpoint will be /login
     // reverse sort to have closest/deepest match at [0] ie. [ "/login/abc/def", "/login/abc", "/login" ]
-    var matches = Manifest.lambdas
-      .filter(endpoint => {
-        return (
-          endpoint[2] !== "static" &&
-          path.startsWith(endpoint[0]) &&
-          // if both /user and /users lambdas exist in same directory.
-          path.replace(endpoint[0], "").startsWith("/")
-        );
-      })
-      .sort()
-      .reverse();
-    if (matches && matches[0]) {
-      return matches[0];
+    var matches = [];
+    Manifest.lambdas.forEach(endpoint => {
+      const matchedParams = matchPath(endpoint[0], path);
+      if (matchedParams) matches.push(endpoint);
+    });
+    if (matches.length > 0) {
+      return getPreferredPath(matches, path);
     }
   } else {
     return match;
   }
 
   return "404"; // not found
+}
+
+function matchPath(patternPath, givenPath) {
+  patternPath = patternPath.split("/").filter(a => !!a); // remove empty element
+  givenPath = givenPath.split("/").filter(a => !!a);
+
+  var matches = true;
+  var params = {};
+  if (givenPath.length !== patternPath.length) matches = false;
+  else {
+    givenPath.forEach((p, i) => {
+      if (p === patternPath[i]) return;
+      if (!patternPath[i]) return (matches = false);
+      if (patternPath[i].startsWith("$") && patternPath[i].length > 1) {
+        params[patternPath[i].slice(1)] = p;
+        return;
+      }
+      matches = false;
+    });
+  }
+
+  // if path matches, return params (if any)
+  if (matches) debug("matched", givenPath, patternPath, params);
+  if (matches) return params;
+}
+
+// when two paths match the given path, choose the one without param variable
+function getPreferredPath(matches, givenPath) {
+  givenPath = givenPath.split("/").filter(a => !!a);
+  var chosen = matches[0];
+
+  if (matches.length > 1) {
+    console.log(matches);
+    matches.forEach(endpointData => {
+      const patternPath = endpointData[0].split("/").filter(a => !!a);
+      if (patternPath && !patternPath[patternPath.length - 1].startsWith("$")) {
+        chosen = endpointData;
+      }
+    });
+  }
+  return chosen;
 }
 
 module.exports = matchPathWithDictionary;

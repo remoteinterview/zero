@@ -66,6 +66,43 @@ numpy==1.15.0
 pandas==0.20.3
 ```
 
+## Dynamic Routes (Pretty URL Slugs)
+
+Zero decides routes based on file structure. Most projects also require dynamic routes like `/user/luke` and `/user/anakin`. Where `luke` and `anakin` are parameters. Zero natively supports this type of routes: any file or folder that **starts with \$** is considered a dynamic route.
+
+So if you create `./user/$username.py` and then from browser visit `/user/luke`, Zero will send that request to `$username.py` file and your handler should accept a `username` argument. Code for this:
+
+```python
+# project/
+# └── user/
+#     └── $username.js <- this file
+
+def handler(username):
+  return "Hello, " + username
+```
+
+Parameters apply to folder-names too. Another example: if you want to cater `/user/luke/messages` route, you can handle this with following directory structure:
+
+```
+project/
+└── user/
+    └── $username/
+        └── index.py
+        └── messages.py
+```
+
+- `index.py` handles `/user/:username` routes.
+- `messages.py` handles `/user/:username/messages` routes.
+
+You can also have nested dynamic paths like `/user/:username/:commentId` with a handler in `./user/$username/$commentId` with the following code:
+
+```
+def handler(username, commentId):
+  return username + " says: " + getComment(commentId)
+```
+
+**Tip:** `$` is used by Bash for variables. So it might be confusing when you do `cd $username` or `mkdir $username` and nothing happens. The right way to do this is escaping the `$` ie. `cd \$username` or `mkdir \$username`.
+
 ## POST Data
 
 Here is an example of how to get POST data (sent from an HTML form) in your Python handler:

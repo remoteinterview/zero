@@ -108,18 +108,15 @@ function startServer(entryFile, lambdaType, handler, isModule) {
 
     app.use(require("body-parser").urlencoded({ extended: true }));
     app.use(require("body-parser").json());
+    // change $path into express-style :path/
+    const pathPattern = BASEPATH.split("/")
+      .map(p => {
+        if (p.startsWith("$")) return ":" + p.slice(1);
+        return p;
+      })
+      .join("/");
 
-    app.all("*" /*[BASEPATH, path.join(BASEPATH, "/*")]*/, (req, res) => {
-      // if path has params (like /user/:id/:comment). Split the params into an array.
-      // also remove empty params (caused by path ending with slash)
-      if (req.params && req.params[0]) {
-        req.params = req.params[0]
-          .replace(BASEPATH.slice(1), "")
-          .split("/")
-          .filter(param => !!param);
-      } else {
-        delete req.params;
-      }
+    app.all(pathPattern, (req, res) => {
       try {
         var globals = Object.assign(
           {

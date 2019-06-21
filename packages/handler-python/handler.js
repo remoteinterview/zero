@@ -13,6 +13,14 @@ module.exports = async (
   isModule
 ) => {
   return new Promise((resolve, reject) => {
+    // change basePath $params format to flask's format: <param>
+    basePath = basePath
+      .split("/")
+      .map(p => {
+        if (p.startsWith("$")) return "<" + p.slice(1) + ">";
+        return p;
+      })
+      .join("/");
     var child = spawn(
       pythonExe,
       [path.join(__dirname, "entryfile.py"), basePath, entryFile],

@@ -35,21 +35,38 @@ module.exports = function(req, res) {
 
 If you send POST request to `/submit` with `json` or `urlencoded` body. It will be parsed and populated in `req.body`.
 
-## Route Rewrites
+## Dynamic Routes (Pretty URL Slugs)
 
-Zero decides routes based on file structure. But sometimes you would want to change `/user?id=luke` to `/user/luke`. To cater this type of routes, **all requests sent to a route that doesn't exist are passed on to the closest parent function**.
+Zero decides routes based on file structure. Most projects also require dynamic routes like `/user/luke` and `/user/anakin`. Where `luke` and `anakin` are parameters. Zero natively supports this type of routes: any file or folder that **starts with \$** is considered a dynamic route.
 
-So if you visit `/user/luke` and there is no `./user/luke.js` but there is `./user.js`. Zero will send the request to `/user` and set `req.params` to `['luke']`. Code for this:
+So if you create `./user/$username.js` and then from browser visit `/user/luke`, Zero will send that request to `$username.js` file and set `req.params` to `{username: 'luke'}`. Code for this:
 
 ```js
-// user.js
+/*
+project/
+└── user/
+    └── $username.js <- this file
+*/
 module.exports = function(req, res) {
-  console.log(req.params); // ['luke'] when user visits /user/luke
+  console.log(req.params); // = {username: 'luke'} when user visits /user/luke
   res.send({ params: req.params });
 };
 ```
 
-Another example: if you visit `/user/luke/messages`. Zero will also forward this to `./user.js` and set `req.params` to `['luke', 'messages']`
+Parameters apply to folder-names too. Another example: if you want to cater `/user/luke/messages` route, you can handle this with following directory structure:
+
+```
+project/
+└── user/
+    └── $username/
+        └── index.js
+        └── messages.js
+```
+
+- `index.js` handles `/user/:username` routes.
+- `messages.js` handles `/user/:username/messages` routes.
+
+**Tip:** `$` is used by Bash for variables. So it might be confusing when you do `cd $username` or `mkdir $username` and nothing happens. The right way to do this is escaping the `$` ie. `cd \$username` or `mkdir \$username`.
 
 ## Fetch API
 
