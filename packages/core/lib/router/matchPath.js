@@ -65,7 +65,6 @@ function matchPathWithDictionary(
   Manifest.lambdas.forEach(endpoint => {
     if (endpoint[0] === "/404") {
       var newEndpoint = [path, ...endpoint.slice(1)];
-      //console.log("end", newEndpoint)
       forOFor = newEndpoint;
     }
   });
@@ -102,7 +101,6 @@ function getPreferredPath(matches, givenPath) {
   var chosen = matches[0];
 
   if (matches.length > 1) {
-    console.log(matches);
     matches.forEach(endpointData => {
       const patternPath = endpointData[0].split("/").filter(a => !!a);
       if (patternPath && !patternPath[patternPath.length - 1].startsWith("$")) {
