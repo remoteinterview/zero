@@ -1,3 +1,3 @@
 module.exports = (req, res)=>{
-  res.send({param: req.params.param, nestedParam: req.params.nestedParam})
+  res.send({param: req.params.param, nestedParam: req.params.nestedParam, query: req.query.query})
 }
