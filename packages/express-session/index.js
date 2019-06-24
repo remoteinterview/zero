@@ -28,7 +28,7 @@ module.exports = app => {
   } else {
     app.use(
       cookieSession({
-        name: "session",
+        name: "zerosession",
         secret: process.env.SESSION_SECRET,
         maxAge: SESSION_TTL
       })
