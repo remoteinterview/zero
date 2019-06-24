@@ -30,7 +30,8 @@ module.exports = app => {
       cookieSession({
         name: "zerosession",
         secret: process.env.SESSION_SECRET,
-        maxAge: SESSION_TTL
+        maxAge: SESSION_TTL,
+        secure: false
       })
     );
   }
