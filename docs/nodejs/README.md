@@ -137,7 +137,7 @@ export default handler;
 
 Zero manages sessions on your behalf. You just need to specify where the session data should be stored. Currently Zero supports Redis and MongoDB backends.
 
-By default the session data is stored in system `tmp` directory. This is fine when developing locally. But not when you want to deploy.
+By default the session data is stored in browser's cookie itself (as opposed to a database). This is fine for initial development but should be replaced with a better session store (see below).
 
 ### Using Redis for Sessions
 

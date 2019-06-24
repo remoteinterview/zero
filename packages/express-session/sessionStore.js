@@ -43,12 +43,8 @@ module.exports = session => {
 
     return new DynamoDBStore(config);
   }
-  // fallback to filestore, best for local dev.
+  // fallback to cookie-store, best for local dev.
   else {
-    const FileStore = require("session-file-store")(session);
-    return new FileStore({
-      path: path.join(require("os").tmpdir(), "zero-sessions"),
-      ttl: SESSION_TTL
-    });
+    return false;
   }
 };

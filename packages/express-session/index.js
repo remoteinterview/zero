@@ -1,4 +1,6 @@
 const session = require("express-session");
+const cookieSession = require("cookie-session");
+
 const sessionStore = require("./sessionStore")(session);
 const SESSION_TTL = parseInt(process.env.SESSION_TTL);
 var passport = require("passport");
@@ -13,16 +15,25 @@ passport.deserializeUser(function(id, done) {
 module.exports = app => {
   app.use(require("cookie-parser")());
 
-  app.use(
-    session({
-      store: sessionStore,
-      secret: process.env.SESSION_SECRET,
-      resave: false,
-      cookie: { maxAge: SESSION_TTL },
-      saveUninitialized: false
-    })
-  );
-
+  if (sessionStore) {
+    app.use(
+      session({
+        store: sessionStore,
+        secret: process.env.SESSION_SECRET,
+        resave: false,
+        cookie: { maxAge: SESSION_TTL },
+        saveUninitialized: false
+      })
+    );
+  } else {
+    app.use(
+      cookieSession({
+        name: "session",
+        secret: process.env.SESSION_SECRET,
+        maxAge: SESSION_TTL
+      })
+    );
+  }
   // Initialize Passport and restore authentication state, if any, from the
   // session.
   app.use(passport.initialize());
