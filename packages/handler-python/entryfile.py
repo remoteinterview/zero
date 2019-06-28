@@ -2,6 +2,7 @@ import os
 import imp
 import socket
 import sys
+import traceback
 from flask import Flask
 from waitress import serve
 
@@ -33,8 +34,11 @@ app = Flask(__name__)
 # @app.route(sys.argv[1] + '/', defaults={'path': ''},  methods = ['GET', 'POST'])
 @app.route(sys.argv[1] +'/', methods = ['GET', 'POST'])
 def root(*args, **kwargs):
-  module = importFromURI(sys.argv[2], True)
-  return module.handler(*args, **kwargs)
+	try:
+    module = importFromURI(sys.argv[2], True)
+  	return module.handler(*args, **kwargs)
+  except Exception as ex:
+    traceback.print_exc()
 
 
 # fetch a new free port
