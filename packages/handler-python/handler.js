@@ -25,6 +25,7 @@ module.exports = async (
       pythonExe,
       [path.join(__dirname, "entryfile.py"), basePath, entryFile],
       {
+        cwd: path.dirname(entryFile),
         stdio: [0, 1, 2, "ipc", "pipe"]
       }
     );

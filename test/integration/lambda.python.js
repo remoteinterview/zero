@@ -39,3 +39,9 @@ test("POST (form data)", () => {
     expect(data).toBe(`Got email@domain.com`);
   });
 });
+
+test("CWD is correctly set", () => {
+  return get("/python/cwd").then(data => {
+    expect(data).toBe("some text");
+  });
+});
