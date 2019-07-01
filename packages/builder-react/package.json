@@ -1,7 +1,7 @@
 {
   "name": "zero-builder-react",
   "main": "index.js",
-  "version": "1.0.14-alpha.0",
+  "version": "1.0.18-alpha.5",
   "license": "Apache-2.0",
   "dependencies": {
     "@mdx-js/mdx": "^0.16.8",
