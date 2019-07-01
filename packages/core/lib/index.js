@@ -1,5 +1,6 @@
 const build = require("./builder");
 const startRouter = require("./router");
+const Queue = require("p-queue").default;
 const path = require("path");
 const fs = require("fs");
 const copyDirectory = require("./utils/copyDirectory");
@@ -121,6 +122,7 @@ function getBundleInfo(endpointData) {
 }
 
 function builder(sourcePath) {
+  const buildStartTime = Date.now();
   process.env.ISBUILDER = "true";
   process.env.NODE_ENV = "production";
   console.log(`\x1b[2m⚡️ Zero ${pkg.version ? `v${pkg.version}` : ""}\x1b[0m`);
@@ -139,17 +141,28 @@ function builder(sourcePath) {
           });
         } catch (e) {}
 
+        // build paths in a queue with concurrency
+        var queue = new Queue({
+          concurrency: parseInt(process.env.BUILDCONCURRENCY) || 2
+        });
+
         for (var i in manifest.lambdas) {
-          var endpointData = manifest.lambdas[i];
-          var lambdaID = getLambdaID(endpointData[0]);
-          console.log(
-            `[${~~i + 1}/${manifest.lambdas.length}] Building`,
-            endpointData[0] || "/"
+          queue.add(
+            async function(index) {
+              var endpointData = manifest.lambdas[index];
+              var lambdaID = getLambdaID(endpointData[0]);
+              console.log(
+                `[${~~index + 1}/${manifest.lambdas.length}] Building`,
+                endpointData[0] || "/"
+              );
+              var info = await getBundleInfo(endpointData);
+              bundleInfoMap[lambdaID] = { info }; //the router needs the data at .info of each key
+              // console.log(endpointData[0] || "/", "done")
+            }.bind(this, i)
           );
-          var info = await getBundleInfo(endpointData);
-          bundleInfoMap[lambdaID] = { info }; //the router needs the data at .info of each key
         }
 
+        await queue.onIdle();
         debug("bundleInfo", bundleInfoMap);
         mkdirp.sync(path.join(process.env.BUILDPATH, "zero-builds"));
         fs.writeFileSync(
@@ -200,6 +213,11 @@ function builder(sourcePath) {
         }
 
         // resolve with manifest
+        console.log(
+          `\x1b[2mBuilt in ${((Date.now() - buildStartTime) / 1000).toFixed(
+            1
+          )} seconds.\x1b[0m`
+        );
         resolve({ manifest, forbiddenFiles, dependencies });
       },
       true

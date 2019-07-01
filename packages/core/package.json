@@ -27,6 +27,7 @@
     "node-fetch": "^2.3.0",
     "npmi": "^4.0.0",
     "ora": "^3.0.0",
+    "p-queue": "^6.0.2",
     "yarn": "^1.15.2",
     "zero-builder-process": "^1.0.14-alpha.0",
     "zero-builders-map": "^1.0.14-alpha.0",

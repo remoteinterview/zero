@@ -6,11 +6,12 @@ const { fork } = require("child_process");
 async function bundler(componentPath, bundlePath, basePath) {
   var fullBundlePath = path.join(process.env.BUILDPATH, bundlePath);
 
-  // generate bundle for node
-  await bundleNode(componentPath, fullBundlePath, basePath, bundlePath, true);
-
-  // also for browser
-  await bundle(componentPath, fullBundlePath, basePath, bundlePath);
+  await Promise.all([
+    // generate bundle for node
+    bundleNode(componentPath, fullBundlePath, basePath, bundlePath, true),
+    // also for browser
+    bundle(componentPath, fullBundlePath, basePath, bundlePath)
+  ]);
 
   return {
     jsNode: fs.existsSync(path.join(fullBundlePath, "/bundle.node.js"))
