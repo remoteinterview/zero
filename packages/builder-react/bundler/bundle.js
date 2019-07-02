@@ -43,9 +43,9 @@ module.exports = async (
     target: targetNode ? "node" : "browser",
     cacheDir: path.join(
       process.env.BUILDPATH,
-      "_cache",
-      sha1(filename),
-      targetNode ? "node" : "browser"
+      "_cache"
+      // sha1(filename),
+      // targetNode ? "node" : "browser"
     ),
     cache: !process.env.ISBUILDER,
     minify: !ISDEV,
