@@ -9,6 +9,7 @@ const debug = require("debug")("core");
 const mkdirp = require("mkdirp");
 const slash = require("./utils/fixPathSlashes");
 const pkg = require("../package");
+const FileHash = require("./utils/fileHash");
 
 var getHash = function(str) {
   return require("crypto")
@@ -134,6 +135,39 @@ function builder(sourcePath) {
       sourcePath,
       process.env.BUILDPATH,
       async (manifest, forbiddenFiles, filesUpdated, dependencies) => {
+        // generate hashes of all files related to lambda
+        var fileHashes = {};
+        for (var file in manifest.fileToLambdas) {
+          fileHashes[file] = await FileHash(file);
+        }
+
+        var pastFileHashes = false;
+        var pastBuildInfoMap = false;
+        var fileHashPath = path.join(
+          process.env.SOURCEPATH,
+          "zero-builds",
+          "_config",
+          "hashes.json"
+        );
+
+        try {
+          if (fs.existsSync(fileHashPath)) {
+            // copy previous zero-builds folder to build tmp folder
+            copyDirectory(
+              path.join(process.env.SOURCEPATH, "zero-builds"),
+              path.join(process.env.BUILDPATH, "zero-builds")
+            );
+            pastBuildInfoMap = require(path.join(
+              process.env.SOURCEPATH,
+              "zero-builds",
+              "build-info.json"
+            ));
+            pastFileHashes = require(fileHashPath);
+
+            //console.log("using previous zero-builds", pastFileHashes)
+          }
+        } catch (e) {}
+
         // clear build folder
         try {
           await del([path.join(process.env.SOURCEPATH, "zero-builds", "/**")], {
@@ -146,18 +180,45 @@ function builder(sourcePath) {
           concurrency: parseInt(process.env.BUILDCONCURRENCY) || 2
         });
 
+        // see if we can use past zero-build to only build diff
+        var filterLambdas = false;
+        if (pastFileHashes) {
+          filterLambdas = {};
+          Object.keys(fileHashes).forEach(file => {
+            if (fileHashes[file] !== pastFileHashes[file]) {
+              // mark this lambda to be dirty
+              manifest.fileToLambdas[file].forEach(lambda => {
+                filterLambdas[lambda] = true;
+              });
+            }
+          });
+        }
+
         for (var i in manifest.lambdas) {
           queue.add(
             async function(index) {
               var endpointData = manifest.lambdas[index];
               var lambdaID = getLambdaID(endpointData[0]);
+              if (
+                filterLambdas &&
+                !filterLambdas[endpointData[1]] &&
+                pastBuildInfoMap[lambdaID]
+              ) {
+                console.log(
+                  `\x1b[2m[${~~index + 1}/${manifest.lambdas.length}] Skipping`,
+                  endpointData[0] || "/",
+                  `\x1b[0m`
+                );
+                bundleInfoMap[lambdaID] = pastBuildInfoMap[lambdaID];
+                return;
+              }
+
               console.log(
                 `[${~~index + 1}/${manifest.lambdas.length}] Building`,
                 endpointData[0] || "/"
               );
               var info = await getBundleInfo(endpointData);
               bundleInfoMap[lambdaID] = { info }; //the router needs the data at .info of each key
-              // console.log(endpointData[0] || "/", "done")
             }.bind(this, i)
           );
         }
@@ -203,6 +264,9 @@ function builder(sourcePath) {
           fs.readFileSync(path.join(process.env.BUILDPATH, ".babelrc"))
         );
 
+        // save a file hash map
+        fs.writeFileSync(fileHashPath, JSON.stringify(fileHashes));
+
         // clear tmp folder
         if (!process.env.SKIPTEMPCLEAR) {
           try {
@@ -212,12 +276,13 @@ function builder(sourcePath) {
           } catch (e) {}
         }
 
-        // resolve with manifest
         console.log(
           `\x1b[2mBuilt in ${((Date.now() - buildStartTime) / 1000).toFixed(
             1
           )} seconds.\x1b[0m`
         );
+
+        // resolve with manifest
         resolve({ manifest, forbiddenFiles, dependencies });
       },
       true

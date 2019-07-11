@@ -4,6 +4,7 @@ const path = require("path");
 const debug = require("debug")("core");
 const slash = require("../utils/fixPathSlashes");
 const handlers = require("zero-handlers-map");
+const builders = require("zero-builders-map");
 const nodeignore = require("../utils/zeroignore");
 const pythonFirstRun = require("zero-handlers-map")["lambda:python"].firstrun;
 var pythonFirstRunCompleted = false;
@@ -143,9 +144,10 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
 
 // get all relative files imported by this entryFile
 function dependencyTree(type, entryFile) {
-  if (handlers[type].getRelatedFiles)
-    return handlers[type].getRelatedFiles(entryFile);
-  else return [entryFile]; //no tree walker found for this lambda type
+  // console.log("deptree?", type, builders[type])
+  if (builders[type].getRelatedFiles)
+    return builders[type].getRelatedFiles(entryFile);
+  else return []; //no tree walker found for this lambda type
 }
 
 module.exports = buildManifest;
