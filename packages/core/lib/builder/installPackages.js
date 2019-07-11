@@ -33,7 +33,7 @@ function runYarn(cwd, args, resolveOutput) {
 
     var child = fork(yarnPath, args || [], {
       cwd: cwd,
-      stdio: !resolveOutput ? "inherit" : undefined
+      stdio: !resolveOutput ? "inherit" : "pipe"
     });
     if (isWin) {
       // a windows bug. need to press enter sometimes
@@ -68,7 +68,8 @@ async function getNPMVersion(pkgName) {
   } catch (e) {
     debug(
       `[yarn ${pkgName} version]`,
-      "couldn't fetch package info. Returning `latest`"
+      "couldn't fetch package info. Returning `latest`",
+      e
     );
     return "latest";
   }
