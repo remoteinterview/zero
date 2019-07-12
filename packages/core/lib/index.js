@@ -138,7 +138,12 @@ function builder(sourcePath) {
         // generate hashes of all files related to lambda
         var fileHashes = {};
         for (var file in manifest.fileToLambdas) {
-          fileHashes[file] = await FileHash(file);
+          fileHashes[file] = [
+            await FileHash(file),
+            manifest.fileToLambdas[file].map(lambda => {
+              return getLambdaID(lambda);
+            })
+          ];
         }
 
         var pastFileHashes = false;
@@ -185,13 +190,41 @@ function builder(sourcePath) {
         if (pastFileHashes) {
           filterLambdas = {};
           Object.keys(fileHashes).forEach(file => {
-            if (fileHashes[file] !== pastFileHashes[file]) {
+            if (
+              !pastFileHashes[file] || // a new lambda that didn't exist before
+              fileHashes[file][0] !== pastFileHashes[file][0] // lambda changed
+            ) {
               // mark this lambda to be dirty
               manifest.fileToLambdas[file].forEach(lambda => {
                 filterLambdas[lambda] = true;
               });
             }
           });
+
+          // check if any of the lambda was removed in new build
+          // lambda builds that don't exist in new build should be deleted.
+          for (var file in pastFileHashes) {
+            if (!fileHashes[file]) {
+              for (var index in pastFileHashes[file][1]) {
+                try {
+                  var lambdaID = pastFileHashes[file][1][index];
+                  await del(
+                    [
+                      path.join(
+                        process.env.BUILDPATH,
+                        "zero-builds",
+                        lambdaID,
+                        "/**"
+                      )
+                    ],
+                    {
+                      force: true
+                    }
+                  );
+                } catch (e) {}
+              }
+            }
+          }
         }
 
         for (var i in manifest.lambdas) {
