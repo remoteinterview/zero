@@ -89,9 +89,9 @@ If you have a messages API that only works if the user is logged in, like this:
 ```js
 // api/messages.js
 // sends user's messages from database.
-module.exports = (req, res) => {
+module.exports = async (req, res) => {
   if (req.user) {
-    var msgs = DB.find({ user: req.user.id });
+    var msgs = await DB.find({ user: req.user.id });
     res.json(msgs);
   } else {
     res.sendStatus(403);
@@ -103,18 +103,16 @@ And you want to fetch these messages from another API endpoint, like this:
 
 ```js
 // api/user.js
-module.exports = (req, res) => {
+module.exports = async (req, res) => {
   var messages = await fetch("/api/messages", {
-    credentials: 'include'
-  })
-    .then((resp) => resp.json())
+    credentials: "include"
+  }).then(resp => resp.json());
   // ... fetch other info
   res.send({
     profile: profile,
     messages: messages
-  })
-
-}
+  });
+};
 ```
 
 Zero automatically forwards credentials even for nested `fetch()` requests.
