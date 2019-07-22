@@ -25,3 +25,20 @@ Note that zero will only forward `/app` requests to this server but not `/app/an
 ### Dynamic Route Example
 
 The above examples do not cater dynamic route (like `/app/messages/1`). You can use Zero's dynamic paths feature for proxy routes too. Just create the same JSON file in `/app/messages/$id.json`.
+
+## Pinned Path Mode
+
+When you define a sub-route in your JSON (like: `http://myapp.com/somePage`). Zero will proxy all requests to that page regardless of what the originally visited route is.
+
+### Example
+
+Let's say you add the following JSON to `./page/$id.json`:
+
+```json
+{
+  "type": "proxy",
+  "url": "http://myapp.com/about"
+}
+```
+
+When you visit `/page/1` or `/page/2`, they will all return the same `http://myapp.com/about` page ignoring the original route.

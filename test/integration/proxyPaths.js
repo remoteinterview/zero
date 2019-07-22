@@ -12,3 +12,9 @@ test("Proxy sub-path", () => {
     expect(data.path).toBe("/proxy/abc");
   });
 });
+
+test("Fixed/Pinned path", () => {
+  return get("/proxy/fixed", { json: true }).then(data => {
+    expect(data.path).toBe("/fixedRoute");
+  });
+});

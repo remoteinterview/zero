@@ -1,18 +1,22 @@
 const express = require("express");
 const fetch = require("node-fetch");
+var url = require("url");
 
 const stripTrailingSlash = str => {
   return str.replace(/^(.+?)\/*?$/, "$1");
 };
 
-async function proxyRequest(proxyUrl, req, res) {
-  var lambdaAddress = stripTrailingSlash(proxyUrl);
+async function proxyRequest(proxyJson, req, res) {
+  var urlObj = url.parse(proxyJson.url);
+  req.headers.host = urlObj.host;
+  var proxyFullUrl = proxyJson.url;
+  if (!urlObj.path || urlObj.path === "/") {
+    // concat given protocol://host:port with current path
+    proxyFullUrl = `${urlObj.protocol}//${urlObj.host}${req.url}`;
+  }
   var options = {
     method: req.method,
-    headers: Object.assign(
-      { "x-forwarded-host": req.headers.host },
-      req.headers
-    ),
+    headers: req.headers,
     compress: false,
     redirect: "manual"
   };
@@ -24,7 +28,7 @@ async function proxyRequest(proxyUrl, req, res) {
   }
   var proxyRes;
   try {
-    proxyRes = await fetch(lambdaAddress + req.url, options);
+    proxyRes = await fetch(proxyFullUrl, options);
   } catch (e) {}
 
   // Forward status code
@@ -48,11 +52,11 @@ async function proxyRequest(proxyUrl, req, res) {
   });
 }
 
-module.exports = proxyUrl => {
+module.exports = proxyJson => {
   const app = express();
   app.set("x-powered-by", false);
   app.all("*", (req, res) => {
-    proxyRequest(proxyUrl, req, res);
+    proxyRequest(proxyJson, req, res);
   });
   return app;
 };
