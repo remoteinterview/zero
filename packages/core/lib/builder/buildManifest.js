@@ -82,6 +82,19 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
         return [file, "lambda:html"];
       }
 
+      if (extension === ".json") {
+        // check if this is a proxy path
+        // avoid reading large json files as they are likely not our proxy path config
+        if (fs.statSync(file).size < 10 * 1024) {
+          try {
+            var json = require(file);
+            if (json && json.type && json.type === "proxy") {
+              return [file, "lambda:proxy"];
+            }
+          } catch (e) {} // bad json probably, skip
+        }
+      }
+
       // catch all, static / cdn hosting
       return false;
     })
@@ -145,7 +158,7 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
 // get all relative files imported by this entryFile
 function dependencyTree(type, entryFile) {
   // console.log("deptree?", type, builders[type])
-  if (builders[type].getRelatedFiles)
+  if (builders[type] && builders[type].getRelatedFiles)
     return builders[type].getRelatedFiles(entryFile);
   else return []; //no tree walker found for this lambda type
 }

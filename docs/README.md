@@ -22,3 +22,5 @@ Zero currently supports the following type of code files, click on each to furth
 ### [Vue (`.vue`)](vue/)
 
 ### [Python (`.py`)](python/)
+
+### [Proxy Routes](proxy/)

@@ -1,0 +1,10 @@
+{
+  "name": "zero-handler-proxy",
+  "main": "index.js",
+  "version": "1.0.18-alpha.4",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "express": "^4.16.4",
+    "node-fetch": "^2.3.0"
+  }
+}
