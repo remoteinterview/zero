@@ -24,6 +24,10 @@ const babelConfig = {
   ]
 };
 
+const htmlnanoConfig = {
+  minifySvg: false
+};
+
 function runYarn(cwd, args, resolveOutput) {
   const isWin = os.platform() === "win32";
   var yarnPath = require.resolve("yarn/bin/yarn.js");
@@ -223,6 +227,17 @@ async function writePackageJSON(buildPath, deps) {
     JSON.stringify(finalBabelConfig, null, 2),
     "utf8"
   );
+
+  var htmlnanoPath = path.join(buildPath, "/.htmlnanorc");
+  var htmlnanoSrcPath = path.join(process.env.SOURCEPATH, "/.htmlnanorc");
+  // only write htmlnano file if not overriden by user
+  if (!fs.existsSync(htmlnanoSrcPath)) {
+    fs.writeFileSync(
+      htmlnanoPath,
+      JSON.stringify(htmlnanoConfig, null, 2),
+      "utf8"
+    );
+  }
 
   // also save any newfound deps into user's pkg.json
   // in sourcepath. But minus our hardcoded depsJson
