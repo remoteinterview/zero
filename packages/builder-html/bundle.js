@@ -26,7 +26,7 @@ module.exports = async function bundle(entryFile, buildPath, publicPath) {
     minify: !isDev
   });
 
-  const bundle = await bundler.bundle();
+  await bundler.bundle();
   return {
     path: buildPath
   };
