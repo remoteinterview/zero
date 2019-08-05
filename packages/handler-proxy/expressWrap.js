@@ -1,3 +1,10 @@
+// cache dns responses to avoid: https://github.com/nodejs/node/issues/21309
+const dnscache = require("dnscache")({
+  enable: true,
+  ttl: 300,
+  cachesize: 1000
+});
+
 const express = require("express");
 const fetch = require("node-fetch");
 var url = require("url");
@@ -29,7 +36,9 @@ async function proxyRequest(proxyJson, req, res) {
   var proxyRes;
   try {
     proxyRes = await fetch(proxyFullUrl, options);
-  } catch (e) {}
+  } catch (e) {
+    console.log(e);
+  }
 
   // Forward status code
   res.statusCode = proxyRes.status;
