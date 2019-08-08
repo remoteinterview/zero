@@ -1,0 +1,18 @@
+on: push
+name: Test
+jobs:
+  npmInstall:
+    name: npm install
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: npm install
+      uses: actions/npm@59b64a598378f31e49cb76f27d6f3312b582f680
+      with:
+        entrypoint: npm
+        args: install
+    - name: bootstrap && test
+      uses: actions/npm@59b64a598378f31e49cb76f27d6f3312b582f680
+      with:
+        entrypoint: npm
+        args: run bootstrap && npm test
