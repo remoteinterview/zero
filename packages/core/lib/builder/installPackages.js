@@ -13,6 +13,7 @@ var firstRun = true;
 
 const babelConfig = {
   plugins: [
+    "babel-plugin-transform-zero-dirname-filename",
     "babel-plugin-react-require",
     ["@babel/plugin-transform-runtime"],
     [

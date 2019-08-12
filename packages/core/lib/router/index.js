@@ -187,7 +187,18 @@ function getLambdaServerPort(endpointData) {
       lambdaIdToBundleInfo[lambdaID] ? lambdaIdToBundleInfo[lambdaID].info : ""
     ];
     const options = {
-      stdio: ["pipe", "pipe", "pipe", "ipc"]
+      stdio: ["pipe", "pipe", "pipe", "ipc"],
+      env: {
+        ...process.env,
+
+        // the final bundled file is inside zero-builds/someId/...
+        // if that file uses __dirname to load file in the runtime, it will fail as the entry file is
+        // not what the user assumed (ex. ./myapi.js).
+        // a babel transform plugin transforms all __dirname and __filename into process.env.__DIRNAME etc
+        // we set these env variables to original values the user assumes.
+        __DIRNAME: process.env.__DIRNAME || path.dirname(entryFilePath),
+        __FILENAME: process.env.__FILENAME || entryFilePath
+      }
     };
 
     const child = fork(program, parameters, options);

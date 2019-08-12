@@ -1,0 +1,11 @@
+{
+  "name": "babel-plugin-transform-zero-dirname-filename",
+  "version": "0.0.1",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "estree-walker": "^0.2.0"
+  }
+}
