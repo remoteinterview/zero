@@ -1,7 +1,7 @@
 {
   "name": "zero-common-deps",
   "main": "index.js",
-  "version": "1.0.16-alpha.3",
+  "version": "1.0.20-alpha.0",
   "license": "Apache-2.0",
   "dependencies": {
     "@babel/core": "^7.2.2",
@@ -12,7 +12,7 @@
     "@mdx-js/tag": "^0.16.8",
     "@vue/component-compiler-utils": "^3.0.0",
     "babel-plugin-react-require": "^3.1.1",
-    "babel-plugin-transform-zero-dirname-filename": "^0.0.1",
+    "babel-plugin-transform-zero-dirname-filename": "^1.0.20-alpha.0",
     "cssnano": "4.1.10",
     "postcss-modules": "1.4.1",
     "react": "^16.8.1",
