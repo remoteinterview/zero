@@ -40,11 +40,7 @@ function setupEnvVariables(sourcePath) {
   // Default env variables.
   process.env.PATH += ":" + resolveYarn();
   process.env.SOURCEPATH = slash(sourcePath);
-  const DEFAULTBUILDPATH = path.join(
-    require("os").tmpdir(),
-    "zeroservertmp",
-    getHash(process.env.SOURCEPATH)
-  );
+  const DEFAULTBUILDPATH = path.join(sourcePath, ".zero");
   process.env.PORT = process.env.PORT || 3000;
   process.env.SESSION_TTL =
     process.env.SESSION_TTL || 1000 * 60 * 60 * 24 * 365; // 1 year

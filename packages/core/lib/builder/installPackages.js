@@ -254,6 +254,16 @@ async function writePackageJSON(buildPath, deps) {
       "utf8"
     );
   }
+
+  // add a .gitignore if not added by user
+  var gitignorePath = path.join(process.env.SOURCEPATH, "/.gitignore");
+  if (!fs.existsSync(gitignorePath)) {
+    fs.writeFileSync(
+      gitignorePath,
+      ".DS_Store\n.zero\nzero-builds\nnode_modules",
+      "utf8"
+    );
+  }
 }
 
 module.exports = installPackages;

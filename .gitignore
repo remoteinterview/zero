@@ -6,4 +6,5 @@ dist
 zero-builds
 *.log
 test/www/package.json
+test/www/.gitignore
 packages/handler-python/get-pip.py

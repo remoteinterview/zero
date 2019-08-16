@@ -99,7 +99,9 @@ module.exports = async (options, onWatchUpdate) => {
   }
 
   // initial copy
-  sources.forEach(s => glob.sync(s, { dot: true }).forEach(copy));
+  sources.forEach(s =>
+    glob.sync(s, { dot: true, ignore: ["**/.zero/**"] }).forEach(copy)
+  );
 
   if (onWatchUpdate) onWatchUpdate("ready");
   // watch
@@ -107,7 +109,8 @@ module.exports = async (options, onWatchUpdate) => {
     // chokidar glob doesn't work with backward slashes
     chokidar
       .watch(sources.map(s => slash(s)), {
-        ignoreInitial: true
+        ignoreInitial: true,
+        ignored: "**/.zero/**"
       })
       .on("ready", () => {
         debug("[WATCHING]".yellow, sources);
