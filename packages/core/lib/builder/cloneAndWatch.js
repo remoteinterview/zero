@@ -31,7 +31,8 @@ module.exports = async (options, onWatchUpdate) => {
     const relativePath = path.relative(process.env.SOURCEPATH, from);
     if (
       relativePath.indexOf("node_modules") !== -1 ||
-      relativePath.indexOf(".git") !== -1
+      relativePath.indexOf(".git") !== -1 ||
+      relativePath === "yarn.lock"
     ) {
       return;
     }
