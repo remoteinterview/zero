@@ -96,7 +96,7 @@ module.exports = async (options, onWatchUpdate) => {
     // if running in prod mode, also avoid deleting builds.
     //if (!ISDEV) paths.push('!'+path.join(target, '/zero-builds/**') )
 
-    await del(paths, { force: true });
+    await del(paths.map(p => slash(p)), { force: true });
   }
 
   // initial copy

@@ -171,9 +171,12 @@ function builder(sourcePath) {
 
         // clear build folder
         try {
-          await del([path.join(process.env.SOURCEPATH, "zero-builds", "/**")], {
-            force: true
-          });
+          await del(
+            [slash(path.join(process.env.SOURCEPATH, "zero-builds", "/**"))],
+            {
+              force: true
+            }
+          );
         } catch (e) {}
 
         // build paths in a queue with concurrency
@@ -206,11 +209,13 @@ function builder(sourcePath) {
                   var lambdaID = pastFileHashes[file][1][index];
                   await del(
                     [
-                      path.join(
-                        process.env.BUILDPATH,
-                        "zero-builds",
-                        lambdaID,
-                        "/**"
+                      slash(
+                        path.join(
+                          process.env.BUILDPATH,
+                          "zero-builds",
+                          lambdaID,
+                          "/**"
+                        )
                       )
                     ],
                     {
@@ -299,7 +304,7 @@ function builder(sourcePath) {
         // clear tmp folder
         if (!process.env.SKIPTEMPCLEAR) {
           try {
-            await del([path.join(process.env.BUILDPATH, "/**")], {
+            await del([slash(path.join(process.env.BUILDPATH, "/**"))], {
               force: true
             });
           } catch (e) {}
