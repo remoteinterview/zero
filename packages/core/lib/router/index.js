@@ -24,6 +24,7 @@ const del = require("del");
 const fork = require("child_process").fork;
 const forkasync = require("../utils/spawn-async");
 const bundlerProgram = require.resolve("zero-builder-process");
+const slash = require("../utils/fixPathSlashes");
 
 var lambdaIdToPortMap = {};
 var lambdaIdToBundleInfo = {};
@@ -159,6 +160,7 @@ function getBundleInfo(endpointData) {
     });
 
     child.on("close", () => {
+      debug("bundler process closed", lambdaID);
       delete lambdaIdToBundleInfo[lambdaID];
     });
     // child.stdout.on('data', (data) => {
@@ -225,16 +227,10 @@ function getLambdaServerPort(endpointData) {
 
     child.on("error", err => {
       debug("Failed to start subprocess.", err);
-      del(path.join(process.env.BUILDPATH, "zero-builds", lambdaID, "/**"), {
-        force: true
-      });
       delete lambdaIdToPortMap[lambdaID];
     });
     child.on("close", e => {
       debug("subprocess stopped.", e);
-      del(path.join(process.env.BUILDPATH, "zero-builds", lambdaID, "/**"), {
-        force: true
-      });
       delete lambdaIdToPortMap[lambdaID];
     });
   });
@@ -328,16 +324,14 @@ module.exports = buildPath => {
           lambdaIdToPortMap[lambdaID] &&
           shouldKillOnChange(lambdaIdToPortMap[lambdaID].endpointData)
         ) {
-          debug("killing", lambdaEntryFile, lambdaIdToPortMap[lambdaID].port);
-          lambdaIdToPortMap[lambdaID].process.kill();
-          // delete their bundle if any
-          await del(
-            path.join(process.env.BUILDPATH, "zero-builds", lambdaID, "/**"),
-            { force: true }
+          debug(
+            "killing",
+            lambdaEntryFile,
+            lambdaIdToPortMap[lambdaID].port,
+            shouldKillOnChange(lambdaIdToPortMap[lambdaID].endpointData),
+            lambdaIdToPortMap[lambdaID].endpointData
           );
-
-          // generate bundle
-          delete lambdaIdToBundleInfo[lambdaID];
+          lambdaIdToPortMap[lambdaID].process.kill();
           await getBundleInfo(endpointData);
           delete lambdaIdToPortMap[lambdaID];
 
