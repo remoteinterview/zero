@@ -1,6 +1,6 @@
 {
   "name": "zero",
-  "version": "1.0.20-alpha.3",
+  "version": "1.0.20-alpha.4",
   "description": "",
   "main": "lib/index.js",
   "scripts": {
