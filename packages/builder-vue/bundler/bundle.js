@@ -18,7 +18,7 @@ module.exports = async (
   publicBundlePath,
   targetNode
 ) => {
-  const Bundler = require("./parcelCustom");
+  const Bundler = require("zero-parcel-bundler");
   mkdirp.sync(bundlePath);
 
   // we need a entry file

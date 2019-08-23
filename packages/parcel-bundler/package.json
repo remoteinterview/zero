@@ -1,0 +1,11 @@
+{
+  "name": "zero-parcel-bundler",
+  "main": "index.js",
+  "version": "1.0.18-alpha.6",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@mdx-js/parcel-plugin-mdx": "^0.17.4",
+    "parcel-bundler": "^1.11.0"
+  },
+  "gitHead": "9e577043290b2ad1205a24f14c4edf7329c6073d"
+}

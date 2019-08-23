@@ -9,7 +9,7 @@ function sha1(data) {
 }
 
 module.exports = async function bundle(entryFile, buildPath, publicPath) {
-  const Bundler = require("parcel-bundler");
+  const Bundler = require("zero-parcel-bundler");
   buildPath = buildPath + "/html.static"; // this causes router to serve our html as static files
   var fullbuildPath = path.join(process.env.BUILDPATH, buildPath);
 
