@@ -14,8 +14,8 @@
 </p>
 
 <p align="center">
-  <a href="https://spectrum.chat/zero">
-    <img alt="Join the community on Spectrum" src="https://withspectrum.github.io/badge/badge.svg" />
+  <a href="https://discord.gg/n7y5nRs">
+    <img alt="Join the community on Discord" width="120" src="https://raw.githubusercontent.com/remoteinterview/zero/master/docs/images/discord.png" />
   </a>
 </p>
 
