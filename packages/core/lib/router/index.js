@@ -88,6 +88,9 @@ async function proxyLambdaRequest(req, res, endpointData) {
     if (spinner.isSpinning) {
       spinner.fail(url.resolve("/", endpointData[0]) + " failed");
     }
+    console.error(e);
+    res.end();
+    return;
   }
 
   if (spinner.isSpinning) {

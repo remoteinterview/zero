@@ -38,6 +38,7 @@ async function proxyRequest(proxyJson, req, res) {
     proxyRes = await fetch(proxyFullUrl, options);
   } catch (e) {
     console.log(e);
+    return;
   }
 
   // Forward status code
