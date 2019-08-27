@@ -1,7 +1,7 @@
 {
   "name": "zero-handler-js",
   "main": "index.js",
-  "version": "1.0.18-alpha.3",
+  "version": "1.0.20-alpha.5",
   "license": "Apache-2.0",
   "dependencies": {
     "zero-process": "^1.0.18-alpha.3"
