@@ -301,15 +301,6 @@ function builder(sourcePath) {
         // save a file hash map
         fs.writeFileSync(fileHashPath, JSON.stringify(fileHashes));
 
-        // clear tmp folder
-        if (!process.env.SKIPTEMPCLEAR) {
-          try {
-            await del([slash(path.join(process.env.BUILDPATH, "/**"))], {
-              force: true
-            });
-          } catch (e) {}
-        }
-
         console.log(
           `\x1b[2mBuilt in ${((Date.now() - buildStartTime) / 1000).toFixed(
             1
