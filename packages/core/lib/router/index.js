@@ -11,11 +11,12 @@
 const express = require("express");
 const compression = require("compression");
 const matchPath = require("./matchPath");
-const staticHandler = require("zero-static").handler;
 const path = require("path");
 const url = require("url");
 const handlers = require("zero-handlers-map");
 const builders = require("zero-builders-map");
+const staticHandler = handlers["static"].handler;
+const proxyHandler = handlers["lambda:proxy"].handler;
 const fetch = require("node-fetch");
 const fs = require("fs");
 const debug = require("debug")("core");
@@ -27,6 +28,7 @@ const bundlerProgram = require.resolve("zero-builder-process");
 const slash = require("../utils/fixPathSlashes");
 
 var lambdaIdToPortMap = {};
+var lambdaIdToProxyHandler = {};
 var lambdaIdToBundleInfo = {};
 var updatedManifest = false;
 
@@ -56,6 +58,21 @@ async function proxyLambdaRequest(req, res, endpointData) {
     spinner.start("Building " + url.resolve("/", endpointData[0]));
     await getBundleInfo(endpointData);
     spinner.start("Serving " + url.resolve("/", endpointData[0]));
+  }
+
+  // proxy paths are special case where we don't spawn another process but just use it's handler directly.
+  if (endpointData[2] === "lambda:proxy") {
+    // generate a handler if not generated previously
+    if (!lambdaIdToProxyHandler[lambdaID]) {
+      lambdaIdToProxyHandler[lambdaID] = await proxyHandler(
+        endpointData.concat(
+          process.env.SERVERADDRESS,
+          "zero-builds/" + lambdaID,
+          ""
+        )
+      );
+    }
+    return lambdaIdToProxyHandler[lambdaID](req, res);
   }
 
   var serverAddress = process.env.SERVERADDRESS;
@@ -342,6 +359,9 @@ module.exports = buildPath => {
           debug("starting", endpointData);
           if (endpointData) getLambdaServerPort(endpointData);
         }
+
+        if (lambdaIdToProxyHandler[lambdaID])
+          delete lambdaIdToProxyHandler[lambdaID];
       });
     } else {
       // kill all servers

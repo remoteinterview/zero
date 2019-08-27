@@ -12,7 +12,7 @@ module.exports = async (
 ) => {
   return new Promise((resolve, reject) => {
     var json = JSON.parse(fs.readFileSync(entryFile, "utf8"));
-    if (isModule) resolve(expressWrap(json.url));
+    if (isModule) resolve(expressWrap(json));
     else {
       var app = expressWrap(json);
       var listener = app.listen(0, "127.0.0.1", () => {
