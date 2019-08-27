@@ -47,7 +47,6 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
       // first check if filename (or the folder it resides in) is in zeroignore, ignore those.
       var fileRelative = relativePath(file);
       if (zeroignore.ignores(fileRelative)) return false;
-
       // check if js file is a js lambda function
       if (extension === ".js" || extension === ".ts") {
         return [file, "lambda:js"];
@@ -87,7 +86,7 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
         // avoid reading large json files as they are likely not our proxy path config
         if (fs.statSync(file).size < 10 * 1024) {
           try {
-            var json = require(file);
+            var json = JSON.parse(fs.readFileSync(file, "utf8"));
             if (json && json.type && json.type === "proxy") {
               return [file, "lambda:proxy"];
             }

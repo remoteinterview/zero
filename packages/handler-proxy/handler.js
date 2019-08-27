@@ -1,4 +1,5 @@
 const expressWrap = require("./expressWrap");
+const fs = require("fs");
 
 module.exports = async (
   basePath,
@@ -10,7 +11,7 @@ module.exports = async (
   isModule
 ) => {
   return new Promise((resolve, reject) => {
-    var json = require(entryFile);
+    var json = JSON.parse(fs.readFileSync(entryFile, "utf8"));
     if (isModule) resolve(expressWrap(json.url));
     else {
       var app = expressWrap(json);

@@ -88,7 +88,7 @@ module.exports = async function build(
             }
           });
         } else if (!isBuilder) {
-          spinner.succeed("Server running on " + serverAddress);
+          spinner.stop(); //("Server running on " + serverAddress);
         } else {
           spinner.stop();
         }
@@ -100,7 +100,6 @@ module.exports = async function build(
 };
 
 async function updateManifest(buildPath, currentManifest, updatedFiles) {
-  console.log("⬇️  Updating packages");
   //spinner.start("Updating packages");
   var deps = await installPackages(buildPath, updatedFiles);
   spinner.start("Generating manifest");

@@ -12,10 +12,31 @@ var notToBeLinked = [
   "@babel/plugin-proposal-class-properties",
   "babel-plugin-react-require"
 ];
+
+var toBeInstalledLocally = [
+  "react",
+  "react-dom",
+  "react-helmet",
+  "vue",
+  "vue-template-compiler",
+  "vue-hot-reload-api",
+  "vue-meta",
+  "@mdx-js/react",
+  "@mdx-js/tag"
+];
 module.exports = {
-  resolvePath: pkgName => {},
+  resolvePath: pkgName => require.resolve(pkgName),
   dependencies: () => {
     return pkg.dependencies;
+  },
+  dependenciesToBeInstalled: () => {
+    var deps = pkg.dependencies;
+    var toBeInstalled = {};
+    toBeInstalledLocally.forEach(pkgName => {
+      toBeInstalled[pkgName] = deps[pkgName];
+    });
+
+    return toBeInstalled;
   },
   dependenciesWithLocalPaths: () => {
     var deps = pkg.dependencies;

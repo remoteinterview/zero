@@ -13,11 +13,11 @@ var firstRun = true;
 
 const babelConfig = {
   plugins: [
-    "babel-plugin-transform-zero-dirname-filename",
-    "babel-plugin-react-require",
-    ["@babel/plugin-transform-runtime"],
+    [commonDeps.resolvePath("babel-plugin-transform-zero-dirname-filename")],
+    [commonDeps.resolvePath("babel-plugin-react-require")],
+    [commonDeps.resolvePath("@babel/plugin-transform-runtime")],
     [
-      "@babel/plugin-proposal-class-properties",
+      commonDeps.resolvePath("@babel/plugin-proposal-class-properties"),
       {
         loose: true
       }
@@ -139,6 +139,7 @@ function installPackages(buildPath, filterFiles) {
       } catch (e) {}
     }
     if (!allInstalled || firstRun || pkgJsonChanged) {
+      console.log("⬇️  Updating packages");
       debug("yarn install hit", !!allInstalled, !!firstRun, !!pkgJsonChanged);
       // we must run npm i on first boot,
       // so we are sure pkg.json === node_modules
@@ -178,9 +179,10 @@ async function writePackageJSON(buildPath, deps) {
   }
 
   // the base packages required by zero
+  var allCommonDeps = commonDeps.dependencies();
   var depsJson = process.env.ISBUILDER
-    ? commonDeps.dependencies()
-    : commonDeps.dependenciesWithLocalPaths();
+    ? allCommonDeps
+    : commonDeps.dependenciesToBeInstalled();
 
   if (pkg.dependencies) {
     Object.keys(depsJson).forEach(key => {
