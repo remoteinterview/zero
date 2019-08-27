@@ -27,9 +27,10 @@ const forkasync = require("../utils/spawn-async");
 const bundlerProgram = require.resolve("zero-builder-process");
 const slash = require("../utils/fixPathSlashes");
 
-var lambdaIdToPortMap = {};
-var lambdaIdToProxyHandler = {};
-var lambdaIdToBundleInfo = {};
+var lambdaIdToPortMap = {}; // holds port, child_process etc for each spawned lambda
+var lambdaIdToProxyHandler = {}; // for proxy paths, this holds their handler(req, res)
+var lambdaIdToBundleInfo = {}; // holds bundle info for each lambda if generated or it generates one
+var lambdaSpawnInProgress = {}; //child_process is being spawned so avoid spawning duplicates
 var updatedManifest = false;
 
 var getLambdaID = function(entryFile) {
@@ -192,13 +193,35 @@ function getBundleInfo(endpointData) {
     // });
   });
 }
+function waitForLambdaSpawn(id) {
+  return new Promise((resolve, reject) => {
+    var interval = setInterval(() => {
+      if (!lambdaSpawnInProgress[id] && lambdaIdToPortMap[id]) {
+        clearInterval(interval);
+        resolve();
+      }
+    }, 300);
+  });
+}
 
 function getLambdaServerPort(endpointData) {
-  return new Promise((resolve, reject) => {
+  return new Promise(async (resolve, reject) => {
     const entryFilePath = endpointData[1];
     const lambdaID = getLambdaID(endpointData[0]);
+
+    // resolve if we already have a process running for this path
     if (lambdaIdToPortMap[lambdaID])
       return resolve(lambdaIdToPortMap[lambdaID].port);
+
+    // wait if the process spawning is in progress for this path
+    if (lambdaSpawnInProgress[lambdaID]) {
+      await waitForLambdaSpawn(lambdaID);
+      return resolve(lambdaIdToPortMap[lambdaID].port);
+    }
+
+    // child process for this lambda doesn't exist yet, spawn it.
+    lambdaSpawnInProgress[lambdaID] = true;
+
     const program = handlers[endpointData[2]].process;
     const parameters = [
       endpointData[0],
@@ -224,7 +247,6 @@ function getLambdaServerPort(endpointData) {
     };
 
     const child = fork(program, parameters, options);
-
     child.stdout.on("data", data => {
       console.log(`${data}`);
     });
