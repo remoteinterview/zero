@@ -21,13 +21,25 @@ module.exports = async (
   const Bundler = require("zero-parcel-bundler");
   mkdirp.sync(bundlePath);
 
+  // browser bundle needs and entry code
   if (!targetNode) {
-    // browser bundle needs and entry code
+    var hmr = ISDEV && !process.env.ISBUILDER;
+    // wrap our app in hot reload module (only in dev mode)
+    var hotWrapFileName = path.join(
+      path.dirname(filename),
+      "/hotwrap." + sha1(filename) + ".js"
+    );
+
+    const hotWrap = createHotReloadWrap(path.basename(filename));
+    fs.writeFileSync(hotWrapFileName, hotWrap, "utf8");
+
+    // generate an entry file
     var entryFileName = path.join(
       path.dirname(filename),
       "/entry." + sha1(filename) + ".js"
     );
-    const entry = createEntry(path.basename(filename));
+
+    const entry = createEntry(path.basename(hmr ? hotWrapFileName : filename));
     // save entry code in a file and feed it to parcel
     fs.writeFileSync(entryFileName, entry, "utf8");
   }
@@ -88,5 +100,15 @@ const props = JSON.parse(
 )
 const el = React.createElement(App, props)
 hydrate(el, document.getElementById("_react_root"))
+`;
+};
+
+const createHotReloadWrap = componentPath => {
+  return `
+import { hot } from 'react-hot-loader';
+
+var App = require('./${componentPath}')
+App = (App && App.default)?App.default : App;
+export default hot(module)(App)
 `;
 };

@@ -13,17 +13,19 @@ var notToBeLinked = [
   "babel-plugin-react-require"
 ];
 
-var toBeInstalledLocally = [
+var toBeInstalledLocally = notToBeLinked.concat([
   "react",
   "react-dom",
   "react-helmet",
+  "react-hot-loader",
+  "@hot-loader/react-dom",
   "vue",
   "vue-template-compiler",
   "vue-hot-reload-api",
   "vue-meta",
   "@mdx-js/react",
   "@mdx-js/tag"
-];
+]);
 module.exports = {
   resolvePath: pkgName => require.resolve(pkgName),
   dependencies: () => {

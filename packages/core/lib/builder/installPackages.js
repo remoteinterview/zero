@@ -13,6 +13,7 @@ var firstRun = true;
 
 const babelConfig = {
   plugins: [
+    [commonDeps.resolvePath("react-hot-loader/babel")],
     [commonDeps.resolvePath("babel-plugin-transform-zero-dirname-filename")],
     [commonDeps.resolvePath("babel-plugin-react-require")],
     [commonDeps.resolvePath("@babel/plugin-transform-runtime")],
@@ -188,6 +189,10 @@ async function writePackageJSON(buildPath, deps) {
   } else {
     pkg.dependencies = depsJson;
   }
+
+  // need this alias for hot reload features of React 16+ to work.
+  pkg.alias = pkg.alias || {};
+  pkg.alias["react-dom"] = "@hot-loader/react-dom";
 
   // append user's imported packages (only if not already defined in package.json)
   for (var i in deps) {
