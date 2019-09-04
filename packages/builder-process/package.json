@@ -1,10 +1,10 @@
 {
   "name": "zero-builder-process",
-  "version": "1.0.20-alpha.8",
+  "version": "1.0.20-alpha.9",
   "description": "",
   "main": "index.js",
   "license": "Apache-2.0",
   "dependencies": {
-    "zero-builders-map": "^1.0.20-alpha.8"
+    "zero-builders-map": "^1.0.20-alpha.9"
   }
 }
