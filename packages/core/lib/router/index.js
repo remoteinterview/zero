@@ -13,24 +13,17 @@ const compression = require("compression");
 const matchPath = require("./matchPath");
 const path = require("path");
 const url = require("url");
-const handlers = require("zero-handlers-map");
+const { handlers, getHandler } = require("zero-handlers-map");
 const builders = require("zero-builders-map");
 const staticHandler = handlers["static"].handler;
-const proxyHandler = handlers["lambda:proxy"].handler;
-const fetch = require("node-fetch");
 const fs = require("fs");
 const debug = require("debug")("core");
 const ora = require("ora");
-const del = require("del");
 const fork = require("child_process").fork;
-const forkasync = require("../utils/spawn-async");
 const bundlerProgram = require.resolve("zero-builder-process");
-const slash = require("../utils/fixPathSlashes");
 
-var lambdaIdToPortMap = {}; // holds port, child_process etc for each spawned lambda
-var lambdaIdToProxyHandler = {}; // for proxy paths, this holds their handler(req, res)
+var lambdaIdToHandler = {}; // for proxy paths, this holds their handler(req, res)
 var lambdaIdToBundleInfo = {}; // holds bundle info for each lambda if generated or it generates one
-var lambdaSpawnInProgress = {}; //child_process is being spawned so avoid spawning duplicates
 var updatedManifest = false;
 
 var getLambdaID = function(entryFile) {
@@ -61,84 +54,22 @@ async function proxyLambdaRequest(req, res, endpointData) {
     spinner.start("Serving " + url.resolve("/", endpointData[0]));
   }
 
-  // proxy paths are special case where we don't spawn another process but just use it's handler directly.
-  if (endpointData[2] === "lambda:proxy") {
-    // generate a handler if not generated previously
-    if (!lambdaIdToProxyHandler[lambdaID]) {
-      lambdaIdToProxyHandler[lambdaID] = await proxyHandler(
-        endpointData.concat(
-          process.env.SERVERADDRESS,
-          "zero-builds/" + lambdaID,
-          ""
-        )
-      );
-    }
-    return lambdaIdToProxyHandler[lambdaID](req, res);
+  // generate a handler if not generated previously
+  if (!lambdaIdToHandler[lambdaID]) {
+    const handlerApp = await getHandler(endpointData[2]);
+    lambdaIdToHandler[lambdaID] = await handlerApp([
+      endpointData[0],
+      endpointData[1],
+      endpointData[2],
+      process.env.SERVERADDRESS,
+      "zero-builds/" + lambdaID,
+      lambdaIdToBundleInfo[lambdaID] ? lambdaIdToBundleInfo[lambdaID].info : ""
+    ]);
   }
-
-  var serverAddress = process.env.SERVERADDRESS;
-
-  const port = await getLambdaServerPort(endpointData);
-  debug("req", endpointData[1], port, req.method, req.body);
-
-  //debug("server address", serverAddress)
-  var lambdaAddress = "http://127.0.0.1:" + port;
-  var options = {
-    method: req.method,
-    headers: Object.assign(
-      { "x-forwarded-host": req.headers.host },
-      req.headers
-    ),
-    compress: false,
-    redirect: "manual"
-    //credentials: "include"
-  };
-  if (
-    req.method.toLowerCase() !== "get" &&
-    req.method.toLowerCase() !== "head"
-  ) {
-    options.body = req;
-  }
-  var proxyRes;
-  try {
-    proxyRes = await fetch(lambdaAddress + req.url, options);
-  } catch (e) {
-    if (spinner.isSpinning) {
-      spinner.fail(url.resolve("/", endpointData[0]) + " failed");
-    }
-    console.error(e);
-    res.end();
-    return;
-  }
-
   if (spinner.isSpinning) {
     spinner.succeed(url.resolve("/", endpointData[0]) + " ready");
   }
-
-  // Forward status code
-  res.statusCode = proxyRes.status;
-
-  // Forward headers
-  const headers = proxyRes.headers.raw();
-  for (const key of Object.keys(headers)) {
-    if (key.toLowerCase() === "location" && headers[key]) {
-      headers[key] = headers[key][0].replace(lambdaAddress, serverAddress);
-    }
-    res.setHeader(key, headers[key]);
-  }
-  res.setHeader("x-powered-by", "ZeroServer");
-
-  // Stream the proxy response
-  proxyRes.body.pipe(res);
-  proxyRes.body.on("error", err => {
-    console.error(`Error on proxying url: ${newUrl}`);
-    console.error(err.stack);
-    res.end();
-  });
-
-  req.on("abort", () => {
-    proxyRes.body.destroy();
-  });
+  return lambdaIdToHandler[lambdaID](req, res);
 }
 
 // if server exits, kill the child processes too.
@@ -146,10 +77,6 @@ process.on("SIGTERM", cleanProcess);
 process.on("exit", cleanProcess);
 
 function cleanProcess() {
-  for (var id in lambdaIdToPortMap) {
-    lambdaIdToPortMap[id].process.kill();
-  }
-
   for (var id in lambdaIdToBundleInfo) {
     if (lambdaIdToBundleInfo[id].process)
       lambdaIdToBundleInfo[id].process.kill();
@@ -158,7 +85,6 @@ function cleanProcess() {
 
 function getBundleInfo(endpointData) {
   return new Promise(async (resolve, reject) => {
-    const entryFilePath = endpointData[1];
     const lambdaID = getLambdaID(endpointData[0]);
     if (lambdaIdToBundleInfo[lambdaID])
       return resolve(lambdaIdToBundleInfo[lambdaID]);
@@ -183,97 +109,6 @@ function getBundleInfo(endpointData) {
     child.on("close", () => {
       debug("bundler process closed", lambdaID);
       delete lambdaIdToBundleInfo[lambdaID];
-    });
-    // child.stdout.on('data', (data) => {
-    //   console.log(`${data}`)
-    // });
-
-    // child.stderr.on('data', (data) => {
-    //   console.error(`${data}`)
-    // });
-  });
-}
-function waitForLambdaSpawn(id) {
-  return new Promise((resolve, reject) => {
-    var interval = setInterval(() => {
-      if (!lambdaSpawnInProgress[id] && lambdaIdToPortMap[id]) {
-        clearInterval(interval);
-        resolve();
-      }
-    }, 300);
-  });
-}
-
-function getLambdaServerPort(endpointData) {
-  return new Promise(async (resolve, reject) => {
-    const entryFilePath = endpointData[1];
-    const lambdaID = getLambdaID(endpointData[0]);
-
-    // resolve if we already have a process running for this path
-    if (lambdaIdToPortMap[lambdaID])
-      return resolve(lambdaIdToPortMap[lambdaID].port);
-
-    // wait if the process spawning is in progress for this path
-    if (lambdaSpawnInProgress[lambdaID]) {
-      await waitForLambdaSpawn(lambdaID);
-      return resolve(lambdaIdToPortMap[lambdaID].port);
-    }
-
-    // child process for this lambda doesn't exist yet, spawn it.
-    lambdaSpawnInProgress[lambdaID] = true;
-
-    const program = handlers[endpointData[2]].process;
-    const parameters = [
-      endpointData[0],
-      endpointData[1],
-      endpointData[2],
-      process.env.SERVERADDRESS,
-      "zero-builds/" + lambdaID,
-      lambdaIdToBundleInfo[lambdaID] ? lambdaIdToBundleInfo[lambdaID].info : ""
-    ];
-    const options = {
-      stdio: ["pipe", "pipe", "pipe", "ipc"],
-      env: {
-        ...process.env,
-
-        // the final bundled file is inside zero-builds/someId/...
-        // if that file uses __dirname to load file in the runtime, it will fail as the entry file is
-        // not what the user assumed (ex. ./myapi.js).
-        // a babel transform plugin transforms all __dirname and __filename into process.env.__DIRNAME etc
-        // we set these env variables to original values the user assumes.
-        __DIRNAME: process.env.__DIRNAME || path.dirname(entryFilePath),
-        __FILENAME: process.env.__FILENAME || entryFilePath
-      }
-    };
-
-    const child = fork(program, parameters, options);
-    child.stdout.on("data", data => {
-      console.log(`${data}`);
-    });
-
-    child.stderr.on("data", data => {
-      console.error(`${data}`);
-    });
-
-    // child server sends port via IPC
-    child.on("message", message => {
-      debug("got Port for", entryFilePath, message);
-      lambdaIdToPortMap[lambdaID] = {
-        port: parseInt(message),
-        process: child,
-        endpointData: endpointData
-      };
-      resolve(lambdaIdToPortMap[lambdaID].port);
-      //if (spinner) spinner.succeed(endpointData[0] + " ready")
-    });
-
-    child.on("error", err => {
-      debug("Failed to start subprocess.", err);
-      delete lambdaIdToPortMap[lambdaID];
-    });
-    child.on("close", e => {
-      debug("subprocess stopped.", e);
-      delete lambdaIdToPortMap[lambdaID];
     });
   });
 }
@@ -362,50 +197,11 @@ module.exports = buildPath => {
           return lambda[1] === lambdaEntryFile;
         });
         var lambdaID = getLambdaID(endpointData[0]);
-        if (
-          lambdaIdToPortMap[lambdaID] &&
-          shouldKillOnChange(lambdaIdToPortMap[lambdaID].endpointData)
-        ) {
-          debug(
-            "killing",
-            lambdaEntryFile,
-            lambdaIdToPortMap[lambdaID].port,
-            shouldKillOnChange(lambdaIdToPortMap[lambdaID].endpointData),
-            lambdaIdToPortMap[lambdaID].endpointData
-          );
-          lambdaIdToPortMap[lambdaID].process.kill();
-          await getBundleInfo(endpointData);
-          delete lambdaIdToPortMap[lambdaID];
 
-          // start the process again
-          debug("starting", endpointData);
-          if (endpointData) getLambdaServerPort(endpointData);
+        if (lambdaIdToHandler[lambdaID]) {
+          delete lambdaIdToHandler[lambdaID];
         }
-
-        if (lambdaIdToProxyHandler[lambdaID])
-          delete lambdaIdToProxyHandler[lambdaID];
       });
-    } else {
-      // kill all servers
-      for (var id in lambdaIdToPortMap) {
-        //debug("killing", lambdaIdToPortMap[i].port)
-        if (lambdaIdToPortMap[id] && lambdaIdToPortMap[id].process)
-          lambdaIdToPortMap[id].process.kill();
-      }
     }
   };
 };
-
-function shouldKillOnChange(endpointData) {
-  // get config for this lambda type and see if we
-  // should restart the process or will the handler manage itself (hmr etc)
-  const config = handlers[endpointData[2]]
-    ? handlers[endpointData[2]].config
-    : false;
-  if (config) {
-    if (config.restartOnFileChange === false) return false;
-  }
-
-  // no config, default to killing
-  return true;
-}

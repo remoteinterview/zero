@@ -20,7 +20,12 @@ const { Helmet } = localRequire("react-helmet");
 
 const jsonStringify = require("json-stringify-safe");
 var ssrCrashWarned = false;
-
+const requireUncached = module => {
+  // invalidate cache for HMR to work in dev mode
+  if (process.env.NODE_ENV !== "production")
+    delete require.cache[require.resolve(module)];
+  return require(module);
+};
 async function generateComponent(
   req,
   res,
@@ -30,7 +35,8 @@ async function generateComponent(
   bundleInfo
 ) {
   try {
-    var App = require(path.join(process.env.BUILDPATH, bundleInfo.jsNode));
+    var appPath = path.join(process.env.BUILDPATH, bundleInfo.jsNode);
+    var App = requireUncached(appPath);
   } catch (e) {
     if (!ssrCrashWarned) console.log(e);
   }

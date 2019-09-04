@@ -18,7 +18,12 @@ Vue.use(VueMeta, {
 });
 
 var ssrCrashWarned = false;
-
+const requireUncached = module => {
+  // invalidate cache for HMR to work in dev mode
+  if (process.env.NODE_ENV !== "production")
+    delete require.cache[require.resolve(module)];
+  return require(module);
+};
 async function generateComponent(
   req,
   res,
@@ -28,7 +33,9 @@ async function generateComponent(
   bundleInfo
 ) {
   try {
-    var App = require(path.join(process.env.BUILDPATH, bundleInfo.jsNode));
+    var App = requireUncached(
+      path.join(process.env.BUILDPATH, bundleInfo.jsNode)
+    );
   } catch (e) {
     if (!ssrCrashWarned) console.log(e);
   }

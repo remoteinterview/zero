@@ -44,8 +44,6 @@ _An example project with different types of pages, all in one folder:_
 
 All under a single project folder as a single web application.
 
-**Improved Error Handling**: Each endpoint run in their own process. So if `/api/login` crashes for some reason, it doesn't affect `/chatroom` page or `/api/chat` API. Crashed endpoints are restarted automatically when the next user visits them.
-
 ## Installation
 
 You can install `zero` globally by:

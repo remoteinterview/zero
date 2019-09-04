@@ -31,7 +31,7 @@ function inject(t, prog, variable, value) {
       t.identifier("process"),
       t.identifier("undefined")
     ),
-    t.identifier(`process.env.${variable.toUpperCase()}`),
+    t.identifier(`global.${variable.toUpperCase()}`),
     t.identifier(variable)
   );
   var expr = t.expressionStatement(
@@ -55,7 +55,7 @@ module.exports = function(o) {
             t,
             prog,
             "__dirname",
-            `(typeof process !== 'undefined')?process.env.__DIRNAME:__dirname`
+            `(typeof process !== 'undefined')?global.__DIRNAME:__dirname`
           );
         }
 
@@ -64,7 +64,7 @@ module.exports = function(o) {
             t,
             prog,
             "__filename",
-            `(typeof process !== 'undefined')?process.env.__DIRNAME:__filename`
+            `(typeof process !== 'undefined')?global.__DIRNAME:__filename`
           );
         }
       }

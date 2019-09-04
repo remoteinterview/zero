@@ -1,8 +1,6 @@
-// child process to run given lambda server
+// an express wrapper to run given handler
 const path = require("path"),
-  http = require("http"),
   url = require("url"),
-  //handlers = require("./handlers"),
   Youch = require("youch"),
   YouchTerminal = require("youch-terminal"),
   express = require("express");
@@ -10,11 +8,9 @@ const FETCH = require("node-fetch");
 const debug = require("debug")("core");
 
 const GLOBALS = require("./globals");
-//const compression = require("compression");
 const session = require("zero-express-session");
 
 const vm = require("vm");
-var BASEPATH, ENTRYFILE, LAMBDATYPE, SERVERADDRESS, BUNDLEPATH, BUNDLEINFO;
 
 process.on("unhandledRejection", (reason, p) => {
   console.log(reason);
@@ -35,25 +31,28 @@ module.exports = async (
   if (!lambdaType) throw new Error("No lambda type provided.");
   if (!serverAddress) throw new Error("Server address not provided.");
   if (!BundlePath) throw new Error("Lambda ID not provided.");
-  BASEPATH = basePath;
-  ENTRYFILE = entryFile;
-  LAMBDATYPE = lambdaType;
-  SERVERADDRESS = serverAddress;
-  BUNDLEPATH = BundlePath;
-  BUNDLEINFO = BundleInfo;
   try {
-    BUNDLEINFO = JSON.parse(BUNDLEINFO);
+    BundleInfo = JSON.parse(BundleInfo);
   } catch (e) {}
   debug(
     "Server Address",
-    SERVERADDRESS,
+    serverAddress,
     "BundlePath",
-    BUNDLEPATH,
+    BundlePath,
     "BundleInfo",
-    BUNDLEINFO
+    BundleInfo
   );
 
-  var portOrApp = await startServer(ENTRYFILE, LAMBDATYPE, handler, isModule);
+  var portOrApp = await startServer(
+    handler,
+    basePath,
+    entryFile,
+    lambdaType,
+    BundlePath,
+    BundleInfo,
+    serverAddress,
+    isModule
+  );
   if (!isModule) {
     if (process.send) process.send(portOrApp);
     else console.log("PORT", portOrApp);
@@ -62,38 +61,35 @@ module.exports = async (
   }
 };
 
-function generateFetch(req) {
+function generateFetch(req, serverAddress) {
   return function fetch(uri, options) {
     // fix relative path when running on server side.
     if (uri && uri.indexOf("://") === -1) {
-      // TODO: figure out what happens when each lambda is running on multiple servers.
-      // TODO: figure out how to forward cookies (idea: run getInitialProps in a VM with modified global.fetch that has 'req' access and thus to cookies too)
-
       // see if it's a path from root of server
       if (uri.startsWith("/")) {
-        uri = url.resolve(SERVERADDRESS, uri);
+        uri = url.resolve(serverAddress, uri);
       }
-      // // it's a relative path from current address
-      // else{
-      //   // if the fetch() is called from /blog/index.jsx the relative path ('holiday') should
-      //   // become /blog/holiday and not /holiday
-      //   // But if the caller file is /blog.jsx, it should become /holiday
-      //   var isDirectory = path.basename(ENTRYFILE).toLowerCase().startsWith("index.")
-      //   uri = path.join(req.originalUrl, isDirectory?"":"../", uri)
-      //   uri = url.resolve(SERVERADDRESS, uri)
-      // }
     }
 
     if (options && options.credentials && options.credentials === "include") {
       options.headers = req.headers;
     }
     debug("paths", req.originalUrl, req.baseUrl, req.path);
-    debug("fetching", uri, options, SERVERADDRESS);
+    debug("fetching", uri, options, serverAddress);
     return FETCH(uri, options);
   };
 }
 
-function startServer(entryFile, lambdaType, handler, isModule) {
+function startServer(
+  handler,
+  basePath,
+  entryFile,
+  lambdaType,
+  BundlePath,
+  BundleInfo,
+  serverAddress,
+  isModule
+) {
   return new Promise((resolve, reject) => {
     const file = path.resolve(entryFile);
     const app = express();
@@ -103,13 +99,11 @@ function startServer(entryFile, lambdaType, handler, isModule) {
     // bootstrap express app with session
     session(app);
 
-    // compress all responses
-    //app.use(compression({ threshold: 1 }));
-
     app.use(require("body-parser").urlencoded({ extended: true }));
     app.use(require("body-parser").json());
     // change $path into express-style :path/
-    const pathPattern = BASEPATH.split("/")
+    const pathPattern = basePath
+      .split("/")
       .map(p => {
         if (p.startsWith("$")) return ":" + p.slice(1);
         return p;
@@ -123,28 +117,34 @@ function startServer(entryFile, lambdaType, handler, isModule) {
             __Zero: {
               app,
               handler,
-              BASEPATH,
+              basePath,
               req,
               res,
               lambdaType,
-              BUNDLEPATH,
-              BUNDLEINFO,
+              BundlePath,
+              BundleInfo,
               file,
               renderError,
-              fetch: generateFetch(req)
+              __DIRNAME: path.dirname(entryFile),
+              __FILENAME: entryFile,
+              fetch: generateFetch(req, serverAddress)
             }
           },
           GLOBALS
         );
 
+        // we run the handler in it's own VM so we can inject some variables (__dirname and __filename) and global function (fetch()) to it.
+
         vm.runInNewContext(
           `
-          const { app, handler, req, res, lambdaType, BASEPATH, file, fetch, renderError, BUNDLEPATH, BUNDLEINFO } = __Zero;
+          const { app, handler, req, res, lambdaType, basePath, file, fetch, renderError, BundlePath, BundleInfo, __DIRNAME, __FILENAME } = __Zero;
           global.fetch = fetch
           global.app = app
+          global.__DIRNAME = __DIRNAME
+          global.__FILENAME = __FILENAME
 
           
-          handler(req, res, file, BUNDLEPATH, BASEPATH, BUNDLEINFO)
+          handler(req, res, file, BundlePath, basePath, BundleInfo)
           
         `,
           globals
