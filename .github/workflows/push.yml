@@ -6,6 +6,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
+    - name: Set up Python 3.7
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.7
+    - name: Install Pip
+      run: |
+        python -m pip install --upgrade pip
+        alias pip='python -m pip'
+    - name: Pip check if available
+      run: echo "PIP" && pip
+    - name: Pip check if available via python
+      run: echo "PIP via python" && pythom -m pip
     - name: npm install
       uses: actions/npm@59b64a598378f31e49cb76f27d6f3312b582f680
       with:
