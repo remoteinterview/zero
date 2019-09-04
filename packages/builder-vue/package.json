@@ -1,12 +1,12 @@
 {
   "name": "zero-builder-vue",
   "main": "index.js",
-  "version": "1.0.20-alpha.5",
+  "version": "1.0.20-alpha.8",
   "license": "Apache-2.0",
   "dependencies": {
     "mkdirp": "^0.5.1",
     "zero-dep-tree-js": "^1.0.14-alpha.0",
-    "zero-parcel-bundler": "^1.0.20-alpha.5"
+    "zero-parcel-bundler": "^1.0.20-alpha.8"
   },
   "gitHead": "9e577043290b2ad1205a24f14c4edf7329c6073d"
 }
