@@ -7,7 +7,7 @@
     "bootstrap": "cd packages/core && npm link && cd ../.. && lerna bootstrap",
     "example": "zero example",
     "exampletest": "zero test/www",
-    "test": "jest --verbose false"
+    "test": "PARCEL_WORKERS=1 jest --verbose false"
   },
   "devDependencies": {
     "cheerio": "^1.0.0-rc.2",

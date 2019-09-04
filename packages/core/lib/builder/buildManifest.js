@@ -3,10 +3,10 @@ const fs = require("fs");
 const path = require("path");
 const debug = require("debug")("core");
 const slash = require("../utils/fixPathSlashes");
-const handlers = require("zero-handlers-map");
 const builders = require("zero-builders-map");
 const nodeignore = require("../utils/zeroignore");
-const pythonFirstRun = require("zero-handlers-map")["lambda:python"].firstrun;
+const pythonFirstRun = require("zero-handlers-map").handlers["lambda:python"]
+  .firstrun;
 var pythonFirstRunCompleted = false;
 
 async function getFiles(baseSrc) {
