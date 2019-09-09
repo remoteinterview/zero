@@ -39,8 +39,9 @@ function setupEnvVariables(sourcePath) {
   require("dotenv").config({ path: path.resolve(sourcePath, ".env") });
   // Default env variables.
   process.env.PATH += ":" + resolveYarn();
-  process.env.SOURCEPATH = slash(sourcePath);
-  const DEFAULTBUILDPATH = path.join(sourcePath, ".zero");
+  // we resolve the absolute path of source directory to avoid confusion in bundlers and handlers
+  process.env.SOURCEPATH = slash(path.resolve(sourcePath));
+  const DEFAULTBUILDPATH = path.join(process.env.SOURCEPATH, ".zero");
   process.env.PORT = process.env.PORT || 3000;
   process.env.SESSION_TTL =
     process.env.SESSION_TTL || 1000 * 60 * 60 * 24 * 365; // 1 year

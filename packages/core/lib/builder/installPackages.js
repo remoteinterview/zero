@@ -163,7 +163,7 @@ function installPackages(buildPath, filterFiles) {
 
 async function writePackageJSON(buildPath, deps) {
   // first load current package.json if present
-  var pkgjsonPath = path.join(buildPath, "/package.json");
+  var pkgjsonPath = path.join(process.env.SOURCEPATH, "/package.json");
   var newDepsFound = false;
   var pkg = {
     name: "zero-app",
