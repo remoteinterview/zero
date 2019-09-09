@@ -15,7 +15,10 @@ module.exports = async () => {
   // install pip first
   var getPip = await getPipInstaller();
   return new Promise((resolve, reject) => {
-    var child = spawn(pythonExe, [getPip, "install", "--user"]);
+    var child = spawn(pythonExe, [getPip, "--user"]);
+    child.stderr.on("data", data => {
+      console.error(`get-pip.py: ${data}`);
+    });
     child.on("close", async () => {
       var pip = await getPipExe();
 
@@ -31,8 +34,8 @@ module.exports = async () => {
 
 function getPipExe() {
   const pip =
-    which.sync("pip", { nothrow: true }) ||
-    which.sync("pip3", { nothrow: true });
+    which.sync("pip3", { nothrow: true }) ||
+    which.sync("pip", { nothrow: true });
   if (pip) {
     return pip;
   }
