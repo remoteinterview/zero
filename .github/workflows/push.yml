@@ -2,24 +2,30 @@ on: push
 name: Test
 jobs:
   npmInstall:
-    name: npm install
-    runs-on: ubuntu-latest
+    name: ${{ matrix.os }} + node ${{ matrix.node }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-18.04, macOS-latest]
+        node: [8, 10, 12]
     steps:
     - uses: actions/checkout@master
     - uses: actions/setup-python@v1
     - name: npm install
-      uses: actions/npm@59b64a598378f31e49cb76f27d6f3312b582f680
+      uses: actions/setup-node@v1
       with:
-        entrypoint: npm
-        args: install
+          node-version: ${{ matrix.node }}
+    - run: npm install
     - name: bootstrap
-      uses: actions/npm@59b64a598378f31e49cb76f27d6f3312b582f680
+      uses: actions/setup-node@v1
       with:
-        entrypoint: npm
-        args: run bootstrap
+          node-version: ${{ matrix.node }}
+    - run: npm run bootstrap
     - name: test
-      uses: actions/npm@59b64a598378f31e49cb76f27d6f3312b582f680
+      uses: actions/setup-node@v1
       with:
-        python-version: 3.7
-        entrypoint: npm
-        args: test
+          node-version: ${{ matrix.node }}
+          python-version: 3.7
+    - run: npm test
+      env: 
+        PARCEL_WORKERS: 1
