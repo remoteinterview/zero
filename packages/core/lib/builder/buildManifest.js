@@ -23,17 +23,17 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
   var date = Date.now();
   var files = await getFiles(buildPath);
   files = files.filter(
-    f =>
-      relativePath(f).indexOf("node_modules") === -1 &&
-      relativePath(f).indexOf("zero-builds") === -1
+    file =>
+      relativePath(file).indexOf("node_modules") === -1 &&
+      relativePath(file).indexOf("zero-builds") === -1
   );
 
   var json = await Promise.all(
-    files.map(async (file, i) => {
+    files.map(async (file) => {
       const extension = path.extname(file);
       file = path.normalize(file);
       // if old manifest is given and a file filter is given, we skip those not in filter
-      if (oldManifest && fileFilter && fileFilter.length > 0) {
+      if (oldManifest && fileFilter && fileFilter.length) {
         var normalizedFile = file;
         if (fileFilter.indexOf(normalizedFile) === -1) {
           var endpoint = oldManifest.lambdas.find(lambda => {
@@ -47,55 +47,57 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
       // first check if filename (or the folder it resides in) is in zeroignore, ignore those.
       var fileRelative = relativePath(file);
       if (zeroignore.ignores(fileRelative)) return false;
-      // check if js file is a js lambda function
-      if (extension === ".js" || extension === ".ts") {
-        return [file, "lambda:js"];
-      }
 
-      // check if a react component
-      // md/mdx is also rendered by react lambda
-      if (
-        extension === ".jsx" ||
-        extension === ".tsx" ||
-        extension === ".mdx" ||
-        extension === ".md"
-      ) {
-        return [file, "lambda:react"];
-      }
+      switch (extension) {
 
-      if (extension === ".vue") {
-        return [file, "lambda:vue"];
-      }
+        // check if js file is a js lambda function
+        case ".js":
+        case ".ts":
+          return [file, "lambda:js"];
 
-      // Python Lambda
-      if (extension === ".py") {
-        // also run python first run if not run already
-        if (!pythonFirstRunCompleted) {
-          pythonFirstRun(buildPath).catch(e => console.error(e));
-          pythonFirstRunCompleted = true;
-        }
-        return [file, "lambda:python"];
-      }
+        // check if a react component
+        // md/mdx is also rendered by react lambda
+        case ".jsx":
+        case ".tsx":
+        case ".mdx":
+        case ".md":
+          return [file, "lambda:react"];
 
-      if (extension === ".htm" || extension === ".html") {
-        return [file, "lambda:html"];
-      }
 
-      if (extension === ".json") {
-        // check if this is a proxy path
-        // avoid reading large json files as they are likely not our proxy path config
-        if (fs.statSync(file).size < 10 * 1024) {
-          try {
-            var json = JSON.parse(fs.readFileSync(file, "utf8"));
-            if (json && json.type && json.type === "proxy") {
-              return [file, "lambda:proxy"];
-            }
-          } catch (e) {} // bad json probably, skip
-        }
-      }
+        case ".vue":
+          return [file, "lambda:vue"];
 
-      // catch all, static / cdn hosting
-      return false;
+        // Python Lambda
+        case ".py":
+          // also run python first run if not run already
+          if (!pythonFirstRunCompleted) {
+            pythonFirstRun(buildPath).catch(e => console.error(e));
+            pythonFirstRunCompleted = true;
+          }
+          return [file, "lambda:python"];
+
+
+        case ".html":
+        case ".htm":
+          return [file, "lambda:html"];
+
+        case ".json":
+          // check if this is a proxy path
+          // avoid reading large json files as they are likely not our proxy path config
+          if (fs.statSync(file).size < 10 * 1024) {
+            try {
+              var json = JSON.parse(fs.readFileSync(file, "utf8"));
+              if (json && json.type && json.type === "proxy") {
+                return [file, "lambda:proxy"];
+              }
+            } catch (e) { } // bad json probably, skip
+          }
+
+        // catch all, static / cdn hosting
+        default:
+          return false;
+
+      }
     })
   );
 
@@ -144,7 +146,7 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
   // this is useful when a file is changed and we need to rebuild all the
   // lambdas depending on that file.
   var fileToLambdas = {};
-  lambdas.forEach((endpoint, i) => {
+  lambdas.forEach((endpoint) => {
     endpoint[3].forEach(file => {
       fileToLambdas[file] = fileToLambdas[file] || [];
       fileToLambdas[file].push(endpoint[1]);
@@ -156,10 +158,13 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
 
 // get all relative files imported by this entryFile
 function dependencyTree(type, entryFile) {
-  // console.log("deptree?", type, builders[type])
-  if (builders[type] && builders[type].getRelatedFiles)
-    return builders[type].getRelatedFiles(entryFile);
-  else return []; //no tree walker found for this lambda type
+  const buildersType = builders[type];
+
+  if (buildersType && buildersType.getRelatedFiles) {
+    return buildersType.getRelatedFiles(entryFile);
+  } else {
+    return []; //no tree walker found for this lambda type
+  }
 }
 
 module.exports = buildManifest;
