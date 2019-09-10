@@ -52,18 +52,6 @@ function setupEnvVariables(sourcePath) {
   mkdirp.sync(process.env.BUILDPATH);
 }
 
-// npmi module sometime prevents Ctrl+C to shut down server. This helps do that.
-if (process.platform === "win32") {
-  var rl = require("readline").createInterface({
-    input: process.stdin,
-    output: process.stdout
-  });
-
-  rl.on("SIGINT", function() {
-    process.emit("SIGINT");
-  });
-}
-
 process.on("SIGINT", function() {
   //graceful shutdown
   process.exit();
