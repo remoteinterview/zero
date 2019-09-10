@@ -102,7 +102,13 @@ function getBundleInfo(endpointData) {
 
     const child = fork(bundlerProgram, parameters, options);
     child.on("message", message => {
-      lambdaIdToBundleInfo[lambdaID] = { info: message, process: child };
+      lambdaIdToBundleInfo[lambdaID] = {
+        info: message,
+        process: child,
+        created: Date.now(),
+        path: endpointData[0]
+      };
+      checkForBundlerCleanup();
       return resolve(lambdaIdToBundleInfo[lambdaID]);
     });
 
@@ -111,6 +117,38 @@ function getBundleInfo(endpointData) {
       delete lambdaIdToBundleInfo[lambdaID];
     });
   });
+}
+
+// shutdown older than N bundlers.
+// this feature is only available in dev mode
+// (and currently enabled only by env flag)
+// this is useful in tests, when 10s of bundlers are starting
+// and sitting idle, taking memory, and slowing tests overall.
+function checkForBundlerCleanup() {
+  if (process.env.ZERO_LIMIT_BUNDLERS) {
+    var lastN = parseInt(process.env.ZERO_LIMIT_BUNDLERS);
+    if (lastN <= 0) lastN = 10;
+    var arr = Object.keys(lambdaIdToBundleInfo)
+      .map(lambdaID => {
+        return { ...lambdaIdToBundleInfo[lambdaID], id: lambdaID };
+      })
+      .sort((a, b) => {
+        return a.created > b.created;
+      });
+
+    if (arr.length > lastN) {
+      // kill older than N
+      arr = arr.slice(0, arr.length - lastN);
+      arr.forEach(data => {
+        if (data.process) {
+          debug("killing bundler", data.path);
+          lambdaIdToBundleInfo[data.id].process.kill();
+          delete lambdaIdToBundleInfo[data.id];
+          delete lambdaIdToHandler[data.id]; // handler will need new bundleInfo too
+        }
+      });
+    }
+  }
 }
 
 // a promise to keep waiting until manifest is available.

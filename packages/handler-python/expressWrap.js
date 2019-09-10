@@ -22,7 +22,11 @@ async function proxyRequest(port, req, res) {
   var proxyRes;
   try {
     proxyRes = await fetch(lambdaAddress + req.url, options);
-  } catch (e) {}
+  } catch (e) {
+    console.error(e);
+    res.end();
+    return;
+  }
 
   // Forward status code
   res.statusCode = proxyRes.status;
