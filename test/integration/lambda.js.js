@@ -55,13 +55,13 @@ test("API With TypeScript", () => {
 test("__dirname correctly set", () => {
   //expect.assertions(1);
   return get("/api/dirname", { json: true }).then(data => {
-    expect(data.dirname.endsWith("/api")).toBe(true);
+    expect(data.dirname.endsWith("api")).toBe(true);
   });
 });
 
 test("__filename correctly set", () => {
   //expect.assertions(1);
   return get("/api/dirname", { json: true }).then(data => {
-    expect(data.filename.endsWith("/dirname.js")).toBe(true);
+    expect(data.filename.endsWith("dirname.js")).toBe(true);
   });
 });
