@@ -35,6 +35,7 @@ module.exports = async (
     child.stdio[4].on("data", async function(message) {
       await waitPort({
         port: parseInt(message.toString()),
+        output: "silent",
         timeout: 1000 * 60 * 2 // 2 Minutes
       });
       if (isModule) resolve(expressWrap(message.toString().trim()));
