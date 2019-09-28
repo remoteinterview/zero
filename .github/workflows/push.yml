@@ -30,3 +30,4 @@ jobs:
       env: 
         PARCEL_WORKERS: 1
         ZERO_LIMIT_BUNDLERS: 5
+        HMRWAITTIME: 20000

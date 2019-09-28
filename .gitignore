@@ -7,4 +7,5 @@ zero-builds
 *.log
 test/www/package.json
 test/www/.gitignore
+test/www/hmr/*
 packages/handler-python/get-pip.py

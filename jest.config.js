@@ -8,6 +8,7 @@ module.exports = {
     "**/test/integration/**/*.[jt]s?(x)",
     "**/?(*.)+(spec|test).[jt]s?(x)"
   ],
+  testPathIgnorePatterns: ["/node_modules/", "/test/integration/hmr.codes.js"],
   globalSetup: "<rootDir>/jest-global-setup.js",
   globalTeardown: "<rootDir>/jest-global-teardown.js",
   setupFilesAfterEnv: ["<rootDir>/jest.setup.js"]
