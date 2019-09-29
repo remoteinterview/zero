@@ -86,6 +86,8 @@ module.exports = async (
 const createEntry = componentPath => {
   return `
 var React = require("react")
+import { Helmet, HelmetProvider } from 'react-helmet-async';
+
 // require("@babel/polyfill");
 
 // we add React to global scope to allow react pages without require('react') in them.
@@ -99,7 +101,13 @@ const props = JSON.parse(
   initial_props.innerHTML
 )
 const el = React.createElement(App, props)
-hydrate(el, document.getElementById("_react_root"))
+
+const helmetApp = (
+  <HelmetProvider>
+    {el}
+  </HelmetProvider>
+)
+hydrate(helmetApp, document.getElementById("_react_root"))
 `;
 };
 

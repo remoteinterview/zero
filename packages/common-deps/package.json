@@ -18,7 +18,7 @@
     "postcss-modules": "1.4.1",
     "react": "^16.8.1",
     "react-dom": "^16.8.1",
-    "react-helmet": "^5.2.0",
+    "react-helmet-async": "^1.0.3",
     "react-hot-loader": "^4.12.12",
     "regenerator-runtime": "^0.12.0",
     "sass": "^1.17.2",

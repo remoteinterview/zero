@@ -16,7 +16,7 @@ var notToBeLinked = [
 var toBeInstalledLocally = notToBeLinked.concat([
   "react",
   "react-dom",
-  "react-helmet",
+  "react-helmet-async",
   "react-hot-loader",
   "@hot-loader/react-dom",
   "vue",
