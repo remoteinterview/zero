@@ -26,10 +26,10 @@ import License from './license.md'
 
 ## Populating `<head>`
 
-Zero turns your Markdown into HTML page, you might want to set head tags of this page like `<title>`, `<meta>`, etc. for improved SEO. Zero has [React Helmet](https://github.com/nfl/react-helmet) set up which you can also use in your `.md` and `.mdx` files:
+Zero turns your Markdown into HTML page, you might want to set head tags of this page like `<title>`, `<meta>`, etc. for improved SEO. Zero has [React Helmet Async](https://github.com/staylor/react-helmet-async) set up which you can also use in your `.md` and `.mdx` files:
 
 ```markdown
-import {Helmet} from "react-helmet";
+import {Helmet} from "react-helmet-async";
 
 <Helmet>
   <meta charset="ISO-8859-1" />

@@ -16,7 +16,7 @@ const { renderToString } = localRequire("react-dom/server");
 // we use client's helmet instance to avoid two Helmet instances to be loaded.
 // see: https://github.com/nfl/react-helmet/issues/125
 // and https://stackoverflow.com/questions/45822925/react-helmet-outputting-empty-strings-on-server-side
-const { Helmet } = localRequire("react-helmet");
+const { Helmet, HelmetProvider } = localRequire("react-helmet-async");
 
 const jsonStringify = require("json-stringify-safe");
 var ssrCrashWarned = false;
@@ -107,8 +107,14 @@ async function generateComponent(
       ? await createAsyncElement(App, props)
       : React.createElement(App, props);
 
-    const html = renderToString(el);
-    const helmet = Helmet.renderStatic();
+    const helmetContext = {};
+    const helmetEl = React.createElement(
+      HelmetProvider,
+      { context: helmetContext },
+      el
+    );
+    const html = renderToString(helmetEl);
+    const { helmet } = helmetContext; //Helmet.renderStatic();
 
     // determine if the user has provided with <meta charset />,
     // if not, add a default tag with utf8
