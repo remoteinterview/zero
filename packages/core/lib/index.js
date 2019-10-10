@@ -50,6 +50,7 @@ function setupEnvVariables(sourcePath) {
 
   // create the build folder if not present already
   mkdirp.sync(process.env.BUILDPATH);
+  mkdirp.sync(path.join(process.env.BUILDPATH, ".zero"));
 }
 
 process.on("SIGINT", function() {

@@ -190,10 +190,6 @@ async function writePackageJSON(buildPath, deps) {
     pkg.dependencies = depsJson;
   }
 
-  // need this alias for hot reload features of React 16+ to work.
-  pkg.alias = pkg.alias || {};
-  pkg.alias["react-dom"] = "@hot-loader/react-dom";
-
   // append user's imported packages (only if not already defined in package.json)
   for (var i in deps) {
     const dep = deps[i];
@@ -201,47 +197,6 @@ async function writePackageJSON(buildPath, deps) {
       newDepsFound = true;
       pkg.dependencies[dep] = await getNPMVersion(dep);
     }
-  }
-
-  // write a pkg.json into tmp buildpath
-  fs.writeFileSync(
-    path.join(buildPath, "/package.json"),
-    JSON.stringify(pkg, null, 2),
-    "utf8"
-  );
-
-  // // merge babelrc with user's babelrc (if present in user project)
-  var babelPath = path.join(buildPath, "/.babelrc");
-  var babelSrcPath = path.join(process.env.SOURCEPATH, "/.babelrc");
-  var finalBabelConfig = {};
-  if (fs.existsSync(babelSrcPath)) {
-    try {
-      var userBabelConfig = JSON.parse(fs.readFileSync(babelSrcPath));
-      finalBabelConfig = deepmerge(babelConfig, userBabelConfig);
-    } catch (e) {
-      // couldn't read the file
-      finalBabelConfig = babelConfig;
-    }
-  } else {
-    finalBabelConfig = babelConfig;
-  }
-
-  //console.log(JSON.stringify(finalBabelConfig, null, 2))
-  fs.writeFileSync(
-    babelPath,
-    JSON.stringify(finalBabelConfig, null, 2),
-    "utf8"
-  );
-
-  var htmlnanoPath = path.join(buildPath, "/.htmlnanorc");
-  var htmlnanoSrcPath = path.join(process.env.SOURCEPATH, "/.htmlnanorc");
-  // only write htmlnano file if not overriden by user
-  if (!fs.existsSync(htmlnanoSrcPath)) {
-    fs.writeFileSync(
-      htmlnanoPath,
-      JSON.stringify(htmlnanoConfig, null, 2),
-      "utf8"
-    );
   }
 
   // also save any newfound deps into user's pkg.json
@@ -258,6 +213,40 @@ async function writePackageJSON(buildPath, deps) {
       "utf8"
     );
   }
+
+  // need this alias for hot reload features of React 16+ to work.
+  pkg.alias = pkg.alias || {};
+  pkg.alias["react-dom"] = "@hot-loader/react-dom";
+
+  // merge babelrc with user's babelrc (if present in user project)
+  var babelSrcPath = path.join(process.env.SOURCEPATH, "/.babelrc");
+  var finalBabelConfig = {};
+  if (fs.existsSync(babelSrcPath)) {
+    try {
+      var userBabelConfig = JSON.parse(fs.readFileSync(babelSrcPath));
+      finalBabelConfig = deepmerge(babelConfig, userBabelConfig);
+    } catch (e) {
+      // couldn't read the file
+      finalBabelConfig = babelConfig;
+    }
+  } else {
+    finalBabelConfig = babelConfig;
+  }
+
+  pkg["babel"] = finalBabelConfig;
+
+  var htmlnanoSrcPath = path.join(process.env.SOURCEPATH, "/.htmlnanorc");
+  // // only write htmlnano file if not overriden by user
+  if (!fs.existsSync(htmlnanoSrcPath)) {
+    pkg["htmlnano"] = htmlnanoConfig;
+  }
+
+  // write a pkg.json into tmp buildpath
+  fs.writeFileSync(
+    path.join(buildPath, ".zero", "package.json"),
+    JSON.stringify(pkg, null, 2),
+    "utf8"
+  );
 
   // add a .gitignore if not added by user
   var gitignorePath = path.join(process.env.SOURCEPATH, "/.gitignore");

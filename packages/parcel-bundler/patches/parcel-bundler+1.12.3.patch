@@ -1,0 +1,83 @@
+diff --git a/node_modules/parcel-bundler/src/Resolver.js b/node_modules/parcel-bundler/src/Resolver.js
+index 825e45d..5488261 100755
+--- a/node_modules/parcel-bundler/src/Resolver.js
++++ b/node_modules/parcel-bundler/src/Resolver.js
+@@ -424,7 +424,12 @@ class Resolver {
+     let root = path.parse(dir).root;
+     while (dir !== root && path.basename(dir) !== 'node_modules') {
+       try {
+-        return await this.readPackage(dir);
++        if (dir===process.env.BUILDPATH) {
++          dir = path.join(dir, ".zero") 
++        }
++        var pkg = await this.readPackage(dir);
++        
++        return pkg
+       } catch (err) {
+         // ignore
+       }
+diff --git a/node_modules/parcel-bundler/src/transforms/babel/babelrc.js b/node_modules/parcel-bundler/src/transforms/babel/babelrc.js
+index 7dc101b..017c43e 100644
+--- a/node_modules/parcel-bundler/src/transforms/babel/babelrc.js
++++ b/node_modules/parcel-bundler/src/transforms/babel/babelrc.js
+@@ -170,9 +170,9 @@ async function getBabelVersion(asset, plugins) {
+   // or a new app that just added a .babelrc without manually installing a version of babel core.
+   // We will attempt to infer a verison of babel and install it based on the dependencies of the plugins
+   // in the config. This should only happen once since we save babel core into package.json for subsequent runs.
+-  let inferred = await inferBabelVersion(asset, plugins);
+-  let name = inferred === 6 ? 'babel-core' : `@babel/core`;
+-  await installPackage(name, asset.name);
++  let inferred = 7
++  // let name = inferred === 6 ? 'babel-core' : `@babel/core`;
++  // await installPackage(name, asset.name);
+   return inferred;
+ }
+ 
+diff --git a/node_modules/parcel-bundler/src/utils/localRequire.js b/node_modules/parcel-bundler/src/utils/localRequire.js
+index 68ab1e3..5c55454 100644
+--- a/node_modules/parcel-bundler/src/utils/localRequire.js
++++ b/node_modules/parcel-bundler/src/utils/localRequire.js
+@@ -1,25 +1,33 @@
+-const {dirname} = require('path');
+-const {promisify} = require('@parcel/utils');
+-const resolve = promisify(require('resolve'));
+-const installPackage = require('./installPackage');
+-const getModuleParts = require('./getModuleParts');
++const { dirname } = require("path");
++const { promisify } = require("@parcel/utils");
++const resolve = promisify(require("resolve"));
++const installPackage = require("./installPackage");
++const getModuleParts = require("./getModuleParts");
+ 
+ const cache = new Map();
+-
++// const commonDeps = require(process.env.ZERO_COMMON_DEPS_PATH)
+ async function localRequire(name, path, triedInstall = false) {
+   let [resolved] = await localResolve(name, path, triedInstall);
+   return require(resolved);
+ }
+ 
+-async function localResolve(name, path, triedInstall = false) {
++async function localResolve(name, path, triedInstall = true) {
+   let basedir = dirname(path);
+-  let key = basedir + ':' + name;
++  let key = basedir + ":" + name;
+   let resolved = cache.get(key);
+   if (!resolved) {
+     try {
+-      resolved = await resolve(name, {basedir});
++      try {
++        resolved = await resolve(name, { basedir });
++        // console.log('found', name, "in common deps")
++      } catch (e) {
++        resolved = await resolve(name, {
++          basedir: process.env.ZERO_COMMON_DEPS_PATH
++        });
++        // console.log('found', name, "in user's deps")
++      }
+     } catch (e) {
+-      if (e.code === 'MODULE_NOT_FOUND' && !triedInstall) {
++      if (e.code === "MODULE_NOT_FOUND" && !triedInstall) {
+         const packageName = getModuleParts(name)[0];
+         await installPackage(packageName, path);
+         return localResolve(name, path, true);
