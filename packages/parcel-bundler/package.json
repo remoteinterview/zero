@@ -4,11 +4,12 @@
   "version": "1.0.20-alpha.9",
   "license": "Apache-2.0",
   "scripts": {
-    "postinstall": "patch-package"
+    "postinstall": "patch-package",
+    "save-patch": "npx patch-package parcel-bundler"
   },
   "dependencies": {
     "@mdx-js/parcel-plugin-mdx": "^0.17.4",
-    "parcel-bundler": "^1.11.0",
+    "parcel-bundler": "^1.12.3",
     "zero-common-deps": "^1.0.20-alpha.9",
     "patch-package": "^6.2.0"
   },

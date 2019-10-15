@@ -26,7 +26,9 @@ module.exports = async (
     path.dirname(filename),
     "/entry." + sha1(filename) + ".js"
   );
-  const entry = createEntry(path.basename(filename));
+  const entry = createEntry(
+    path.relative(path.dirname(entryFileName), filename)
+  );
   // save entry code in a file and feed it to parcel
   fs.writeFileSync(entryFileName, entry, "utf8");
 
@@ -35,6 +37,7 @@ module.exports = async (
     outDir: bundlePath,
     outFile: targetNode ? "bundle.node.js" : "bundle.js",
     publicUrl: publicBundlePath,
+    rootDir: process.env.SOURCEPATH,
     watch: !process.env.ISBUILDER,
     hmr: ISDEV && !process.env.ISBUILDER && !targetNode,
     logLevel: 2,

@@ -1,17 +1,16 @@
 diff --git a/node_modules/parcel-bundler/src/Resolver.js b/node_modules/parcel-bundler/src/Resolver.js
-index 825e45d..5488261 100755
+index 825e45d..e09b246 100755
 --- a/node_modules/parcel-bundler/src/Resolver.js
 +++ b/node_modules/parcel-bundler/src/Resolver.js
-@@ -424,7 +424,12 @@ class Resolver {
+@@ -424,7 +424,11 @@ class Resolver {
      let root = path.parse(dir).root;
      while (dir !== root && path.basename(dir) !== 'node_modules') {
        try {
 -        return await this.readPackage(dir);
-+        if (dir===process.env.BUILDPATH) {
-+          dir = path.join(dir, ".zero") 
++        if (dir===process.env.SOURCEPATH) {
++          dir = process.env.BUILDPATH
 +        }
 +        var pkg = await this.readPackage(dir);
-+        
 +        return pkg
        } catch (err) {
          // ignore
@@ -34,10 +33,10 @@ index 7dc101b..017c43e 100644
  }
  
 diff --git a/node_modules/parcel-bundler/src/utils/localRequire.js b/node_modules/parcel-bundler/src/utils/localRequire.js
-index 68ab1e3..5c55454 100644
+index 68ab1e3..48de685 100644
 --- a/node_modules/parcel-bundler/src/utils/localRequire.js
 +++ b/node_modules/parcel-bundler/src/utils/localRequire.js
-@@ -1,25 +1,33 @@
+@@ -1,25 +1,30 @@
 -const {dirname} = require('path');
 -const {promisify} = require('@parcel/utils');
 -const resolve = promisify(require('resolve'));
@@ -51,7 +50,6 @@ index 68ab1e3..5c55454 100644
  
  const cache = new Map();
 -
-+// const commonDeps = require(process.env.ZERO_COMMON_DEPS_PATH)
  async function localRequire(name, path, triedInstall = false) {
    let [resolved] = await localResolve(name, path, triedInstall);
    return require(resolved);
@@ -68,12 +66,10 @@ index 68ab1e3..5c55454 100644
 -      resolved = await resolve(name, {basedir});
 +      try {
 +        resolved = await resolve(name, { basedir });
-+        // console.log('found', name, "in common deps")
 +      } catch (e) {
 +        resolved = await resolve(name, {
 +          basedir: process.env.ZERO_COMMON_DEPS_PATH
 +        });
-+        // console.log('found', name, "in user's deps")
 +      }
      } catch (e) {
 -      if (e.code === 'MODULE_NOT_FOUND' && !triedInstall) {

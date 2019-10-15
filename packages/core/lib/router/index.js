@@ -94,7 +94,7 @@ function getBundleInfo(endpointData) {
       endpointData[0],
       endpointData[1],
       endpointData[2],
-      "zero-builds/" + lambdaID
+      ".zero/zero-builds/" + lambdaID
     ];
     const options = {
       stdio: [0, 1, 2, "ipc"]

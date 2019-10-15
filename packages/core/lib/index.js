@@ -50,7 +50,7 @@ function setupEnvVariables(sourcePath) {
 
   // create the build folder if not present already
   mkdirp.sync(process.env.BUILDPATH);
-  mkdirp.sync(path.join(process.env.BUILDPATH, ".zero"));
+  // mkdirp.sync(path.join(process.env.BUILDPATH, ".zero"));
 }
 
 process.on("SIGINT", function() {
@@ -62,7 +62,7 @@ function server(path) {
   setupEnvVariables(path);
   console.log(`\x1b[2m⚡️ Zero ${pkg.version ? `v${pkg.version}` : ""}\x1b[0m`);
   var updateManifestFn = startRouter(
-    /*manifest, forbiddenFiles,*/ process.env.BUILDPATH
+    /*manifest, forbiddenFiles,*/ process.env.SOURCEPATH
   );
   return new Promise((resolve, reject) => {
     build(
@@ -285,7 +285,7 @@ function builder(sourcePath) {
             "_config",
             ".babelrc"
           ),
-          fs.readFileSync(path.join(process.env.BUILDPATH, ".babelrc"))
+          fs.readFileSync(path.join(process.env.SOURCEPATH, ".babelrc"))
         );
 
         // save a file hash map

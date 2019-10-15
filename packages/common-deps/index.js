@@ -18,6 +18,7 @@ var toBeInstalledLocally = notToBeLinked.concat([
   "react-dom",
   "react-helmet-async",
   "react-hot-loader",
+  // "babel-preset-zeroserver",
   "@hot-loader/react-dom",
   "vue",
   "vue-template-compiler",

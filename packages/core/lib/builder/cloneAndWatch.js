@@ -9,26 +9,28 @@ const del = require("del");
 require("colors");
 const debug = require("debug")("core");
 const ISDEV = process.env.NODE_ENV !== "production";
-const slash = require("../utils/fixPathSlashes");
-const createDirIfNotExist = require("../utils/createDirIfNotExist.js");
+// const slash = require("../utils/fixPathSlashes");
+// const createDirIfNotExist = require("../utils/createDirIfNotExist.js");
 
 module.exports = async (options, onWatchUpdate) => {
   var isWatching = false;
-  const target = options.target;
-  const sources = options.sources;
-  const parents = [...new Set(sources.map(globParent))];
+  // const target = options.target;
+  const sourcePath = options.sourcePath;
+  const buildPath = options.buildPath;
+  // const sources = options.sources;
+  // const parents = [...new Set(sources.map(globParent))];
 
-  const findTarget = from => {
-    from = slash(from);
-    const parent = parents
-      .filter(p => from.indexOf(p) >= 0)
-      .sort()
-      .reverse()[0];
-    return path.join(target, path.relative(parent, from));
-  };
+  // const findTarget = from => {
+  //   from = slash(from);
+  //   const parent = parents
+  //     .filter(p => from.indexOf(p) >= 0)
+  //     .sort()
+  //     .reverse()[0];
+  //   return path.join(target, path.relative(parent, from));
+  // };
 
   const copy = from => {
-    const relativePath = path.relative(process.env.SOURCEPATH, from);
+    const relativePath = path.relative(sourcePath, from);
     if (
       relativePath.indexOf("node_modules") !== -1 ||
       relativePath.indexOf(".git") !== -1 ||
@@ -38,84 +40,85 @@ module.exports = async (options, onWatchUpdate) => {
       return;
     }
 
-    // don't copy zero-builds folder (only in dev mode)
+    // don't trigger for zero-builds folder (only in dev mode)
     if (ISDEV && relativePath.indexOf("zero-builds") !== -1) {
       return;
     }
 
-    const to = findTarget(from);
-    createDirIfNotExist(to);
-    const stats = fs.statSync(from);
-    if (stats.isDirectory()) {
-      return;
-    }
-    fs.writeFileSync(to, fs.readFileSync(from));
-    debug("[COPY]".yellow, from, "to".yellow, to);
-    if (isWatching && onWatchUpdate) onWatchUpdate("add", to);
+    // const to = findTarget(from);
+    // createDirIfNotExist(to);
+    // const stats = fs.statSync(from);
+    // if (stats.isDirectory()) {
+    //   return;
+    // }
+    // fs.writeFileSync(to, fs.readFileSync(from));
+    // debug("[COPY]".yellow, from, "to".yellow, to);
+    if (isWatching && onWatchUpdate) onWatchUpdate("add", from);
   };
   const remove = from => {
-    const relativePath = path.relative(process.env.SOURCEPATH, from);
+    const relativePath = path.relative(sourcePath, from);
     if (
       relativePath.indexOf("node_modules") !== -1 ||
       relativePath.indexOf("zero-builds") !== -1
     ) {
       return;
     }
-    const to = findTarget(from);
-    try {
-      fs.unlinkSync(to);
-      debug("[DELETE]".yellow, to);
-      if (isWatching && onWatchUpdate) onWatchUpdate("remove", to);
-    } catch (e) {}
+    if (isWatching && onWatchUpdate) onWatchUpdate("remove", from);
+    // const to = findTarget(from);
+    // try {
+    //   fs.unlinkSync(to);
+    //   debug("[DELETE]".yellow, to);
+    //   if (isWatching && onWatchUpdate) onWatchUpdate("remove", to);
+    // } catch (e) {}
   };
-  const rimraf = dir => {
-    // don't remove node_modules
-    if (dir.indexOf("node_modules") !== -1) {
-      return;
-    }
-    if (fs.existsSync(dir)) {
-      fs.readdirSync(dir).forEach(entry => {
-        const entryPath = path.join(dir, entry);
-        if (fs.lstatSync(entryPath).isDirectory()) {
-          rimraf(entryPath);
-        } else {
-          fs.unlinkSync(entryPath);
-        }
-      });
-      fs.rmdirSync(dir);
-    }
-  };
+  // const rimraf = dir => {
+  //   // don't remove node_modules
+  //   if (dir.indexOf("node_modules") !== -1) {
+  //     return;
+  //   }
+  //   if (fs.existsSync(dir)) {
+  //     fs.readdirSync(dir).forEach(entry => {
+  //       const entryPath = path.join(dir, entry);
+  //       if (fs.lstatSync(entryPath).isDirectory()) {
+  //         rimraf(entryPath);
+  //       } else {
+  //         fs.unlinkSync(entryPath);
+  //       }
+  //     });
+  //     fs.rmdirSync(dir);
+  //   }
+  // };
 
   // clean
   if (options.clean) {
-    var paths = [path.join(target, "/**"), "!" + target];
+    var paths = [path.join(buildPath, "/**"), "!" + buildPath];
     if (!options.cleanModules) {
-      paths.push("!" + path.join(target, "/node_modules/**"));
+      // paths.push("!" + path.join(buildPath, "/node_modules/**"));
       //paths.push("!" + path.join(target, "/package-lock.json"));
-      paths.push("!" + path.join(target, "/yarn.lock"));
+      paths.push("!" + path.join(buildPath, "/yarn.lock"));
     }
     // if running in prod mode, also avoid deleting builds.
     //if (!ISDEV) paths.push('!'+path.join(target, '/zero-builds/**') )
 
-    await del(paths.map(p => slash(p)), { force: true });
+    // await del(paths.map(p => slash(p)), { force: true });
   }
 
   // initial copy
-  sources.forEach(s =>
-    glob.sync(s, { dot: true, ignore: ["**/.zero/**"] }).forEach(copy)
-  );
+  // sources.forEach(s =>
+  //   glob.sync(s, { dot: true, ignore: ["**/.zero/**"] }).forEach(copy)
+  // );
 
   if (onWatchUpdate) onWatchUpdate("ready");
   // watch
   if (options.watch) {
     // chokidar glob doesn't work with backward slashes
     chokidar
-      .watch(sources.map(s => slash(s)), {
+      .watch(path.join(sourcePath, "/**/*"), {
         ignoreInitial: true,
         ignored: "**/.zero/**"
       })
       .on("ready", () => {
-        debug("[WATCHING]".yellow, sources);
+        debug("[WATCHING]".yellow, sourcePath);
         isWatching = true;
       })
       .on("add", copy)

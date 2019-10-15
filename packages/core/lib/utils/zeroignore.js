@@ -13,8 +13,10 @@ const nodeignore = require("ignore").default;
 const path = require("path");
 const fs = require("fs");
 const DEFAULTIGNORES = [
-  "_*",
+  // block all . files/folders
   ".*",
+  // block all _ files
+  "_*",
   "node_modules/*",
   "package.json",
   "package-lock.json",
@@ -35,7 +37,7 @@ module.exports = () => {
     zeroignore.add(DEFAULTIGNORES);
 
     // read .zeroignore file if present
-    var zeroignorePath = path.join(process.env.BUILDPATH, ".zeroignore");
+    var zeroignorePath = path.join(process.env.SOURCEPATH, ".zeroignore");
     if (fs.existsSync(zeroignorePath)) {
       zeroignore.add(fs.readFileSync(zeroignorePath, "utf8"));
     }

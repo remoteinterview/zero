@@ -29,6 +29,8 @@ module.exports = async function build(
     {
       sources: [path.join(sourcePath, "/**/*")],
       target: buildPath,
+      buildPath,
+      sourcePath,
       watch: isBuilder || !ISDEV ? false : true,
       clean: true,
       cleanModules: isBuilder
@@ -61,9 +63,10 @@ module.exports = async function build(
 
         debug("filesUpdated", filesUpdated);
         const { manifest, forbiddenFiles, dependencies } = await updateManifest(
-          buildPath,
+          sourcePath,
           currentManifest,
-          filesUpdated
+          filesUpdated,
+          buildPath
         );
         currentManifest = manifest;
         var serverAddress =
@@ -99,9 +102,14 @@ module.exports = async function build(
   );
 };
 
-async function updateManifest(buildPath, currentManifest, updatedFiles) {
+async function updateManifest(
+  buildPath,
+  currentManifest,
+  updatedFiles,
+  pkgPath
+) {
   //spinner.start("Updating packages");
-  var deps = await installPackages(buildPath, updatedFiles);
+  var deps = await installPackages(buildPath, updatedFiles, pkgPath);
   spinner.start("Generating manifest");
   const manifest = await buildManifest(
     buildPath,

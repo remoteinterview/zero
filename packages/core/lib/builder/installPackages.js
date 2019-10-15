@@ -12,18 +12,7 @@ var firstRun = true;
 //process.on('unhandledRejection', up => { throw up });
 
 const babelConfig = {
-  plugins: [
-    [commonDeps.resolvePath("react-hot-loader/babel")],
-    [commonDeps.resolvePath("babel-plugin-transform-zero-dirname-filename")],
-    [commonDeps.resolvePath("babel-plugin-react-require")],
-    [commonDeps.resolvePath("@babel/plugin-transform-runtime")],
-    [
-      commonDeps.resolvePath("@babel/plugin-proposal-class-properties"),
-      {
-        loose: true
-      }
-    ]
-  ]
+  presets: [commonDeps.resolvePath("babel-preset-zeroserver")]
 };
 
 const htmlnanoConfig = {
@@ -35,8 +24,7 @@ function runYarn(cwd, args, resolveOutput) {
   var yarnPath = require.resolve("yarn/bin/yarn.js");
 
   return new Promise((resolve, reject) => {
-    debug("yarn", yarnPath, args);
-
+    debug("yarn", yarnPath, args, cwd);
     var child = fork(yarnPath, args || [], {
       cwd: cwd,
       stdio: !resolveOutput ? "inherit" : "pipe"
@@ -85,16 +73,17 @@ async function getFiles(baseSrc) {
   return glob(path.join(baseSrc, "/**"), { onlyFiles: true });
 }
 
-function installPackages(buildPath, filterFiles) {
+function installPackages(buildPath, filterFiles, pkgPath) {
+  if (!pkgPath) pkgPath = buildPath;
   return new Promise(async (resolve, reject) => {
     var files = await getFiles(buildPath);
     files = files.filter(f => {
-      f = path.relative(process.env.BUILDPATH, f);
+      f = path.relative(buildPath, f);
       return (
         f.indexOf("node_modules") === -1 && f.indexOf("zero-builds") === -1
       );
     });
-    // debug("files", files)
+    debug("files", files);
     var deps = [];
 
     var pkgJsonChanged = false;
@@ -110,10 +99,7 @@ function installPackages(buildPath, filterFiles) {
       }
 
       // if pkg.json is changed
-      if (
-        path.relative(process.env.BUILDPATH, file).toLowerCase() ===
-        "package.json"
-      ) {
+      if (path.relative(buildPath, file).toLowerCase() === "package.json") {
         pkgJsonChanged = true;
       }
 
@@ -126,7 +112,7 @@ function installPackages(buildPath, filterFiles) {
     });
 
     // check if these deps are already installed
-    var pkgjsonPath = path.join(buildPath, "/package.json");
+    var pkgjsonPath = path.join(pkgPath, "/package.json");
     var allInstalled = false;
     if (fs.existsSync(pkgjsonPath)) {
       try {
@@ -150,7 +136,11 @@ function installPackages(buildPath, filterFiles) {
       await writePackageJSON(buildPath, deps);
       debug("installing", deps);
 
-      runYarn(buildPath, ["install"]).then(() => {
+      runYarn(pkgPath, [
+        "install",
+        "--modules-folder",
+        path.join(buildPath, "node_modules")
+      ]).then(() => {
         // installed
         debug("Pkgs installed successfully.");
         resolve(deps);
@@ -163,7 +153,7 @@ function installPackages(buildPath, filterFiles) {
 
 async function writePackageJSON(buildPath, deps) {
   // first load current package.json if present
-  var pkgjsonPath = path.join(process.env.SOURCEPATH, "/package.json");
+  var pkgjsonPath = path.join(buildPath, "/package.json");
   var newDepsFound = false;
   var pkg = {
     name: "zero-app",
@@ -203,13 +193,14 @@ async function writePackageJSON(buildPath, deps) {
   // in sourcepath. But minus our hardcoded depsJson
 
   if (newDepsFound) {
+    var userPkg = JSON.parse(JSON.stringify(pkg)); // make a copy
     Object.keys(depsJson).forEach(key => {
-      delete pkg.dependencies[key];
+      delete userPkg.dependencies[key];
     });
     console.log(`\x1b[2mUpdating package.json\x1b[0m\n`);
     fs.writeFileSync(
       path.join(process.env.SOURCEPATH, "/package.json"),
-      JSON.stringify(pkg, null, 2),
+      JSON.stringify(userPkg, null, 2),
       "utf8"
     );
   }
@@ -224,7 +215,14 @@ async function writePackageJSON(buildPath, deps) {
   if (fs.existsSync(babelSrcPath)) {
     try {
       var userBabelConfig = JSON.parse(fs.readFileSync(babelSrcPath));
-      finalBabelConfig = deepmerge(babelConfig, userBabelConfig);
+      finalBabelConfig = deepmerge(babelConfig, userBabelConfig, {
+        // de-duplicate array
+        arrayMerge: (destinationArray, sourceArray, options) => {
+          return destinationArray.concat(
+            sourceArray.filter(item => destinationArray.indexOf(item) < 0)
+          );
+        }
+      });
     } catch (e) {
       // couldn't read the file
       finalBabelConfig = babelConfig;
@@ -233,13 +231,20 @@ async function writePackageJSON(buildPath, deps) {
     finalBabelConfig = babelConfig;
   }
 
-  pkg["babel"] = finalBabelConfig;
+  // pkg["babel"] = finalBabelConfig;
 
-  var htmlnanoSrcPath = path.join(process.env.SOURCEPATH, "/.htmlnanorc");
-  // // only write htmlnano file if not overriden by user
-  if (!fs.existsSync(htmlnanoSrcPath)) {
-    pkg["htmlnano"] = htmlnanoConfig;
-  }
+  fs.writeFileSync(
+    path.join(buildPath, ".babelrc"),
+    JSON.stringify(finalBabelConfig, null, 2),
+    "utf8"
+  );
+
+  // process.env.BABELCONFIG = JSON.stringify(babelConfig)
+  // var htmlnanoSrcPath = path.join(process.env.SOURCEPATH, "/.htmlnanorc");
+  // // // only write htmlnano file if not overriden by user
+  // if (!fs.existsSync(htmlnanoSrcPath)) {
+  //   pkg["htmlnano"] = htmlnanoConfig;
+  // }
 
   // write a pkg.json into tmp buildpath
   fs.writeFileSync(
