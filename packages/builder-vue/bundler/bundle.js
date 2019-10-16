@@ -23,7 +23,7 @@ module.exports = async (
 
   // we need a entry file
   var entryFileName = path.join(
-    path.dirname(filename),
+    process.env.BUILDPATH,
     "/entry." + sha1(filename) + ".js"
   );
   const entry = createEntry(
@@ -73,10 +73,13 @@ module.exports = async (
 };
 
 const createEntry = componentPath => {
+  componentPath = componentPath.startsWith(".")
+    ? componentPath
+    : "./" + componentPath;
   return `
   import Vue from 'vue';
   import Meta from 'vue-meta'
-  import Page from './${componentPath}';
+  import Page from '${componentPath}';
   const PageExt = Vue.extend(Page);
   Vue.use(Meta, {
     keyName: "head"

@@ -107,7 +107,7 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
 
     // add endpoint path at 0 position for each lambda
     .map(endpoint => {
-      var trimmedPath = slash(endpoint[0]).replace(buildPath, "/");
+      var trimmedPath = "/" + slash(path.relative(buildPath, endpoint[0]));
       trimmedPath = trimmedPath
         .split(".")
         .slice(0, -1) // remove extension

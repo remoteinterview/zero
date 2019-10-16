@@ -86,6 +86,9 @@ module.exports = async (
 };
 
 const createEntry = componentPath => {
+  componentPath = componentPath.startsWith(".")
+    ? componentPath
+    : "./" + componentPath;
   return `
 var React = require("react")
 import { Helmet, HelmetProvider } from 'react-helmet-async';
@@ -114,6 +117,9 @@ hydrate(helmetApp, document.getElementById("_react_root"))
 };
 
 const createHotReloadWrap = componentPath => {
+  componentPath = componentPath.startsWith(".")
+    ? componentPath
+    : "./" + componentPath;
   return `
 import { hot } from 'react-hot-loader';
 
