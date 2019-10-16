@@ -86,6 +86,7 @@ module.exports = async (
 };
 
 const createEntry = componentPath => {
+  componentPath = componentPath.replace(/\\/g, "/"); // fix slashes for fwd on windows
   componentPath = componentPath.startsWith(".")
     ? componentPath
     : "./" + componentPath;
@@ -117,6 +118,7 @@ hydrate(helmetApp, document.getElementById("_react_root"))
 };
 
 const createHotReloadWrap = componentPath => {
+  componentPath = componentPath.replace(/\\/g, "/"); // fix slashes for fwd on windows
   componentPath = componentPath.startsWith(".")
     ? componentPath
     : "./" + componentPath;
