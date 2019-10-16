@@ -6,6 +6,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
+    "react-hot-loader": "^4.12.12",
     "@babel/core": "^7.2.2",
     "babel-plugin-transform-zero-dirname-filename": "^1.0.20-alpha.8",
     "babel-plugin-react-require": "^3.1.1",
