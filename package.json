@@ -7,7 +7,7 @@
     "bootstrap": "cd packages/core && npm link && cd ../.. && lerna bootstrap",
     "example": "zero example",
     "exampletest": "zero test/www",
-    "test": "jest --verbose false"
+    "test": "jest --verbose false --runInBand"
   },
   "devDependencies": {
     "@mdx-js/parcel-plugin-mdx": "^1.5.0",

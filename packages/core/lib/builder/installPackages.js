@@ -12,6 +12,14 @@ var firstRun = true;
 //process.on('unhandledRejection', up => { throw up });
 
 const babelConfig = {
+  plugins: [
+    [
+      "@babel/plugin-proposal-class-properties",
+      {
+        loose: true
+      }
+    ]
+  ],
   presets: [commonDeps.resolvePath("babel-preset-zeroserver")]
 };
 
