@@ -13,14 +13,17 @@ var firstRun = true;
 
 const babelConfig = {
   plugins: [
+    "react-hot-loader/babel",
+    "babel-plugin-transform-zero-dirname-filename",
+    "babel-plugin-react-require",
+    "@babel/plugin-transform-runtime",
     [
       "@babel/plugin-proposal-class-properties",
       {
         loose: true
       }
     ]
-  ],
-  presets: [commonDeps.resolvePath("babel-preset-zeroserver")]
+  ]
 };
 
 const htmlnanoConfig = {
@@ -219,33 +222,13 @@ async function writePackageJSON(buildPath, deps) {
 
   // merge babelrc with user's babelrc (if present in user project)
   var babelSrcPath = path.join(process.env.SOURCEPATH, "/.babelrc");
-  var finalBabelConfig = {};
-  if (fs.existsSync(babelSrcPath)) {
-    try {
-      var userBabelConfig = JSON.parse(fs.readFileSync(babelSrcPath));
-      finalBabelConfig = deepmerge(babelConfig, userBabelConfig, {
-        // de-duplicate array
-        arrayMerge: (destinationArray, sourceArray, options) => {
-          return destinationArray.concat(
-            sourceArray.filter(item => destinationArray.indexOf(item) < 0)
-          );
-        }
-      });
-    } catch (e) {
-      // couldn't read the file
-      finalBabelConfig = babelConfig;
-    }
-  } else {
-    finalBabelConfig = babelConfig;
+  if (!fs.existsSync(babelSrcPath)) {
+    fs.writeFileSync(
+      babelSrcPath,
+      JSON.stringify(babelConfig, null, 2),
+      "utf8"
+    );
   }
-
-  // pkg["babel"] = finalBabelConfig;
-
-  fs.writeFileSync(
-    path.join(buildPath, ".babelrc"),
-    JSON.stringify(finalBabelConfig, null, 2),
-    "utf8"
-  );
 
   // process.env.BABELCONFIG = JSON.stringify(babelConfig)
   // var htmlnanoSrcPath = path.join(process.env.SOURCEPATH, "/.htmlnanorc");

@@ -4,6 +4,9 @@
   "version": "1.0.20-alpha.9",
   "license": "Apache-2.0",
   "dependencies": {
+    "babel-plugin-transform-zero-dirname-filename": "^1.0.20-alpha.8",
+    "babel-plugin-react-require": "^3.1.1",
+    "@babel/plugin-transform-runtime": "^7.2.0",
     "@babel/core": "^7.2.2",
     "@babel/runtime": "^7.3.1",
     "@babel/plugin-proposal-class-properties": "^7.3.4",
@@ -12,7 +15,6 @@
     "@mdx-js/tag": "^0.16.8",
     "@vue/component-compiler-utils": "^3.0.0",
     "cssnano": "4.1.10",
-    "babel-preset-zeroserver": "^1.0.20-alpha.8",
     "postcss-modules": "1.4.1",
     "react": "^16.8.1",
     "react-dom": "^16.8.1",
