@@ -27,6 +27,11 @@ module.exports = async function bundle(entryFile, buildPath, publicPath) {
     minify: !isDev
   });
 
+  process.on("SIGTERM", code => {
+    bundler.stop();
+    process.exit();
+  });
+
   await bundler.bundle();
   return {
     path: buildPath

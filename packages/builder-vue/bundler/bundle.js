@@ -53,6 +53,11 @@ module.exports = async (
     autoinstall: false,
     sourceMaps: false //!ISDEV
   });
+
+  process.on("SIGTERM", code => {
+    bundler.stop();
+    process.exit();
+  });
   //console.log("rootDir", bundler.options.rootDir)
 
   const bundle = await bundler.bundle();

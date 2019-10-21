@@ -141,7 +141,11 @@ function checkForBundlerCleanup() {
       arr = arr.slice(0, arr.length - lastN);
       arr.forEach(data => {
         if (data.process) {
-          debug("killing bundler", data.path);
+          debug(
+            "killing bundler",
+            data.path,
+            lambdaIdToBundleInfo[data.id].process.pid
+          );
           lambdaIdToBundleInfo[data.id].process.kill();
           delete lambdaIdToBundleInfo[data.id];
           delete lambdaIdToHandler[data.id]; // handler will need new bundleInfo too

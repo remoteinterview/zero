@@ -68,6 +68,11 @@ module.exports = async (
     sourceMaps: false //!ISDEV
   });
 
+  process.on("SIGTERM", code => {
+    bundler.stop();
+    process.exit();
+  });
+
   const bundle = await bundler.bundle();
 
   //https://github.com/parcel-bundler/parcel/issues/1401

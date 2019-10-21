@@ -28,6 +28,11 @@ module.exports = async function bundle(entryFile, buildPath, publicPath) {
     minify: !isDev
   });
 
+  process.on("SIGTERM", code => {
+    bundler.stop();
+    process.exit();
+  });
+
   const bundle = await bundler.bundle();
   return {
     js: path.join(buildPath, "/index.js")
