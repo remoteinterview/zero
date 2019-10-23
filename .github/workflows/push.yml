@@ -5,6 +5,7 @@ jobs:
     name: ${{ matrix.os }} + node ${{ matrix.node }}
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         os: [windows-latest, ubuntu-18.04, macOS-latest]
         node: [8, 10, 12]

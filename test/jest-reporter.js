@@ -9,7 +9,7 @@ class ExitCodeReporter {
     // console.log('Custom reporter output:');
     // console.log('GlobalConfig: ', this._globalConfig);
     // console.log('Options: ', this._options);
-    console.log("Results: ", results);
+    // console.log("Results: ", results);
     if (results && results.numFailedTests === 0) {
       process.exit();
     } else {

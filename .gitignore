@@ -10,3 +10,4 @@ test/www/.gitignore
 test/www/.babelrc
 test/www/hmr/*
 packages/handler-python/get-pip.py
+__pycache__
