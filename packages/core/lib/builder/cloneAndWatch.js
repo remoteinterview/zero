@@ -9,7 +9,7 @@ const del = require("del");
 require("colors");
 const debug = require("debug")("core");
 const ISDEV = process.env.NODE_ENV !== "production";
-// const slash = require("../utils/fixPathSlashes");
+const slash = require("../utils/fixPathSlashes");
 // const createDirIfNotExist = require("../utils/createDirIfNotExist.js");
 
 module.exports = async (options, onWatchUpdate) => {
@@ -52,7 +52,7 @@ module.exports = async (options, onWatchUpdate) => {
     //   return;
     // }
     // fs.writeFileSync(to, fs.readFileSync(from));
-    // debug("[COPY]".yellow, from, "to".yellow, to);
+    debug("[ADD]".yellow, from);
     if (isWatching && onWatchUpdate) onWatchUpdate("add", from);
   };
   const remove = from => {
@@ -63,6 +63,7 @@ module.exports = async (options, onWatchUpdate) => {
     ) {
       return;
     }
+    debug("[REM]".yellow, from);
     if (isWatching && onWatchUpdate) onWatchUpdate("remove", from);
     // const to = findTarget(from);
     // try {
@@ -91,11 +92,11 @@ module.exports = async (options, onWatchUpdate) => {
 
   // clean
   if (options.clean) {
-    var paths = [path.join(buildPath, "/**"), "!" + buildPath];
+    var paths = [slash(path.join(buildPath, "/**")), "!" + buildPath];
     if (!options.cleanModules) {
       // paths.push("!" + path.join(buildPath, "/node_modules/**"));
       //paths.push("!" + path.join(target, "/package-lock.json"));
-      paths.push("!" + path.join(buildPath, "/yarn.lock"));
+      paths.push("!" + slash(path.join(buildPath, "/yarn.lock")));
     }
     // if running in prod mode, also avoid deleting builds.
     //if (!ISDEV) paths.push('!'+path.join(target, '/zero-builds/**') )
@@ -108,18 +109,18 @@ module.exports = async (options, onWatchUpdate) => {
   //   glob.sync(s, { dot: true, ignore: ["**/.zero/**"] }).forEach(copy)
   // );
 
-  if (onWatchUpdate) onWatchUpdate("ready");
   // watch
   if (options.watch) {
     // chokidar glob doesn't work with backward slashes
     chokidar
-      .watch(path.join(sourcePath, "/**/*"), {
+      .watch(slash(path.join(sourcePath, "/**/*")), {
         ignoreInitial: true,
         ignored: "**/.zero/**"
       })
       .on("ready", () => {
         debug("[WATCHING]".yellow, sourcePath);
         isWatching = true;
+        if (onWatchUpdate) onWatchUpdate("ready");
       })
       .on("add", copy)
       .on("addDir", copy)
@@ -127,5 +128,7 @@ module.exports = async (options, onWatchUpdate) => {
       .on("unlink", remove)
       .on("unlinkDir", remove)
       .on("error", e => debug("[ERROR]".red, e));
+  } else if (onWatchUpdate) {
+    onWatchUpdate("ready");
   }
 };
