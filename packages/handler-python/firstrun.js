@@ -11,6 +11,10 @@ module.exports = async (buildPath, pipPath) => {
   // fix requirements.txt
   var reqFile = ["flask==0.12.2", "waitress==1.3.0"].join("\n");
   var reqFilePath = path.join(buildPath, "requirements.txt");
+  var reqCombinedFilePath = path.join(
+    process.env.BUILDPATH,
+    "requirements.txt"
+  );
   if (fs.existsSync(reqFilePath)) {
     reqFile += "\n" + fs.readFileSync(reqFilePath, "utf8");
   }
@@ -22,12 +26,12 @@ module.exports = async (buildPath, pipPath) => {
     })
     .join("\n");
   // write new req.txt
-  fs.writeFileSync(reqFilePath, reqFile, "utf8");
+  fs.writeFileSync(reqCombinedFilePath, reqFile, "utf8");
 
   // install using pip
   return new Promise((resolve, reject) => {
     const processName = typeof pipPath === "string" ? pipPath : pipPath[0];
-    const defaultArgs = ["install", "-r", reqFilePath];
+    const defaultArgs = ["install", "-r", reqCombinedFilePath];
     const args =
       typeof pipPath === "string"
         ? defaultArgs
