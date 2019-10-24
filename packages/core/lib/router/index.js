@@ -173,6 +173,13 @@ module.exports = buildPath => {
   // compress all responses
   app.use(compression({ threshold: 1 }));
 
+  // replace powered-by header
+  app.disable("x-powered-by");
+  app.use((req, res, next) => {
+    res.header("x-powered-by", "ZeroServer");
+    next();
+  });
+
   var manifest = { lambdas: [], fileToLambdas: {} };
   var forbiddenStaticFiles = [];
   app.all("*", async (request, response) => {
