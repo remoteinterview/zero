@@ -30,6 +30,7 @@ module.exports = async (options, onWatchUpdate) => {
   // };
 
   const copy = from => {
+    from = slash(from);
     const relativePath = path.relative(sourcePath, from);
     if (
       relativePath.indexOf("node_modules") !== -1 ||
@@ -56,6 +57,7 @@ module.exports = async (options, onWatchUpdate) => {
     if (isWatching && onWatchUpdate) onWatchUpdate("add", from);
   };
   const remove = from => {
+    from = slash(from);
     const relativePath = path.relative(sourcePath, from);
     if (
       relativePath.indexOf("node_modules") !== -1 ||

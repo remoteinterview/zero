@@ -32,6 +32,7 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
     files.map(async file => {
       const extension = path.extname(file);
       file = path.normalize(file);
+      file = slash(file);
       // if old manifest is given and a file filter is given, we skip those not in filter
       if (oldManifest && fileFilter && fileFilter.length) {
         var normalizedFile = file;
