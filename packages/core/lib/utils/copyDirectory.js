@@ -4,12 +4,12 @@ const fs = require("fs");
 const path = require("path");
 const debug = require("debug")("core");
 const glob = require("fast-glob");
-const createDirIfNotExist = require("./createDirIfNotExist");
+const mkdirp = require("mkdirp");
 
 module.exports = (from, to) => {
   const copy = source => {
     const target = path.join(to, path.relative(from, source));
-    createDirIfNotExist(target);
+    mkdirp.sync(target);
     const stats = fs.statSync(source);
     if (stats.isDirectory()) {
       return;

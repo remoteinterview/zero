@@ -3,7 +3,7 @@ const debug = require("debug")("core");
 const fs = require("fs");
 const buildManifest = require("./buildManifest");
 const installPackages = require("./installPackages");
-const sync = require("./cloneAndWatch");
+const watch = require("./watcher");
 const ora = require("ora");
 const ISDEV = process.env.NODE_ENV !== "production";
 const slash = require("../utils/fixPathSlashes");
@@ -25,7 +25,7 @@ module.exports = async function build(
 
   debug("buildPath", buildPath);
 
-  sync(
+  watch(
     {
       sources: [path.join(sourcePath, "/**/*")],
       target: buildPath,
