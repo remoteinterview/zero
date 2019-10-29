@@ -7,7 +7,7 @@
     "@mdx-js/mdx": "^0.16.8",
     "@vue/component-compiler-utils": "^2.6.0",
     "konan": "^1.2.1",
-    "typescript": "3.3.3333",
+    "typescript": "^3.6.4",
     "vue-template-compiler": "^2.6.10"
   }
 }

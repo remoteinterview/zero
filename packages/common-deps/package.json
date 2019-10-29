@@ -22,7 +22,7 @@
     "react-hot-loader": "^4.12.12",
     "regenerator-runtime": "^0.12.0",
     "sass": "^1.17.2",
-    "typescript": "^3.3.3333",
+    "typescript": "^3.6.4",
     "vue": "^2.6.10",
     "vue-hot-reload-api": "^2.3.3",
     "vue-meta": "^1.6.0",
