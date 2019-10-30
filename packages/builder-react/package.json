@@ -4,7 +4,7 @@
   "version": "1.0.20-alpha.9",
   "license": "Apache-2.0",
   "dependencies": {
-    "@mdx-js/mdx": "^0.16.8",
+    "@mdx-js/mdx": "^1.5.1",
     "mkdirp": "^0.5.1",
     "zero-dep-tree-js": "^1.0.14-alpha.0",
     "zero-parcel-bundler": "^1.0.20-alpha.9"
