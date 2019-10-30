@@ -29,6 +29,7 @@ function resolveYarn() {
 
 function setupEnvVariables(sourcePath) {
   // Load environment variables from .env file if present
+  debug("sourcePath", sourcePath);
   require("dotenv").config({ path: path.resolve(sourcePath, ".env") });
   // Default env variables.
   process.env.PATH += ":" + resolveYarn();
