@@ -74,22 +74,7 @@ module.exports = async function build(
 
         // check if directory is empty on first run
         if (!isBuilder && event === "ready") {
-          fs.readdir(sourcePath, function(err, files) {
-            if (err) {
-              // some sort of error
-            } else {
-              if (!files.length) {
-                // directory appears to be empty
-                spinner.stopAndPersist({
-                  symbol: "⚠️ ",
-                  text:
-                    "It looks like the given directory is empty. Add a file (like index.js) and see what happens!"
-                });
-              } else {
-                spinner.succeed("Server running on " + serverAddress);
-              }
-            }
-          });
+          spinner.succeed("Server running on " + serverAddress);
         } else if (!isBuilder) {
           spinner.stop(); //("Server running on " + serverAddress);
         } else {

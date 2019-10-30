@@ -194,7 +194,13 @@ module.exports = buildPath => {
     );
     debug("match", request.url, endpointData);
     if (endpointData === "404") {
-      return response.sendStatus(404);
+      return response
+        .status(404)
+        .send(
+          process.env.NODE_ENV === "production"
+            ? "Not Found"
+            : "<center style='font-family: monospace;'><h1>Nothing Here</h1><br/>Did you forget to add the file for this path?</center>"
+        );
     }
     if (endpointData) {
       // call relevant handler as defined in manifest
