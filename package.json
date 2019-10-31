@@ -32,5 +32,8 @@
       "prettier --write",
       "git add"
     ]
+  },
+  "dependencies": {
+    "react": "^16.11.0"
   }
 }
