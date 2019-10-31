@@ -262,6 +262,9 @@ ADD . /app
 # Run zero in production mode
 ENV NODE_ENV production
 
+# Generate bundles
+RUN zero build
+
 # Expose port
 ENV PORT 80
 EXPOSE 80
