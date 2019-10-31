@@ -13,7 +13,7 @@ async function getFiles(baseSrc) {
   return glob(path.join(baseSrc, "/**"), {
     onlyFiles: true,
     dot: true,
-    ignore: ["node_modules/**", ".zero/**"]
+    ignore: ["**/node_modules/**", "**/.zero/**"]
   });
 }
 
@@ -27,8 +27,9 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
   var files = await getFiles(buildPath);
   files = files.filter(
     file =>
-      relativePath(file).indexOf("node_modules") === -1 &&
-      relativePath(file).indexOf("zero-builds") === -1
+      !relativePath(file).startsWith("node_modules/") &&
+      !relativePath(file).startsWith("zero-builds/") &&
+      !relativePath(file).startsWith(".zero/")
   );
 
   debug("filterDone", files.length);
