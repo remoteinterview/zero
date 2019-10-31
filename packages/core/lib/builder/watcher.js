@@ -47,7 +47,7 @@ module.exports = async (options, onWatchUpdate) => {
     chokidar
       .watch(slash(path.join(sourcePath, "/**/*")), {
         ignoreInitial: true,
-        ignored: "**/.zero/**"
+        ignored: "**/node_modules/**"
       })
       .on("ready", () => {
         debug("[WATCHING]".yellow, sourcePath);

@@ -81,7 +81,10 @@ async function getNPMVersion(pkgName) {
 }
 
 async function getFiles(baseSrc) {
-  return glob(path.join(baseSrc, "/**"), { onlyFiles: true });
+  return glob(path.join(baseSrc, "/**"), {
+    onlyFiles: true,
+    ignore: ["node_modules/**", ".zero/**"]
+  });
 }
 
 function installPackages(buildPath, filterFiles, pkgPath) {

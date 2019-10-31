@@ -10,8 +10,11 @@ const pythonFirstRun = require("zero-handlers-map").handlers["lambda:python"]
 var pythonFirstRunCompleted = false;
 
 async function getFiles(baseSrc) {
-  //baseSrc = baseSrc.endsWith("/")?baseSrc:(baseSrc+"/")
-  return glob(path.join(baseSrc, "/**"), { onlyFiles: true, dot: true });
+  return glob(path.join(baseSrc, "/**"), {
+    onlyFiles: true,
+    dot: true,
+    ignore: ["node_modules/**", ".zero/**"]
+  });
 }
 
 const relativePath = p => path.relative(process.env.SOURCEPATH, p);
@@ -27,6 +30,8 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
       relativePath(file).indexOf("node_modules") === -1 &&
       relativePath(file).indexOf("zero-builds") === -1
   );
+
+  debug("filterDone", files.length);
 
   var json = await Promise.all(
     files.map(async file => {
