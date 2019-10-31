@@ -250,7 +250,7 @@ FROM node:alpine
 
 # Install dependencies via apk
 RUN apk update && apk upgrade \
-    && apk add --no-cache python  g++ make \
+    && apk add --no-cache python python3 g++ make \
     && rm -rf /var/cache/apk/*
 
 # Install zero globally
