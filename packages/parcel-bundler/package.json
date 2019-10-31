@@ -13,5 +13,8 @@
     "patch-package": "^6.2.0",
     "zero-common-deps": "^1.1.0-alpha.0"
   },
+  "bundledDependencies": [
+    "parcel-bundler"
+  ],
   "gitHead": "9e577043290b2ad1205a24f14c4edf7329c6073d"
 }
