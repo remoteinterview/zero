@@ -3,20 +3,12 @@ const startRouter = require("./router");
 const Queue = require("p-queue").default;
 const path = require("path");
 const fs = require("fs");
-const copyDirectory = require("./utils/copyDirectory");
 const del = require("del");
 const debug = require("debug")("core");
 const mkdirp = require("mkdirp");
 const slash = require("./utils/fixPathSlashes");
 const pkg = require("../package");
 const FileHash = require("./utils/fileHash");
-
-var getHash = function(str) {
-  return require("crypto")
-    .createHash("sha1")
-    .update(str)
-    .digest("hex");
-};
 
 function resolveYarn() {
   var yPath;
@@ -34,8 +26,10 @@ function resolveYarn() {
 
   return yPath;
 }
+
 function setupEnvVariables(sourcePath) {
   // Load environment variables from .env file if present
+  debug("sourcePath", sourcePath);
   require("dotenv").config({ path: path.resolve(sourcePath, ".env") });
   // Default env variables.
   process.env.PATH += ":" + resolveYarn();
@@ -50,6 +44,7 @@ function setupEnvVariables(sourcePath) {
 
   // create the build folder if not present already
   mkdirp.sync(process.env.BUILDPATH);
+  // mkdirp.sync(path.join(process.env.BUILDPATH, ".zero"));
 }
 
 process.on("SIGINT", function() {
@@ -57,15 +52,27 @@ process.on("SIGINT", function() {
   process.exit();
 });
 
-function server(path) {
-  setupEnvVariables(path);
+async function server(sourcePath) {
+  setupEnvVariables(sourcePath);
   console.log(`\x1b[2m⚡️ Zero ${pkg.version ? `v${pkg.version}` : ""}\x1b[0m`);
   var updateManifestFn = startRouter(
-    /*manifest, forbiddenFiles,*/ process.env.BUILDPATH
+    /*manifest, forbiddenFiles,*/ process.env.SOURCEPATH
   );
+
+  // clear any `zero build` configs to avoid confusion
+  var buildConfigPath = path.join(
+    process.env.BUILDPATH,
+    "zero-builds",
+    "_config"
+  );
+  if (fs.existsSync(buildConfigPath)) {
+    await del([slash(path.join(buildConfigPath, "/**"))], {
+      force: true
+    });
+  }
   return new Promise((resolve, reject) => {
     build(
-      path,
+      sourcePath,
       process.env.BUILDPATH,
       (manifest, forbiddenFiles, filesUpdated) => {
         updateManifestFn(manifest, forbiddenFiles, filesUpdated);
@@ -87,14 +94,13 @@ var getLambdaID = function(entryFile) {
 
 function getBundleInfo(endpointData) {
   return new Promise(async (resolve, reject) => {
-    const entryFilePath = endpointData[1];
     const lambdaID = getLambdaID(endpointData[0]);
     if (!bundlerProgram) return resolve(false);
     const parameters = [
       endpointData[0],
       endpointData[1],
       endpointData[2],
-      "zero-builds/" + lambdaID
+      ".zero/zero-builds/" + lambdaID
     ];
     const options = {
       stdio: [0, 1, 2, "ipc"]
@@ -125,8 +131,11 @@ function builder(sourcePath) {
         for (var file in manifest.fileToLambdas) {
           fileHashes[file] = [
             await FileHash(file),
-            manifest.fileToLambdas[file].map(lambda => {
-              return getLambdaID(lambda);
+            manifest.fileToLambdas[file].map(entryFile => {
+              var endpointData = manifest.lambdas.find(lambda => {
+                return lambda[1] === entryFile;
+              });
+              return getLambdaID(endpointData[0]);
             })
           ];
         }
@@ -134,38 +143,25 @@ function builder(sourcePath) {
         var pastFileHashes = false;
         var pastBuildInfoMap = false;
         var fileHashPath = path.join(
-          process.env.SOURCEPATH,
+          process.env.BUILDPATH,
           "zero-builds",
           "_config",
           "hashes.json"
         );
 
+        var buildInfoMapPath = path.join(
+          process.env.BUILDPATH,
+          "zero-builds",
+          "build-info.json"
+        );
+
         try {
-          if (fs.existsSync(fileHashPath)) {
-            // copy previous zero-builds folder to build tmp folder
-            copyDirectory(
-              path.join(process.env.SOURCEPATH, "zero-builds"),
-              path.join(process.env.BUILDPATH, "zero-builds")
-            );
-            pastBuildInfoMap = require(path.join(
-              process.env.SOURCEPATH,
-              "zero-builds",
-              "build-info.json"
-            ));
+          if (fs.existsSync(fileHashPath) && fs.existsSync(buildInfoMapPath)) {
+            pastBuildInfoMap = require(buildInfoMapPath);
             pastFileHashes = require(fileHashPath);
 
             //console.log("using previous zero-builds", pastFileHashes)
           }
-        } catch (e) {}
-
-        // clear build folder
-        try {
-          await del(
-            [slash(path.join(process.env.SOURCEPATH, "zero-builds", "/**"))],
-            {
-              force: true
-            }
-          );
         } catch (e) {}
 
         // build paths in a queue with concurrency
@@ -196,6 +192,7 @@ function builder(sourcePath) {
               for (var index in pastFileHashes[file][1]) {
                 try {
                   var lambdaID = pastFileHashes[file][1][index];
+                  debug("deleting", file, pastFileHashes[file][1], lambdaID);
                   await del(
                     [
                       slash(
@@ -255,20 +252,12 @@ function builder(sourcePath) {
           "utf8"
         );
 
-        // copy zero-builds folder to local folder
-        copyDirectory(
-          path.join(process.env.BUILDPATH, "zero-builds"),
-          path.join(process.env.SOURCEPATH, "zero-builds")
-        );
-
         // copy package.json
-        mkdirp.sync(
-          path.join(process.env.SOURCEPATH, "zero-builds", "_config")
-        );
+        mkdirp.sync(path.join(process.env.BUILDPATH, "zero-builds", "_config"));
 
         fs.writeFileSync(
           path.join(
-            process.env.SOURCEPATH,
+            process.env.BUILDPATH,
             "zero-builds",
             "_config",
             "package.json"
@@ -279,12 +268,12 @@ function builder(sourcePath) {
         // copy .babelrc
         fs.writeFileSync(
           path.join(
-            process.env.SOURCEPATH,
+            process.env.BUILDPATH,
             "zero-builds",
             "_config",
             ".babelrc"
           ),
-          fs.readFileSync(path.join(process.env.BUILDPATH, ".babelrc"))
+          fs.readFileSync(path.join(process.env.SOURCEPATH, ".babelrc"))
         );
 
         // save a file hash map

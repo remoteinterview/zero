@@ -14,7 +14,7 @@ async function getFiles(baseSrc) {
   return glob(path.join(baseSrc, "/**"), { onlyFiles: true, dot: true });
 }
 
-const relativePath = p => path.relative(process.env.BUILDPATH, p);
+const relativePath = p => path.relative(process.env.SOURCEPATH, p);
 
 async function buildManifest(buildPath, oldManifest, fileFilter) {
   buildPath = buildPath.endsWith("/") ? buildPath : buildPath + "/";
@@ -29,9 +29,10 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
   );
 
   var json = await Promise.all(
-    files.map(async (file) => {
+    files.map(async file => {
       const extension = path.extname(file);
       file = path.normalize(file);
+      file = slash(file);
       // if old manifest is given and a file filter is given, we skip those not in filter
       if (oldManifest && fileFilter && fileFilter.length) {
         var normalizedFile = file;
@@ -49,7 +50,6 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
       if (zeroignore.ignores(fileRelative)) return false;
 
       switch (extension) {
-
         // check if js file is a js lambda function
         case ".js":
         case ".ts":
@@ -63,7 +63,6 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
         case ".md":
           return [file, "lambda:react"];
 
-
         case ".vue":
           return [file, "lambda:vue"];
 
@@ -75,7 +74,6 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
             pythonFirstRunCompleted = true;
           }
           return [file, "lambda:python"];
-
 
         case ".html":
         case ".htm":
@@ -90,13 +88,12 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
               if (json && json.type && json.type === "proxy") {
                 return [file, "lambda:proxy"];
               }
-            } catch (e) { } // bad json probably, skip
+            } catch (e) {} // bad json probably, skip
           }
 
         // catch all, static / cdn hosting
         default:
           return false;
-
       }
     })
   );
@@ -111,7 +108,7 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
 
     // add endpoint path at 0 position for each lambda
     .map(endpoint => {
-      var trimmedPath = slash(endpoint[0]).replace(buildPath, "/");
+      var trimmedPath = "/" + slash(path.relative(buildPath, endpoint[0]));
       trimmedPath = trimmedPath
         .split(".")
         .slice(0, -1) // remove extension
@@ -146,7 +143,7 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
   // this is useful when a file is changed and we need to rebuild all the
   // lambdas depending on that file.
   var fileToLambdas = {};
-  lambdas.forEach((endpoint) => {
+  lambdas.forEach(endpoint => {
     endpoint[3].forEach(file => {
       fileToLambdas[file] = fileToLambdas[file] || [];
       fileToLambdas[file].push(endpoint[1]);

@@ -5,6 +5,7 @@ jobs:
     name: ${{ matrix.os }} + node ${{ matrix.node }}
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         os: [windows-latest, ubuntu-18.04, macOS-latest]
         node: [8, 10, 12]
@@ -31,3 +32,4 @@ jobs:
         PARCEL_WORKERS: 1
         ZERO_LIMIT_BUNDLERS: 5
         HMRWAITTIME: 20000
+        NODE_OPTIONS: --max-old-space-size=8192

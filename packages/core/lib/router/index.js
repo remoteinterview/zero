@@ -94,7 +94,7 @@ function getBundleInfo(endpointData) {
       endpointData[0],
       endpointData[1],
       endpointData[2],
-      "zero-builds/" + lambdaID
+      ".zero/zero-builds/" + lambdaID
     ];
     const options = {
       stdio: [0, 1, 2, "ipc"]
@@ -141,7 +141,11 @@ function checkForBundlerCleanup() {
       arr = arr.slice(0, arr.length - lastN);
       arr.forEach(data => {
         if (data.process) {
-          debug("killing bundler", data.path);
+          debug(
+            "killing bundler",
+            data.path,
+            lambdaIdToBundleInfo[data.id].process.pid
+          );
           lambdaIdToBundleInfo[data.id].process.kill();
           delete lambdaIdToBundleInfo[data.id];
           delete lambdaIdToHandler[data.id]; // handler will need new bundleInfo too
@@ -169,6 +173,13 @@ module.exports = buildPath => {
   // compress all responses
   app.use(compression({ threshold: 1 }));
 
+  // replace powered-by header
+  app.disable("x-powered-by");
+  app.use((req, res, next) => {
+    res.header("x-powered-by", "ZeroServer");
+    next();
+  });
+
   var manifest = { lambdas: [], fileToLambdas: {} };
   var forbiddenStaticFiles = [];
   app.all("*", async (request, response) => {
@@ -183,7 +194,13 @@ module.exports = buildPath => {
     );
     debug("match", request.url, endpointData);
     if (endpointData === "404") {
-      return response.sendStatus(404);
+      return response
+        .status(404)
+        .send(
+          process.env.NODE_ENV === "production"
+            ? "Not Found"
+            : "<center style='font-family: monospace;'><h1>Nothing Here</h1><br/>Did you forget to add the file for this path?</center>"
+        );
     }
     if (endpointData) {
       // call relevant handler as defined in manifest

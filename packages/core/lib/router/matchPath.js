@@ -32,9 +32,21 @@ function matchPathWithDictionary(
   if (!match) {
     // check if it's a static file and it's not in the forbidden/ignored files
     var staticPath = PATH.join(buildPath, path);
-    var hiddenSourceFile = zeroignore.ignores(
-      PATH.relative(buildPath, staticPath) || "index"
-    );
+    var hiddenSourceFile = false;
+
+    // zero-builds folder is actually '.zero/zero-builds' but it should be
+    // mounted on "/zero-builds/..." uri instead.
+    if (
+      path.startsWith("/.zero/zero-builds") &&
+      // dont allow access to file/folder starting with _ (which can be server side code bundle)
+      path.split("/").filter(p => p.startsWith("_")).length === 0
+    ) {
+      // staticPath = PATH.join(buildPath, ".zero", path)
+    } else {
+      hiddenSourceFile = zeroignore.ignores(
+        PATH.relative(buildPath, staticPath) || "index"
+      );
+    }
 
     if (
       !hiddenSourceFile &&

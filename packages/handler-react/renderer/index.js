@@ -1,6 +1,6 @@
 const localRequire = lib => {
   return require(require("path").join(
-    process.env.BUILDPATH,
+    process.env.SOURCEPATH,
     "/node_modules/",
     lib
   ));
@@ -35,7 +35,7 @@ async function generateComponent(
   bundleInfo
 ) {
   try {
-    var appPath = path.join(process.env.BUILDPATH, bundleInfo.jsNode);
+    var appPath = path.join(process.env.SOURCEPATH, bundleInfo.jsNode);
     var App = requireUncached(appPath);
   } catch (e) {
     if (!ssrCrashWarned) console.log(e);

@@ -13,12 +13,12 @@ var firstRun = true;
 
 const babelConfig = {
   plugins: [
-    [commonDeps.resolvePath("react-hot-loader/babel")],
-    [commonDeps.resolvePath("babel-plugin-transform-zero-dirname-filename")],
-    [commonDeps.resolvePath("babel-plugin-react-require")],
-    [commonDeps.resolvePath("@babel/plugin-transform-runtime")],
+    "react-hot-loader/babel",
+    "babel-plugin-transform-zero-dirname-filename",
+    "babel-plugin-react-require",
+    "@babel/plugin-transform-runtime",
     [
-      commonDeps.resolvePath("@babel/plugin-proposal-class-properties"),
+      "@babel/plugin-proposal-class-properties",
       {
         loose: true
       }
@@ -35,8 +35,7 @@ function runYarn(cwd, args, resolveOutput) {
   var yarnPath = require.resolve("yarn/bin/yarn.js");
 
   return new Promise((resolve, reject) => {
-    debug("yarn", yarnPath, args);
-
+    debug("yarn", yarnPath, args, cwd);
     var child = fork(yarnPath, args || [], {
       cwd: cwd,
       stdio: !resolveOutput ? "inherit" : "pipe"
@@ -85,16 +84,17 @@ async function getFiles(baseSrc) {
   return glob(path.join(baseSrc, "/**"), { onlyFiles: true });
 }
 
-function installPackages(buildPath, filterFiles) {
+function installPackages(buildPath, filterFiles, pkgPath) {
+  if (!pkgPath) pkgPath = buildPath;
   return new Promise(async (resolve, reject) => {
     var files = await getFiles(buildPath);
     files = files.filter(f => {
-      f = path.relative(process.env.BUILDPATH, f);
+      f = path.relative(buildPath, f);
       return (
         f.indexOf("node_modules") === -1 && f.indexOf("zero-builds") === -1
       );
     });
-    // debug("files", files)
+    debug("files", files);
     var deps = [];
 
     var pkgJsonChanged = false;
@@ -110,10 +110,7 @@ function installPackages(buildPath, filterFiles) {
       }
 
       // if pkg.json is changed
-      if (
-        path.relative(process.env.BUILDPATH, file).toLowerCase() ===
-        "package.json"
-      ) {
+      if (path.relative(buildPath, file).toLowerCase() === "package.json") {
         pkgJsonChanged = true;
       }
 
@@ -126,7 +123,7 @@ function installPackages(buildPath, filterFiles) {
     });
 
     // check if these deps are already installed
-    var pkgjsonPath = path.join(buildPath, "/package.json");
+    var pkgjsonPath = path.join(pkgPath, "/package.json");
     var allInstalled = false;
     if (fs.existsSync(pkgjsonPath)) {
       try {
@@ -150,7 +147,11 @@ function installPackages(buildPath, filterFiles) {
       await writePackageJSON(buildPath, deps);
       debug("installing", deps);
 
-      runYarn(buildPath, ["install"]).then(() => {
+      runYarn(pkgPath, [
+        "install",
+        "--modules-folder",
+        path.join(buildPath, "node_modules")
+      ]).then(() => {
         // installed
         debug("Pkgs installed successfully.");
         resolve(deps);
@@ -163,7 +164,7 @@ function installPackages(buildPath, filterFiles) {
 
 async function writePackageJSON(buildPath, deps) {
   // first load current package.json if present
-  var pkgjsonPath = path.join(process.env.SOURCEPATH, "/package.json");
+  var pkgjsonPath = path.join(buildPath, "/package.json");
   var newDepsFound = false;
   var pkg = {
     name: "zero-app",
@@ -190,10 +191,6 @@ async function writePackageJSON(buildPath, deps) {
     pkg.dependencies = depsJson;
   }
 
-  // need this alias for hot reload features of React 16+ to work.
-  pkg.alias = pkg.alias || {};
-  pkg.alias["react-dom"] = "@hot-loader/react-dom";
-
   // append user's imported packages (only if not already defined in package.json)
   for (var i in deps) {
     const dep = deps[i];
@@ -203,61 +200,49 @@ async function writePackageJSON(buildPath, deps) {
     }
   }
 
-  // write a pkg.json into tmp buildpath
-  fs.writeFileSync(
-    path.join(buildPath, "/package.json"),
-    JSON.stringify(pkg, null, 2),
-    "utf8"
-  );
-
-  // // merge babelrc with user's babelrc (if present in user project)
-  var babelPath = path.join(buildPath, "/.babelrc");
-  var babelSrcPath = path.join(process.env.SOURCEPATH, "/.babelrc");
-  var finalBabelConfig = {};
-  if (fs.existsSync(babelSrcPath)) {
-    try {
-      var userBabelConfig = JSON.parse(fs.readFileSync(babelSrcPath));
-      finalBabelConfig = deepmerge(babelConfig, userBabelConfig);
-    } catch (e) {
-      // couldn't read the file
-      finalBabelConfig = babelConfig;
-    }
-  } else {
-    finalBabelConfig = babelConfig;
-  }
-
-  //console.log(JSON.stringify(finalBabelConfig, null, 2))
-  fs.writeFileSync(
-    babelPath,
-    JSON.stringify(finalBabelConfig, null, 2),
-    "utf8"
-  );
-
-  var htmlnanoPath = path.join(buildPath, "/.htmlnanorc");
-  var htmlnanoSrcPath = path.join(process.env.SOURCEPATH, "/.htmlnanorc");
-  // only write htmlnano file if not overriden by user
-  if (!fs.existsSync(htmlnanoSrcPath)) {
-    fs.writeFileSync(
-      htmlnanoPath,
-      JSON.stringify(htmlnanoConfig, null, 2),
-      "utf8"
-    );
-  }
-
   // also save any newfound deps into user's pkg.json
   // in sourcepath. But minus our hardcoded depsJson
 
   if (newDepsFound) {
+    var userPkg = JSON.parse(JSON.stringify(pkg)); // make a copy
     Object.keys(depsJson).forEach(key => {
-      delete pkg.dependencies[key];
+      delete userPkg.dependencies[key];
     });
     console.log(`\x1b[2mUpdating package.json\x1b[0m\n`);
     fs.writeFileSync(
       path.join(process.env.SOURCEPATH, "/package.json"),
-      JSON.stringify(pkg, null, 2),
+      JSON.stringify(userPkg, null, 2),
       "utf8"
     );
   }
+
+  // need this alias for hot reload features of React 16+ to work.
+  pkg.alias = pkg.alias || {};
+  pkg.alias["react-dom"] = "@hot-loader/react-dom";
+
+  // merge babelrc with user's babelrc (if present in user project)
+  var babelSrcPath = path.join(process.env.SOURCEPATH, "/.babelrc");
+  if (!fs.existsSync(babelSrcPath)) {
+    fs.writeFileSync(
+      babelSrcPath,
+      JSON.stringify(babelConfig, null, 2),
+      "utf8"
+    );
+  }
+
+  // process.env.BABELCONFIG = JSON.stringify(babelConfig)
+  // var htmlnanoSrcPath = path.join(process.env.SOURCEPATH, "/.htmlnanorc");
+  // // // only write htmlnano file if not overriden by user
+  // if (!fs.existsSync(htmlnanoSrcPath)) {
+  //   pkg["htmlnano"] = htmlnanoConfig;
+  // }
+
+  // write a pkg.json into tmp buildpath
+  fs.writeFileSync(
+    path.join(buildPath, ".zero", "package.json"),
+    JSON.stringify(pkg, null, 2),
+    "utf8"
+  );
 
   // add a .gitignore if not added by user
   var gitignorePath = path.join(process.env.SOURCEPATH, "/.gitignore");

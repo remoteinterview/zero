@@ -4,7 +4,7 @@ const fs = require("fs");
 const { fork } = require("child_process");
 
 async function bundler(componentPath, bundlePath, basePath) {
-  var fullBundlePath = path.join(process.env.BUILDPATH, bundlePath);
+  var fullBundlePath = path.join(process.env.SOURCEPATH, bundlePath);
 
   // generate bundle for node
   await bundleNode(componentPath, fullBundlePath, basePath, bundlePath, true);

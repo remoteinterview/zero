@@ -23,10 +23,12 @@ module.exports = async (
 
   // we need a entry file
   var entryFileName = path.join(
-    path.dirname(filename),
+    process.env.BUILDPATH,
     "/entry." + sha1(filename) + ".js"
   );
-  const entry = createEntry(path.basename(filename));
+  const entry = createEntry(
+    path.relative(path.dirname(entryFileName), filename)
+  );
   // save entry code in a file and feed it to parcel
   fs.writeFileSync(entryFileName, entry, "utf8");
 
@@ -35,6 +37,7 @@ module.exports = async (
     outDir: bundlePath,
     outFile: targetNode ? "bundle.node.js" : "bundle.js",
     publicUrl: publicBundlePath,
+    rootDir: process.env.SOURCEPATH,
     watch: !process.env.ISBUILDER,
     hmr: ISDEV && !process.env.ISBUILDER && !targetNode,
     logLevel: 2,
@@ -49,6 +52,11 @@ module.exports = async (
     minify: !ISDEV,
     autoinstall: false,
     sourceMaps: false //!ISDEV
+  });
+
+  process.on("SIGTERM", code => {
+    bundler.stop();
+    process.exit();
   });
   //console.log("rootDir", bundler.options.rootDir)
 
@@ -70,10 +78,14 @@ module.exports = async (
 };
 
 const createEntry = componentPath => {
+  componentPath = componentPath.replace(/\\/g, "/"); // fix slashes for fwd on windows
+  componentPath = componentPath.startsWith(".")
+    ? componentPath
+    : "./" + componentPath;
   return `
   import Vue from 'vue';
   import Meta from 'vue-meta'
-  import Page from './${componentPath}';
+  import Page from '${componentPath}';
   const PageExt = Vue.extend(Page);
   Vue.use(Meta, {
     keyName: "head"

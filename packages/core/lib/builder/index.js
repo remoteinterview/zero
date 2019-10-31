@@ -3,7 +3,7 @@ const debug = require("debug")("core");
 const fs = require("fs");
 const buildManifest = require("./buildManifest");
 const installPackages = require("./installPackages");
-const sync = require("./cloneAndWatch");
+const watch = require("./watcher");
 const ora = require("ora");
 const ISDEV = process.env.NODE_ENV !== "production";
 const slash = require("../utils/fixPathSlashes");
@@ -25,10 +25,12 @@ module.exports = async function build(
 
   debug("buildPath", buildPath);
 
-  sync(
+  watch(
     {
       sources: [path.join(sourcePath, "/**/*")],
       target: buildPath,
+      buildPath,
+      sourcePath,
       watch: isBuilder || !ISDEV ? false : true,
       clean: true,
       cleanModules: isBuilder
@@ -61,9 +63,10 @@ module.exports = async function build(
 
         debug("filesUpdated", filesUpdated);
         const { manifest, forbiddenFiles, dependencies } = await updateManifest(
-          buildPath,
+          sourcePath,
           currentManifest,
-          filesUpdated
+          filesUpdated,
+          buildPath
         );
         currentManifest = manifest;
         var serverAddress =
@@ -71,22 +74,7 @@ module.exports = async function build(
 
         // check if directory is empty on first run
         if (!isBuilder && event === "ready") {
-          fs.readdir(sourcePath, function(err, files) {
-            if (err) {
-              // some sort of error
-            } else {
-              if (!files.length) {
-                // directory appears to be empty
-                spinner.stopAndPersist({
-                  symbol: "⚠️ ",
-                  text:
-                    "It looks like the given directory is empty. Add a file (like index.js) and see what happens!"
-                });
-              } else {
-                spinner.succeed("Server running on " + serverAddress);
-              }
-            }
-          });
+          spinner.succeed("Server running on " + serverAddress);
         } else if (!isBuilder) {
           spinner.stop(); //("Server running on " + serverAddress);
         } else {
@@ -99,9 +87,14 @@ module.exports = async function build(
   );
 };
 
-async function updateManifest(buildPath, currentManifest, updatedFiles) {
+async function updateManifest(
+  buildPath,
+  currentManifest,
+  updatedFiles,
+  pkgPath
+) {
   //spinner.start("Updating packages");
-  var deps = await installPackages(buildPath, updatedFiles);
+  var deps = await installPackages(buildPath, updatedFiles, pkgPath);
   spinner.start("Generating manifest");
   const manifest = await buildManifest(
     buildPath,
