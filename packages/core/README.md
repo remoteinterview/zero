@@ -250,7 +250,7 @@ FROM node:alpine
 
 # Install dependencies via apk
 RUN apk update && apk upgrade \
-    && apk add --no-cache python  g++ make \
+    && apk add --no-cache python python3 g++ make \
     && rm -rf /var/cache/apk/*
 
 # Install zero globally
@@ -261,6 +261,9 @@ ADD . /app
 
 # Run zero in production mode
 ENV NODE_ENV production
+
+# Generate bundles
+RUN zero build
 
 # Expose port
 ENV PORT 80
