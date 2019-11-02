@@ -155,6 +155,7 @@ function matchesPatterns(patterns, path) {
 async function getBabelVersion(asset, plugins) {
   // Check the package.json to determine the babel version that is installed
   let pkg = await asset.getPackage();
+  if (!pkg) return 7;
   let babelLegacy = getDependency(pkg, "babel-core");
   let babelModern = getDependency(pkg, "@babel/core");
 
