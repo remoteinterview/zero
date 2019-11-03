@@ -1,11 +1,11 @@
 {
   "name": "zero-builder-html",
   "main": "index.js",
-  "version": "1.1.0-alpha.6",
+  "version": "1.1.0-alpha.7",
   "license": "Apache-2.0",
   "dependencies": {
     "mkdirp": "^0.5.1",
-    "zero-parcel-bundler": "^1.1.0-alpha.5"
+    "zero-parcel-bundler": "^1.1.0-alpha.7"
   },
   "gitHead": "9e577043290b2ad1205a24f14c4edf7329c6073d"
 }
