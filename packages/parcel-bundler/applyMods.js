@@ -9,13 +9,14 @@ const mods = [
   // modify "getBabelVersion(asset, plugins)" to not install babel@core and infer version 7 already present.
   ["parcel-bundler/src/transforms/babel/babelrc", "babelrc.js"]
 ];
-
-mods.forEach(mod => {
-  fs.writeFileSync(
-    require.resolve(mod[0]),
-    fs.readFileSync(path.join(__dirname, "mods", mod[1]), "utf8"),
-    "utf8"
-  );
-});
+module.exports = () => {
+  mods.forEach(mod => {
+    fs.writeFileSync(
+      require.resolve(mod[0]),
+      fs.readFileSync(path.join(__dirname, "mods", mod[1]), "utf8"),
+      "utf8"
+    );
+  });
+};
 
 ////

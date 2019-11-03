@@ -5,6 +5,8 @@ var localRequire = require("parcel-bundler/src/utils/localRequire");
 const logger = require("@parcel/logger");
 const pkg = require("./package");
 
+require("./applyMods")();
+
 /// modify parcel to load plugins from zero's folder instead of user's package.json
 Bundler.prototype.loadPlugins = async function() {
   let relative = __dirname;
