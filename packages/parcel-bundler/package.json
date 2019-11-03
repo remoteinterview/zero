@@ -4,7 +4,7 @@
   "version": "1.1.0-alpha.7",
   "license": "Apache-2.0",
   "scripts": {
-    "preinstall": "ls && ls node_modules && ls node_modules/parcel-bundler",
+    "preinstall": "node -e \"require('child_process').execSync('ls ' + require('path').dirname(require.resolve('parcel-bundler')), {stdio: 'inherit'})\"",
     "postinstall": "node applyMods.js"
   },
   "dependencies": {
