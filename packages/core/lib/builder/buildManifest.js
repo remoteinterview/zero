@@ -126,6 +126,7 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
           return p;
         })
         .join("/");
+      trimmedPath = encodeURI(trimmedPath);
       if (trimmedPath.endsWith("/index")) {
         trimmedPath = trimmedPath
           .split("/index")

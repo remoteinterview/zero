@@ -67,6 +67,20 @@ test("path which is similar to a valid lambda but not really", () => {
   // });
 });
 
+test("path with space", () => {
+  // expect.assertions(1);
+  return get("/api/with space", { json: true }).then(data => {
+    expect(data["withspace"]).toBe(true);
+  });
+});
+
+test("path with dot", () => {
+  // expect.assertions(1);
+  return get("/api/with.dot", { json: true }).then(data => {
+    expect(data["withdot"]).toBe(true);
+  });
+});
+
 test("404 page works", () => {
   // expect.assertions(1);
   return get("/this/doesntexist", { json: true }).then(data => {
