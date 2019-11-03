@@ -10,6 +10,7 @@ try {
   fs.writeFileSync(pkgPath, JSON.stringify(pkg), "utf8");
 } catch (e) {
   // do nothing
+  console.log(e);
 }
 
 // cleanup core-js postinstall msgs
@@ -17,5 +18,6 @@ try {
   var corejsPath = require.resolve("core-js/postinstall");
   fs.writeFileSync(corejsPath, "", "utf8");
 } catch (e) {
+  console.log(e);
   // do nothing
 }
