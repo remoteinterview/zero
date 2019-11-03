@@ -43,8 +43,9 @@ module.exports = async (
     logLevel: 2,
     target: targetNode ? "node" : "browser",
     cacheDir: path.join(
-      process.env.BUILDPATH,
-      "_cache",
+      require("os").tmpdir(),
+      "zero",
+      "cache",
       sha1(filename),
       targetNode ? "node" : "browser"
     ),

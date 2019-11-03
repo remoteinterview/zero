@@ -23,7 +23,12 @@ module.exports = async function bundle(entryFile, buildPath, publicPath) {
     logLevel: 2,
     target: "node",
     autoinstall: false,
-    cacheDir: path.join(process.env.BUILDPATH, "_cache", sha1(entryFile)),
+    cacheDir: path.join(
+      require("os").tmpdir(),
+      "zero",
+      "cache",
+      sha1(entryFile)
+    ),
     cache: !process.env.ISBUILDER,
     minify: !isDev
   });

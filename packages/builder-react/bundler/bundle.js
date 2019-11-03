@@ -61,7 +61,7 @@ module.exports = async (
     logLevel: 2,
     rootDir: process.env.SOURCEPATH,
     target: targetNode ? "node" : "browser",
-    cacheDir: path.join(process.env.BUILDPATH, "_cache"),
+    cacheDir: path.join(require("os").tmpdir(), "zero", "cache"),
     cache: !process.env.ISBUILDER,
     minify: !ISDEV,
     autoinstall: false,
