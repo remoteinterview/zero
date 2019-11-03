@@ -1,7 +1,7 @@
 {
   "name": "zero-parcel-bundler",
   "main": "index.js",
-  "version": "1.1.0-alpha.7",
+  "version": "1.1.0-alpha.8",
   "license": "Apache-2.0",
   "scripts": {
     "preinstall": "node -e \"require('child_process').execSync('ls ' + require('path').dirname(require.resolve('parcel-bundler')), {stdio: 'inherit'})\"",
