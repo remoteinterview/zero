@@ -7,7 +7,9 @@ const mods = [
   // modify localRequire to check commonDeps path too.
   ["parcel-bundler/src/utils/localRequire", "localRequire.js"],
   // modify "getBabelVersion(asset, plugins)" to not install babel@core and infer version 7 already present.
-  ["parcel-bundler/src/transforms/babel/babelrc", "babelrc.js"]
+  ["parcel-bundler/src/transforms/babel/babelrc", "babelrc.js"],
+  // modify
+  ["parcel-bundler/src/utils/installPackage", "installPackage.js"]
 ];
 module.exports = () => {
   mods.forEach(mod => {

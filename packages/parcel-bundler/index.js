@@ -1,11 +1,10 @@
 process.env.ZERO_COMMON_DEPS_PATH = require.resolve("zero-common-deps");
 
+require("./applyMods")();
 var Bundler = require("parcel-bundler");
 var localRequire = require("parcel-bundler/src/utils/localRequire");
 const logger = require("@parcel/logger");
 const pkg = require("./package");
-
-require("./applyMods")();
 
 /// modify parcel to load plugins from zero's folder instead of user's package.json
 Bundler.prototype.loadPlugins = async function() {

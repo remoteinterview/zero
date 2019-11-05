@@ -24,11 +24,11 @@ async function localResolve(name, path, triedInstall = true) {
         });
       }
     } catch (e) {
-      // if (e.code === "MODULE_NOT_FOUND" && !triedInstall) {
-      //   const packageName = getModuleParts(name)[0];
-      //   await installPackage(packageName, path);
-      //   return localResolve(name, path, true);
-      // }
+      if (e.code === "MODULE_NOT_FOUND" && !triedInstall) {
+        const packageName = getModuleParts(name)[0];
+        await installPackage(packageName, path);
+        return localResolve(name, path, true);
+      }
       throw e;
     }
     cache.set(key, resolved);
