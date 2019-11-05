@@ -21,6 +21,7 @@
     "react-helmet-async": "^1.0.4",
     "react-hot-loader": "^4.12.15",
     "regenerator-runtime": "^0.12.0",
+    "node-sass": "^4.13.0",
     "sass": "^1.17.2",
     "typescript": "^3.6.4",
     "vue": "^2.6.10",
