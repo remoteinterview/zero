@@ -3,22 +3,19 @@ const path = require("path");
 const fs = require("fs");
 const builtInPackages = require("module").builtinModules || [];
 
+const avaibleExtensions = [".js", ".jsx", ".md", ".mdx", ".ts", ".tsx", ".vue"];
+
 // recursively generate list of (relative) files imported by given file
 function getRelativeFiles(file) {
   const extension = path.extname(file);
   var deps = [];
-  if (!fs.existsSync(file, "utf8")) return deps;
+
+  if (!fs.existsSync(file, "utf8")) {
+    return deps;
+  }
 
   // js based files
-  if (
-    extension === ".js" ||
-    extension === ".jsx" ||
-    extension === ".md" ||
-    extension === ".mdx" ||
-    extension === ".ts" ||
-    extension === ".tsx" ||
-    extension === ".vue"
-  ) {
+  if (avaibleExtensions.includes(extension)) {
     var imports = konan(file, fs.readFileSync(file, "utf8"));
     // only strings for now.
     imports.strings.forEach(imp => {
@@ -29,15 +26,19 @@ function getRelativeFiles(file) {
           deps.push(path.join(path.dirname(file), imp));
         } else {
           var baseName = path.join(path.dirname(file), imp);
-          if (fs.existsSync(baseName + ".js")) deps.push(baseName + ".js");
+
+          if (fs.existsSync(baseName + ".js"))
+            deps.push(baseName + ".js");
           else if (fs.existsSync(baseName + ".jsx"))
             deps.push(baseName + ".jsx");
           else if (fs.existsSync(baseName + ".json"))
             deps.push(baseName + ".json");
-          else if (fs.existsSync(baseName + ".md")) deps.push(baseName + ".md");
+          else if (fs.existsSync(baseName + ".md"))
+            deps.push(baseName + ".md");
           else if (fs.existsSync(baseName + ".mdx"))
             deps.push(baseName + ".mdx");
-          else if (fs.existsSync(baseName + ".ts")) deps.push(baseName + ".ts");
+          else if (fs.existsSync(baseName + ".ts"))
+            deps.push(baseName + ".ts");
           else if (fs.existsSync(baseName + ".tsx"))
             deps.push(baseName + ".tsx");
           else if (fs.existsSync(baseName + ".vue"))
@@ -55,21 +56,13 @@ function getRelativeFiles(file) {
 function getPackages(file) {
   var deps = [];
   const extension = path.extname(file);
-  if (
-    extension === ".js" ||
-    extension === ".jsx" ||
-    extension === ".md" ||
-    extension === ".mdx" ||
-    extension === ".ts" ||
-    extension === ".tsx" ||
-    extension === ".vue"
-  ) {
+  if (avaibleExtensions.includes(extension)) {
     var imports = konan(file, fs.readFileSync(file, "utf8"));
     // only strings for now.
     imports.strings.forEach(imp => {
       imp = trimPackageName(imp);
       // skip relative imports and built-in imports (on newer node versions only)
-      if (!imp.startsWith(".") && builtInPackages.indexOf(imp) === -1) {
+      if (!imp.startsWith(".") && !builtInPackages.includes(imp)) {
         deps.push(imp);
       }
     });
