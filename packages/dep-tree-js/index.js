@@ -3,7 +3,7 @@ const path = require("path");
 const fs = require("fs");
 const builtInPackages = require("module").builtinModules || [];
 
-const avaibleExtensions = [".js", ".jsx", ".md", ".mdx", ".ts", ".tsx", ".vue"];
+const availableExtensions = [".js", ".jsx", ".md", ".mdx", ".ts", ".tsx", ".vue"];
 
 // recursively generate list of (relative) files imported by given file
 function getRelativeFiles(file) {
@@ -15,7 +15,7 @@ function getRelativeFiles(file) {
   }
 
   // js based files
-  if (avaibleExtensions.includes(extension)) {
+  if (availableExtensions.includes(extension)) {
     var imports = konan(file, fs.readFileSync(file, "utf8"));
     // only strings for now.
     imports.strings.forEach(imp => {
@@ -27,22 +27,13 @@ function getRelativeFiles(file) {
         } else {
           var baseName = path.join(path.dirname(file), imp);
 
-          if (fs.existsSync(baseName + ".js"))
-            deps.push(baseName + ".js");
-          else if (fs.existsSync(baseName + ".jsx"))
-            deps.push(baseName + ".jsx");
-          else if (fs.existsSync(baseName + ".json"))
-            deps.push(baseName + ".json");
-          else if (fs.existsSync(baseName + ".md"))
-            deps.push(baseName + ".md");
-          else if (fs.existsSync(baseName + ".mdx"))
-            deps.push(baseName + ".mdx");
-          else if (fs.existsSync(baseName + ".ts"))
-            deps.push(baseName + ".ts");
-          else if (fs.existsSync(baseName + ".tsx"))
-            deps.push(baseName + ".tsx");
-          else if (fs.existsSync(baseName + ".vue"))
-            deps.push(baseName + ".vue");
+          availableExtensions.forEach(extension => {
+            const currentFile = baseName + extension;
+            if (fs.existsSync(currentFile)) {
+              deps.push(currentFile);
+            }
+          });
+
         }
       }
     });
@@ -56,7 +47,7 @@ function getRelativeFiles(file) {
 function getPackages(file) {
   var deps = [];
   const extension = path.extname(file);
-  if (avaibleExtensions.includes(extension)) {
+  if (availableExtensions.includes(extension)) {
     var imports = konan(file, fs.readFileSync(file, "utf8"));
     // only strings for now.
     imports.strings.forEach(imp => {
