@@ -5,6 +5,7 @@ const debug = require("debug")("core");
 const slash = require("../utils/fixPathSlashes");
 const builders = require("zero-builders-map");
 const nodeignore = require("../utils/zeroignore");
+const fileToLambda = require("../utils/fileToLambda");
 const pythonFirstRun = require("zero-handlers-map").handlers["lambda:python"]
   .firstrun;
 var pythonFirstRunCompleted = false;
@@ -56,35 +57,28 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
       if (zeroignore.ignores(fileRelative)) return false;
 
       switch (extension) {
-        // check if js file is a js lambda function
+        // for all these extensions just return lambda type
         case ".js":
         case ".ts":
-          return [file, "lambda:js"];
-
-        // check if a react component
-        // md/mdx is also rendered by react lambda
         case ".jsx":
         case ".tsx":
         case ".mdx":
         case ".md":
-          return [file, "lambda:react"];
-
         case ".vue":
-          return [file, "lambda:vue"];
+        case ".html":
+        case ".htm":
+          return [file, fileToLambda(file)];
 
-        // Python Lambda
+        // Python Lambda needs to run this additional step once
         case ".py":
           // also run python first run if not run already
           if (!pythonFirstRunCompleted) {
             pythonFirstRun(buildPath).catch(e => console.error(e));
             pythonFirstRunCompleted = true;
           }
-          return [file, "lambda:python"];
+          return [file, fileToLambda(file)];
 
-        case ".html":
-        case ".htm":
-          return [file, "lambda:html"];
-
+        // .json can be a proxy path.
         case ".json":
           // check if this is a proxy path
           // avoid reading large json files as they are likely not our proxy path config
@@ -92,7 +86,7 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
             try {
               var json = JSON.parse(fs.readFileSync(file, "utf8"));
               if (json && json.type && json.type === "proxy") {
-                return [file, "lambda:proxy"];
+                return [file, fileToLambda(file)];
               }
             } catch (e) {} // bad json probably, skip
           }

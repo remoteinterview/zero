@@ -9,19 +9,7 @@ var toBeInstalledLocally = [
   "regenerator-runtime",
   "@babel/plugin-proposal-class-properties",
   "babel-plugin-transform-zero-dirname-filename",
-  "babel-plugin-react-require",
-  "@babel/plugin-transform-runtime",
-  "react",
-  "react-dom",
-  "react-helmet-async",
-  "react-hot-loader",
-  "@hot-loader/react-dom",
-  "vue",
-  "vue-template-compiler",
-  "vue-hot-reload-api",
-  "vue-meta",
-  "@mdx-js/react",
-  "@mdx-js/tag"
+  "@babel/plugin-transform-runtime"
 ];
 module.exports = {
   resolvePath: pkgName => require.resolve(pkgName),
