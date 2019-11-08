@@ -184,6 +184,12 @@ function installPackages(buildPath, filterFiles, pkgPath) {
             allInstalled = false; //didn't find this dep in there.
           }
         });
+
+        Object.keys(builderDeps).forEach(dep => {
+          if (!pkg || !pkg.dependencies || !pkg.dependencies[dep]) {
+            allInstalled = false; //didn't find this dep in there.
+          }
+        });
       } catch (e) {}
     }
     if (!allInstalled || firstRun || pkgJsonChanged) {
