@@ -30,6 +30,6 @@ jobs:
     - run: npm test
       env: 
         PARCEL_WORKERS: 1
-        ZERO_LIMIT_BUNDLERS: 5
-        HMRWAITTIME: 30000
+        ZERO_LIMIT_BUNDLERS: 3
+        HMRWAITTIME: 60000
         NODE_OPTIONS: --max-old-space-size=8192

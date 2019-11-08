@@ -6,6 +6,7 @@ dist
 zero-builds
 *.log
 test/www/package.json
+test/www/yarn.lock
 test/www/.gitignore
 test/www/.babelrc
 test/www/hmr/*
