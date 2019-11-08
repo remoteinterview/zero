@@ -13,9 +13,9 @@ module.exports = file => {
   };
 
   const ext = path.extname(file);
-  if (ext === ".sass") {
+  if (ext === ".sass" || ext === ".scss") {
     var sassDeps = { sass: "^1.17.2" };
-    deps = { ...deps, sassDeps };
+    deps = { ...deps, ...sassDeps };
   }
 
   return deps;
