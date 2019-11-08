@@ -9,7 +9,8 @@ var toBeInstalledLocally = [
   "regenerator-runtime",
   "@babel/plugin-proposal-class-properties",
   "babel-plugin-transform-zero-dirname-filename",
-  "@babel/plugin-transform-runtime"
+  "@babel/plugin-transform-runtime",
+  "sass"
 ];
 module.exports = {
   resolvePath: pkgName => require.resolve(pkgName),
