@@ -262,7 +262,7 @@ function builder(sourcePath) {
             "_config",
             "package.json"
           ),
-          fs.readFileSync(path.join(process.env.BUILDPATH, "package.json"))
+          fs.readFileSync(path.join(process.env.SOURCEPATH, "package.json"))
         );
 
         // copy .babelrc
