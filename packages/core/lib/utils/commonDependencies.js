@@ -18,5 +18,12 @@ module.exports = file => {
     deps = { ...deps, ...sassDeps };
   }
 
+  if (ext === ".ts" || ext === ".tsx") {
+    var depsTs = {
+      typescript: "^3.7.2"
+    };
+    deps = { ...deps, ...depsTs };
+  }
+
   return deps;
 };

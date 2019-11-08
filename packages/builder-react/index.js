@@ -37,13 +37,6 @@ module.exports = {
       return { ...deps, ...depsMdx };
     }
 
-    if (ext === ".ts" || ext === ".tsx") {
-      var depsTs = {
-        typescript: "^3.6.4"
-      };
-      return { ...deps, ...depsTs };
-    }
-
     return deps;
   }
 };
