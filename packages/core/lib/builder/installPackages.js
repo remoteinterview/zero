@@ -2,15 +2,13 @@ const getPackages = require("zero-dep-tree-js").getPackages;
 const fs = require("fs");
 const os = require("os");
 var glob = require("fast-glob");
-const deepmerge = require("deepmerge");
 var { fork } = require("child_process");
-const commonDeps = require("zero-common-deps");
+const getCommonDeps = require("../utils/commonDependencies");
 var path = require("path");
 const debug = require("debug")("core");
 var yarnPath = require.resolve("yarn/bin/yarn.js");
 const fileToLambda = require("../utils/fileToLambda");
 const builders = require("zero-builders-map");
-process.env.YARN_PATH = yarnPath; // this is used by parcel bundler to install packages in runtime using yarn only
 
 var firstRun = true;
 //process.on('unhandledRejection', up => { throw up });
@@ -129,7 +127,7 @@ function installPackages(buildPath, filterFiles, pkgPath) {
     });
     debug("files", files);
     var deps = [];
-    var builderDeps = {};
+    var commonDepsNeeded = {};
     var babelConfig = baseBabelConfig;
     var babelSrcPath = path.join(process.env.SOURCEPATH, "/.babelrc");
     if (fs.existsSync(babelSrcPath)) {
@@ -158,10 +156,15 @@ function installPackages(buildPath, filterFiles, pkgPath) {
       // extract imports
       deps = deps.concat(getPackages(file));
 
+      // add common deps needed for this file type
+      var depsCommonForThisFile = getCommonDeps(file);
+      if (depsCommonForThisFile) {
+        commonDepsNeeded = { ...commonDepsNeeded, ...depsCommonForThisFile };
+      }
       // add builder specific deps
       var depsByThisBuilder = getBuilderDeps(file);
       if (depsByThisBuilder) {
-        builderDeps = { ...builderDeps, ...depsByThisBuilder };
+        commonDepsNeeded = { ...commonDepsNeeded, ...depsByThisBuilder };
       }
 
       // modify babelrc if builders wants to
@@ -185,7 +188,7 @@ function installPackages(buildPath, filterFiles, pkgPath) {
           }
         });
 
-        Object.keys(builderDeps).forEach(dep => {
+        Object.keys(commonDepsNeeded).forEach(dep => {
           if (!pkg || !pkg.dependencies || !pkg.dependencies[dep]) {
             allInstalled = false; //didn't find this dep in there.
           }
@@ -207,8 +210,8 @@ function installPackages(buildPath, filterFiles, pkgPath) {
       );
 
       // now that we have a list. npm install them in our build folder
-      await writePackageJSON(buildPath, deps, builderDeps);
-      debug("installing", deps, builderDeps);
+      await writePackageJSON(buildPath, deps, commonDepsNeeded);
+      debug("installing", deps, commonDepsNeeded);
 
       runYarn(pkgPath, ["install"]).then(() => {
         // installed
@@ -221,10 +224,9 @@ function installPackages(buildPath, filterFiles, pkgPath) {
   });
 }
 
-async function writePackageJSON(buildPath, deps, builderDeps) {
+async function writePackageJSON(buildPath, deps, commonDepsNeeded) {
   // first load current package.json if present
   var pkgjsonPath = path.join(buildPath, "/package.json");
-  var newDepsFound = false;
   var pkg = {
     name: "zero-app",
     private: true,
@@ -239,22 +241,13 @@ async function writePackageJSON(buildPath, deps, builderDeps) {
     } catch (e) {}
   }
 
-  // the base packages required by zero
-  var depsJson = commonDeps.dependenciesToBeInstalled();
-
+  // the combined object of packages needed by zero and all builders being used.
   if (pkg.dependencies) {
-    Object.keys(depsJson).forEach(key => {
-      pkg.dependencies[key] = depsJson[key];
+    Object.keys(commonDepsNeeded).forEach(key => {
+      pkg.dependencies[key] = commonDepsNeeded[key];
     });
   } else {
-    pkg.dependencies = depsJson;
-  }
-
-  // the combined object of packages needed by all builders being used.
-  if (builderDeps) {
-    Object.keys(builderDeps).forEach(key => {
-      pkg.dependencies[key] = builderDeps[key];
-    });
+    pkg.dependencies = commonDepsNeeded;
   }
 
   // append user's imported packages (only if not already defined in package.json)
@@ -265,22 +258,6 @@ async function writePackageJSON(buildPath, deps, builderDeps) {
       pkg.dependencies[dep] = await getNPMVersion(dep);
     }
   }
-
-  // also save any newfound deps into user's pkg.json
-  // in sourcepath. But minus our hardcoded depsJson
-
-  // if (newDepsFound) {
-  //   var userPkg = JSON.parse(JSON.stringify(pkg)); // make a copy
-  //   Object.keys(depsJson).forEach(key => {
-  //     delete userPkg.dependencies[key];
-  //   });
-  //   console.log(`\x1b[2mUpdating package.json\x1b[0m\n`);
-  //   fs.writeFileSync(
-  //     path.join(process.env.SOURCEPATH, "/package.json"),
-  //     JSON.stringify(userPkg, null, 2),
-  //     "utf8"
-  //   );
-  // }
 
   // need this alias for hot reload features of React 16+ to work.
   if (Object.keys(pkg.dependencies).indexOf("@hot-loader/react-dom") !== -1) {
@@ -296,7 +273,7 @@ async function writePackageJSON(buildPath, deps, builderDeps) {
   );
 
   // add a .gitignore if not added by user
-  var gitignorePath = path.join(process.env.SOURCEPATH, "/.gitignore");
+  var gitignorePath = path.join(buildPath, "/.gitignore");
   if (!fs.existsSync(gitignorePath)) {
     fs.writeFileSync(
       gitignorePath,
