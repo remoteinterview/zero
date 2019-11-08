@@ -226,11 +226,10 @@ module.exports = buildPath => {
       // try to load build-info from file (if generated using 'zero build' command)
       try {
         var file = fs.readFileSync(
-          path.join(buildPath, "/zero-builds/build-info.json"),
+          path.join(process.env.BUILDPATH, "zero-builds", "build-info.json"),
           "utf8"
         );
         lambdaIdToBundleInfo = JSON.parse(file);
-        //console.log("loading build info with ", Object.keys(lambdaIdToBundleInfo).length, "keys")
       } catch (e) {
         // file is probably not present, ignore
       }
