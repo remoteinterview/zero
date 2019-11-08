@@ -9,7 +9,8 @@ module.exports = file => {
     "regenerator-runtime": "^0.12.0",
     "@babel/plugin-proposal-class-properties": "^7.3.4",
     "babel-plugin-transform-zero-dirname-filename": "^1.1.1-alpha.0",
-    "@babel/plugin-transform-runtime": "^7.2.0"
+    "@babel/plugin-transform-runtime": "^7.2.0",
+    cssnano: "^4.1.10"
   };
 
   const ext = path.extname(file);
