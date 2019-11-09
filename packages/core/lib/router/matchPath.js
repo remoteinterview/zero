@@ -8,6 +8,13 @@ const stripTrailingSlash = str => {
   return str.replace(/^(.+?)\/*?$/, "$1");
 };
 
+var getLambdaID = function(path) {
+  return require("crypto")
+    .createHash("sha1")
+    .update(path)
+    .digest("hex");
+};
+
 function matchPathWithDictionary(
   Manifest,
   forbiddenStaticFiles,
@@ -76,7 +83,7 @@ function matchPathWithDictionary(
   var forOFor;
   Manifest.lambdas.forEach(endpoint => {
     if (endpoint.path === "/404") {
-      var newEndpoint = { ...endpoint, path };
+      var newEndpoint = { ...endpoint, path, id: getLambdaID(path) };
       forOFor = newEndpoint;
     }
   });
