@@ -9,23 +9,7 @@ const mkdirp = require("mkdirp");
 const slash = require("./utils/fixPathSlashes");
 const pkg = require("../package");
 const FileHash = require("./utils/fileHash");
-
-function resolveYarn() {
-  var yPath;
-  try {
-    var p = require.resolve("yarn/bin/yarn");
-    if (p) {
-      yPath = path.dirname(p);
-    }
-  } catch (e) {}
-
-  // fallback
-  if (!yPath) {
-    yPath = path.join(__dirname, "..", "node_modules", "yarn", "bin");
-  }
-
-  return yPath;
-}
+const { resolveYarn } = require("./utils/yarn");
 
 function setupEnvVariables(sourcePath) {
   // Load environment variables from .env file if present
