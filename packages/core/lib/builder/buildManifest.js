@@ -10,6 +10,13 @@ const pythonFirstRun = require("zero-handlers-map").handlers["lambda:python"]
   .firstrun;
 var pythonFirstRunCompleted = false;
 
+var getLambdaID = function(path) {
+  return require("crypto")
+    .createHash("sha1")
+    .update(path)
+    .digest("hex");
+};
+
 async function getFiles(baseSrc) {
   return glob(path.join(baseSrc, "/**"), {
     onlyFiles: true,
@@ -45,10 +52,10 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
         var normalizedFile = file;
         if (fileFilter.indexOf(normalizedFile) === -1) {
           var endpoint = oldManifest.lambdas.find(lambda => {
-            return lambda[1] === normalizedFile;
+            return lambda.entryFile === normalizedFile;
           });
           debug("skipping", normalizedFile, !!endpoint);
-          if (endpoint) return [file, endpoint[2]];
+          if (endpoint) return [file, endpoint.type];
           else return false;
         }
       }
@@ -67,7 +74,7 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
         case ".vue":
         case ".html":
         case ".htm":
-          return [file, fileToLambda(file)];
+          return { entryFile: file, type: fileToLambda(file) };
 
         // Python Lambda needs to run this additional step once
         case ".py":
@@ -76,7 +83,7 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
             pythonFirstRun(buildPath).catch(e => console.error(e));
             pythonFirstRunCompleted = true;
           }
-          return [file, fileToLambda(file)];
+          return { entryFile: file, type: fileToLambda(file) };
 
         // .json can be a proxy path.
         case ".json":
@@ -86,7 +93,7 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
             try {
               var json = JSON.parse(fs.readFileSync(file, "utf8"));
               if (json && json.type && json.type === "proxy") {
-                return [file, fileToLambda(file)];
+                return { entryFile: file, type: fileToLambda(file) };
               }
             } catch (e) {} // bad json probably, skip
           }
@@ -108,7 +115,8 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
 
     // add endpoint path at 0 position for each lambda
     .map(endpoint => {
-      var trimmedPath = "/" + slash(path.relative(buildPath, endpoint[0]));
+      var trimmedPath =
+        "/" + slash(path.relative(buildPath, endpoint.entryFile));
       trimmedPath = trimmedPath
         .split(".")
         .slice(0, -1) // remove extension
@@ -128,14 +136,15 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
           .join("/index"); // remove extension
       }
 
-      endpoint.unshift(trimmedPath);
+      endpoint["path"] = trimmedPath;
+      endpoint["id"] = getLambdaID(trimmedPath);
       return endpoint;
     });
 
   // get all related files (imports/requires) of this lambda
   lambdas = lambdas.map(endpoint => {
-    endpoint.push(
-      [endpoint[1]].concat(dependencyTree(endpoint[2], endpoint[1]))
+    endpoint["relatedFiles"] = [endpoint.entryFile].concat(
+      dependencyTree(endpoint[2], endpoint[1])
     );
     return endpoint;
   });
@@ -145,9 +154,9 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
   // lambdas depending on that file.
   var fileToLambdas = {};
   lambdas.forEach(endpoint => {
-    endpoint[3].forEach(file => {
+    endpoint.relatedFiles.forEach(file => {
       fileToLambdas[file] = fileToLambdas[file] || [];
-      fileToLambdas[file].push(endpoint[1]);
+      fileToLambdas[file].push(endpoint.entryFile);
     });
   });
 
