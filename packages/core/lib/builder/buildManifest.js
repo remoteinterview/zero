@@ -143,7 +143,7 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
   // get all related files (imports/requires) of this lambda
   lambdas = lambdas.map(endpoint => {
     endpoint["relatedFiles"] = [endpoint.entryFile].concat(
-      dependencyTree(endpoint[2], endpoint[1])
+      dependencyTree(endpoint.type, endpoint.entryFile)
     );
     return endpoint;
   });
