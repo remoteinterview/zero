@@ -49,13 +49,12 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
       file = slash(file);
       // if old manifest is given and a file filter is given, we skip those not in filter
       if (oldManifest && fileFilter && fileFilter.length) {
-        var normalizedFile = file;
-        if (fileFilter.indexOf(normalizedFile) === -1) {
+        if (fileFilter.indexOf(file) === -1) {
           var endpoint = oldManifest.lambdas.find(lambda => {
-            return lambda.entryFile === normalizedFile;
+            return lambda.entryFile === file;
           });
-          debug("skipping", normalizedFile, !!endpoint);
-          if (endpoint) return [file, endpoint.type];
+          debug("skipping", file, !!endpoint);
+          if (endpoint) return { entryFile: file, type: endpoint.type };
           else return false;
         }
       }
