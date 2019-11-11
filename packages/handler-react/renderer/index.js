@@ -1,7 +1,7 @@
 const localRequire = lib => {
   return require(require("path").join(
     process.env.SOURCEPATH,
-    "/node_modules/",
+    "node_modules",
     lib
   ));
 };
@@ -16,7 +16,7 @@ const { renderToString } = localRequire("react-dom/server");
 // we use client's helmet instance to avoid two Helmet instances to be loaded.
 // see: https://github.com/nfl/react-helmet/issues/125
 // and https://stackoverflow.com/questions/45822925/react-helmet-outputting-empty-strings-on-server-side
-const { Helmet, HelmetProvider } = localRequire("react-helmet-async");
+const { HelmetProvider } = localRequire("react-helmet-async");
 
 const jsonStringify = require("json-stringify-safe");
 var ssrCrashWarned = false;
@@ -26,16 +26,9 @@ const requireUncached = module => {
     delete require.cache[require.resolve(module)];
   return require(module);
 };
-async function generateComponent(
-  req,
-  res,
-  componentPath,
-  bundlePath,
-  basePath,
-  bundleInfo
-) {
+async function generateComponent(req, res, endpointData, buildInfo) {
   try {
-    var appPath = path.join(process.env.SOURCEPATH, bundleInfo.jsNode);
+    var appPath = path.join(process.env.SOURCEPATH, buildInfo.jsNode);
     var App = requireUncached(appPath);
   } catch (e) {
     if (!ssrCrashWarned) console.log(e);
@@ -53,11 +46,13 @@ async function generateComponent(
   if (!App) {
     // component failed to load or was not exported.
 
-    if (bundleInfo && bundleInfo.js) {
+    if (buildInfo && buildInfo.js) {
       // atleast we have a bundle. Disable SSR for this endpoint.
       if (!ssrCrashWarned)
         console.warn(
-          `\n\n⚠️ SSR didn't work for ${basePath}. Some component might not be SSR compatible.`
+          `\n\n⚠️ SSR didn't work for ${
+            endpointData.path
+          }. Some component might not be SSR compatible.`
         );
       ssrCrashWarned = true;
       var markup = `<!DOCTYPE html>
@@ -65,15 +60,15 @@ async function generateComponent(
           <head>
             <meta charset="utf-8"/>
             ${
-              bundleInfo.css
-                ? `<link rel="stylesheet" href="/${bundleInfo.css}">`
+              buildInfo.css
+                ? `<link rel="stylesheet" href="/${buildInfo.css}">`
                 : ""
             }
           </head>
           <body>
             <div id="_react_root"></div>
             <script id='initial_props' type='application/json'>{}</script>
-            <script src="/${bundleInfo.js}"></script>
+            <script src="/${buildInfo.js}"></script>
           </body>
         </html>`;
 
@@ -138,17 +133,17 @@ async function generateComponent(
         ${helmet.meta.toString()}
         ${helmet.link.toString()}
         ${
-          bundleInfo && bundleInfo.css
-            ? `<link rel="stylesheet" href="/${bundleInfo.css}">`
+          buildInfo && buildInfo.css
+            ? `<link rel="stylesheet" href="/${buildInfo.css}">`
             : ""
         }
       </head>
       <body ${helmet.bodyAttributes.toString()}>
         <div id="_react_root">${html}</div>
         ${
-          !config.noBundling && bundleInfo && bundleInfo.js
+          !config.noBundling && buildInfo && buildInfo.js
             ? `<script id='initial_props' type='application/json'>${json}</script>
-          <script src="/${bundleInfo.js}"></script>`
+          <script src="/${buildInfo.js}"></script>`
             : ""
         }
       </body>

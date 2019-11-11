@@ -50,14 +50,10 @@ async function proxyLambdaRequest(req, res, endpointData) {
   // generate a handler if not generated previously
   if (!lambdaIdToHandler[lambdaID]) {
     const handlerApp = await getHandler(endpointData.type);
-    lambdaIdToHandler[lambdaID] = await handlerApp([
-      endpointData.path,
-      endpointData.entryFile,
-      endpointData.type,
-      process.env.SERVERADDRESS,
-      "zero-builds/" + lambdaID,
+    lambdaIdToHandler[lambdaID] = await handlerApp(
+      endpointData,
       lambdaIdToBundleInfo[lambdaID] ? lambdaIdToBundleInfo[lambdaID].info : ""
-    ]);
+    );
   }
   if (spinner.isSpinning) {
     spinner.succeed(url.resolve("/", endpointData.path) + " ready");
