@@ -9,30 +9,7 @@ const slash = require("./utils/fixPathSlashes");
 const pkg = require("../package");
 const FileHash = require("./utils/fileHash");
 const setupEnvVariables = require("./utils/setupEnvVars");
-
-// Build beforehand
-const fork = require("child_process").fork;
-const bundlerProgram = require.resolve("zero-builder-process");
-
-function getBundleInfo(endpointData) {
-  return new Promise(async (resolve, reject) => {
-    if (!bundlerProgram) return resolve(false);
-    const parameters = [
-      endpointData.path,
-      endpointData.entryFile,
-      endpointData.type,
-      ".zero/zero-builds/" + endpointData.id
-    ];
-    const options = {
-      stdio: [0, 1, 2, "ipc"]
-    };
-
-    const child = fork(bundlerProgram, parameters, options);
-    child.on("message", message => {
-      resolve(message);
-    });
-  });
-}
+const getBuildInfo = require("./utils/getBuildInfo");
 
 function builder(sourcePath) {
   const buildStartTime = Date.now();
@@ -164,7 +141,7 @@ function builder(sourcePath) {
                 `[${~~index + 1}/${manifest.lambdas.length}] Building`,
                 endpointData.path || "/"
               );
-              var info = await getBundleInfo(endpointData);
+              var { info } = await getBuildInfo(endpointData);
               bundleInfoMap[lambdaID] = { info }; //the router needs the data at .info of each key
             }.bind(this, i)
           );

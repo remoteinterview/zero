@@ -19,8 +19,7 @@ const staticHandler = handlers["static"].handler;
 const fs = require("fs");
 const debug = require("debug")("core");
 const ora = require("ora");
-const fork = require("child_process").fork;
-const bundlerProgram = require.resolve("zero-builder-process");
+const getBuildInfo = require("../utils/getBuildInfo");
 
 var lambdaIdToHandler = {}; // for proxy paths, this holds their handler(req, res)
 var lambdaIdToBundleInfo = {}; // holds bundle info for each lambda if generated or it generates one
@@ -43,7 +42,7 @@ async function proxyLambdaRequest(req, res, endpointData) {
   ) {
     //debug("build not found", lambdaID, endpointData.path)
     spinner.start("Building " + url.resolve("/", endpointData.path));
-    await getBundleInfo(endpointData);
+    await getBuildInfoCached(endpointData);
     spinner.start("Serving " + url.resolve("/", endpointData.path));
   }
 
@@ -71,41 +70,23 @@ function cleanProcess() {
       lambdaIdToBundleInfo[id].process.kill();
   }
 }
+async function getBuildInfoCached(endpointData) {
+  const lambdaID = endpointData.id;
+  if (lambdaIdToBundleInfo[lambdaID]) return lambdaIdToBundleInfo[lambdaID];
 
-function getBundleInfo(endpointData) {
-  return new Promise(async (resolve, reject) => {
-    const lambdaID = endpointData.id;
-    if (lambdaIdToBundleInfo[lambdaID])
-      return resolve(lambdaIdToBundleInfo[lambdaID]);
-
-    if (!bundlerProgram) return resolve(false);
-    const parameters = [
-      endpointData.path,
-      endpointData.entryFile,
-      endpointData.type,
-      ".zero/zero-builds/" + lambdaID
-    ];
-    const options = {
-      stdio: [0, 1, 2, "ipc"]
-    };
-
-    const child = fork(bundlerProgram, parameters, options);
-    child.on("message", message => {
-      lambdaIdToBundleInfo[lambdaID] = {
-        info: message,
-        process: child,
-        created: Date.now(),
-        path: endpointData.path
-      };
-      checkForBundlerCleanup();
-      return resolve(lambdaIdToBundleInfo[lambdaID]);
-    });
-
-    child.on("close", () => {
-      debug("bundler process closed", lambdaID);
-      delete lambdaIdToBundleInfo[lambdaID];
-    });
+  var { child, info } = await getBuildInfo(endpointData, () => {
+    delete lambdaIdToBundleInfo[lambdaID];
   });
+
+  if (!info) return false;
+  lambdaIdToBundleInfo[lambdaID] = {
+    info: info,
+    process: child,
+    created: Date.now(),
+    path: endpointData.path
+  };
+  checkForBundlerCleanup();
+  return lambdaIdToBundleInfo[lambdaID];
 }
 
 // shutdown older than N bundlers.

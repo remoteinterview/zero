@@ -1,3 +1,7 @@
+/*
+User can either run the server ie. `zero <folder>` (either in dev or prod mode)
+or just build the project ie. `zero build` (likely before deploying)
+ */
 const build = require("./build");
 const server = require("./server");
 
