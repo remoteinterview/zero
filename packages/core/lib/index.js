@@ -9,27 +9,7 @@ const mkdirp = require("mkdirp");
 const slash = require("./utils/fixPathSlashes");
 const pkg = require("../package");
 const FileHash = require("./utils/fileHash");
-const { resolveYarn } = require("./utils/yarn");
-
-function setupEnvVariables(sourcePath) {
-  // Load environment variables from .env file if present
-  debug("sourcePath", sourcePath);
-  require("dotenv").config({ path: path.resolve(sourcePath, ".env") });
-  // Default env variables.
-  process.env.PATH += ":" + resolveYarn();
-  // we resolve the absolute path of source directory to avoid confusion in bundlers and handlers
-  process.env.SOURCEPATH = slash(path.resolve(sourcePath));
-  const DEFAULTBUILDPATH = path.join(process.env.SOURCEPATH, ".zero");
-  process.env.PORT = process.env.PORT || 3000;
-  process.env.SESSION_TTL =
-    process.env.SESSION_TTL || 1000 * 60 * 60 * 24 * 365; // 1 year
-  process.env.SESSION_SECRET = process.env.SESSION_SECRET || "k3yb0Ard c@t";
-  process.env.BUILDPATH = slash(process.env.BUILDPATH || DEFAULTBUILDPATH);
-
-  // create the build folder if not present already
-  mkdirp.sync(process.env.BUILDPATH);
-  // mkdirp.sync(path.join(process.env.BUILDPATH, ".zero"));
-}
+const setupEnvVariables = require("./utils/setupEnvVars");
 
 process.on("SIGINT", function() {
   //graceful shutdown
@@ -38,6 +18,10 @@ process.on("SIGINT", function() {
 
 async function server(sourcePath) {
   setupEnvVariables(sourcePath);
+
+  // create the build folder if not present already
+  mkdirp.sync(process.env.BUILDPATH);
+
   console.log(`\x1b[2m⚡️ Zero ${pkg.version ? `v${pkg.version}` : ""}\x1b[0m`);
   var updateManifestFn = startRouter(
     /*manifest, forbiddenFiles,*/ process.env.SOURCEPATH
@@ -97,6 +81,9 @@ function builder(sourcePath) {
   console.log(`\x1b[2m⚡️ Zero ${pkg.version ? `v${pkg.version}` : ""}\x1b[0m`);
   var bundleInfoMap = {};
   setupEnvVariables(sourcePath);
+
+  // create the build folder if not present already
+  mkdirp.sync(process.env.BUILDPATH);
 
   return new Promise((resolve, reject) => {
     build(
