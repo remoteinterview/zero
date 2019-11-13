@@ -1,4 +1,4 @@
 {
   "sandboxes": ["vanilla"],
-  "buildCommand": "lerna bootstrap"
+  "buildCommand": false
 }
