@@ -4,18 +4,10 @@ const path = require("path");
 const expressWrap = require("./expressWrap");
 const waitPort = require("wait-port");
 
-module.exports = async (
-  basePath,
-  entryFile,
-  lambdaType,
-  serverAddress,
-  BundlePath,
-  BundleInfo,
-  isModule
-) => {
+module.exports = async (endpointData, buildInfo) => {
   return new Promise((resolve, reject) => {
     // change basePath $params format to flask's format: <param>
-    basePath = basePath
+    var basePath = endpointData.path
       .split("/")
       .map(p => {
         if (p.startsWith("$")) return "<" + p.slice(1) + ">";
@@ -24,9 +16,9 @@ module.exports = async (
       .join("/");
     var child = spawn(
       pythonExe,
-      [path.join(__dirname, "entryfile.py"), basePath, entryFile],
+      [path.join(__dirname, "entryfile.py"), basePath, endpointData.entryFile],
       {
-        cwd: path.dirname(entryFile),
+        cwd: path.dirname(endpointData.entryFile),
         stdio: [0, 1, 2, "ipc", "pipe"]
       }
     );
@@ -38,11 +30,7 @@ module.exports = async (
         output: "silent",
         timeout: 1000 * 60 * 2 // 2 Minutes
       });
-      if (isModule) resolve(expressWrap(message.toString().trim()));
-      else {
-        process.send(message.toString());
-        resolve(message.toString());
-      }
+      resolve(expressWrap(message.toString().trim()));
     });
   });
 };

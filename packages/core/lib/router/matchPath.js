@@ -8,6 +8,13 @@ const stripTrailingSlash = str => {
   return str.replace(/^(.+?)\/*?$/, "$1");
 };
 
+var getLambdaID = function(path) {
+  return require("crypto")
+    .createHash("sha1")
+    .update(path)
+    .digest("hex");
+};
+
 function matchPathWithDictionary(
   Manifest,
   forbiddenStaticFiles,
@@ -22,10 +29,10 @@ function matchPathWithDictionary(
   if (staticFile) return false;
 
   var match = Manifest.lambdas.find(endpoint => {
-    debug("matching", path, endpoint[0]);
+    debug("matching", path, endpoint.path);
 
     // check for exact match
-    return endpoint[0] === path || endpoint[0] === path + "/index";
+    return endpoint.path === path || endpoint.path === path + "/index";
   });
 
   // didn't match any lambda.
@@ -62,7 +69,7 @@ function matchPathWithDictionary(
     // reverse sort to have closest/deepest match at [0] ie. [ "/login/abc/def", "/login/abc", "/login" ]
     var matches = [];
     Manifest.lambdas.forEach(endpoint => {
-      const matchedParams = matchPath(endpoint[0], path);
+      const matchedParams = matchPath(endpoint.path, path);
       if (matchedParams) matches.push(endpoint);
     });
     if (matches.length > 0) {
@@ -75,8 +82,8 @@ function matchPathWithDictionary(
   // see if a /404 path exists on manifest
   var forOFor;
   Manifest.lambdas.forEach(endpoint => {
-    if (endpoint[0] === "/404") {
-      var newEndpoint = [path, ...endpoint.slice(1)];
+    if (endpoint.path === "/404") {
+      var newEndpoint = { ...endpoint, path, id: getLambdaID(path) };
       forOFor = newEndpoint;
     }
   });
@@ -114,7 +121,7 @@ function getPreferredPath(matches, givenPath) {
 
   if (matches.length > 1) {
     matches.forEach(endpointData => {
-      const patternPath = endpointData[0].split("/").filter(a => !!a);
+      const patternPath = endpointData.path.split("/").filter(a => !!a);
       if (patternPath && !patternPath[patternPath.length - 1].startsWith("$")) {
         chosen = endpointData;
       }

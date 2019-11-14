@@ -1,4 +1,4 @@
 module.exports = {
-  process: require.resolve("./process.js"),
+  process: require.resolve("./handler.js"),
   firstrun: require("./firstrun")
 };

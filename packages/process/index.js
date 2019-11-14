@@ -16,52 +16,17 @@ process.on("unhandledRejection", (reason, p) => {
   console.log(reason);
 });
 
-module.exports = async (
-  handler,
-  basePath,
-  entryFile,
-  lambdaType,
-  serverAddress,
-  BundlePath,
-  BundleInfo,
-  isModule
-) => {
-  if (!basePath && basePath !== "") throw new Error("No basePath provided.");
-  if (!entryFile) throw new Error("No entry file provided.");
-  if (!lambdaType) throw new Error("No lambda type provided.");
-  if (!serverAddress) throw new Error("Server address not provided.");
-  if (!BundlePath) throw new Error("Lambda ID not provided.");
+module.exports = async (handler, endpointData, buildInfo) => {
   try {
-    BundleInfo = JSON.parse(BundleInfo);
+    buildInfo = JSON.parse(buildInfo);
   } catch (e) {}
-  debug(
-    "Server Address",
-    serverAddress,
-    "BundlePath",
-    BundlePath,
-    "BundleInfo",
-    BundleInfo
-  );
 
-  var portOrApp = await startServer(
-    handler,
-    basePath,
-    entryFile,
-    lambdaType,
-    BundlePath,
-    BundleInfo,
-    serverAddress,
-    isModule
-  );
-  if (!isModule) {
-    if (process.send) process.send(portOrApp);
-    else console.log("PORT", portOrApp);
-  } else {
-    return portOrApp;
-  }
+  var app = await startServer(handler, endpointData, buildInfo);
+  return app;
 };
 
-function generateFetch(req, serverAddress) {
+function generateFetch(req) {
+  const serverAddress = process.env.SERVERADDRESS;
   return function fetch(uri, options) {
     // fix relative path when running on server side.
     if (uri && uri.indexOf("://") === -1) {
@@ -80,18 +45,9 @@ function generateFetch(req, serverAddress) {
   };
 }
 
-function startServer(
-  handler,
-  basePath,
-  entryFile,
-  lambdaType,
-  BundlePath,
-  BundleInfo,
-  serverAddress,
-  isModule
-) {
+function startServer(handler, endpointData, buildInfo) {
   return new Promise((resolve, reject) => {
-    const file = path.resolve(entryFile);
+    const file = path.resolve(endpointData.entryFile);
     const app = express();
 
     app.disable("x-powered-by");
@@ -102,7 +58,7 @@ function startServer(
     app.use(require("body-parser").urlencoded({ extended: true }));
     app.use(require("body-parser").json());
     // change $path into express-style :path/
-    const pathPattern = basePath
+    const pathPattern = endpointData.path
       .split("/")
       .map(p => {
         if (p.startsWith("$")) return ":" + p.slice(1);
@@ -117,17 +73,14 @@ function startServer(
             __Zero: {
               app,
               handler,
-              basePath,
+              endpointData,
+              buildInfo,
               req,
               res,
-              lambdaType,
-              BundlePath,
-              BundleInfo,
-              file,
               renderError,
-              __DIRNAME: path.dirname(entryFile),
-              __FILENAME: entryFile,
-              fetch: generateFetch(req, serverAddress)
+              __DIRNAME: path.dirname(file),
+              __FILENAME: file,
+              fetch: generateFetch(req)
             }
           },
           GLOBALS
@@ -137,14 +90,13 @@ function startServer(
 
         vm.runInNewContext(
           `
-          const { app, handler, req, res, lambdaType, basePath, file, fetch, renderError, BundlePath, BundleInfo, __DIRNAME, __FILENAME } = __Zero;
+          const { app, handler, endpointData, buildInfo, req, res, fetch, renderError, __DIRNAME, __FILENAME } = __Zero;
           global.fetch = fetch
           global.app = app
           global.__DIRNAME = __DIRNAME
           global.__FILENAME = __FILENAME
 
-          
-          handler(req, res, file, BundlePath, basePath, BundleInfo)
+          handler(req, res, endpointData, buildInfo)
           
         `,
           globals
@@ -154,14 +106,7 @@ function startServer(
       }
     });
 
-    if (isModule) {
-      resolve(app);
-    } else {
-      var listener = app.listen(0, "127.0.0.1", () => {
-        debug("listening ", lambdaType, listener.address().port);
-        resolve(listener.address().port);
-      });
-    }
+    return resolve(app);
   });
 }
 

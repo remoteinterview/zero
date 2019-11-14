@@ -9,23 +9,7 @@ const mkdirp = require("mkdirp");
 const slash = require("./utils/fixPathSlashes");
 const pkg = require("../package");
 const FileHash = require("./utils/fileHash");
-
-function resolveYarn() {
-  var yPath;
-  try {
-    var p = require.resolve("yarn/bin/yarn");
-    if (p) {
-      yPath = path.dirname(p);
-    }
-  } catch (e) {}
-
-  // fallback
-  if (!yPath) {
-    yPath = path.join(__dirname, "..", "node_modules", "yarn", "bin");
-  }
-
-  return yPath;
-}
+const { resolveYarn } = require("./utils/yarn");
 
 function setupEnvVariables(sourcePath) {
   // Load environment variables from .env file if present
@@ -85,22 +69,15 @@ async function server(sourcePath) {
 // Build beforehand
 const fork = require("child_process").fork;
 const bundlerProgram = require.resolve("zero-builder-process");
-var getLambdaID = function(entryFile) {
-  return require("crypto")
-    .createHash("sha1")
-    .update(entryFile)
-    .digest("hex");
-};
 
 function getBundleInfo(endpointData) {
   return new Promise(async (resolve, reject) => {
-    const lambdaID = getLambdaID(endpointData[0]);
     if (!bundlerProgram) return resolve(false);
     const parameters = [
-      endpointData[0],
-      endpointData[1],
-      endpointData[2],
-      ".zero/zero-builds/" + lambdaID
+      endpointData.path,
+      endpointData.entryFile,
+      endpointData.type,
+      ".zero/zero-builds/" + endpointData.id
     ];
     const options = {
       stdio: [0, 1, 2, "ipc"]
@@ -133,9 +110,9 @@ function builder(sourcePath) {
             await FileHash(file),
             manifest.fileToLambdas[file].map(entryFile => {
               var endpointData = manifest.lambdas.find(lambda => {
-                return lambda[1] === entryFile;
+                return lambda.entryFile === entryFile;
               });
-              return getLambdaID(endpointData[0]);
+              return endpointData.id;
             })
           ];
         }
@@ -218,15 +195,15 @@ function builder(sourcePath) {
           queue.add(
             async function(index) {
               var endpointData = manifest.lambdas[index];
-              var lambdaID = getLambdaID(endpointData[0]);
+              var lambdaID = endpointData.id;
               if (
                 filterLambdas &&
-                !filterLambdas[endpointData[1]] &&
+                !filterLambdas[endpointData.enryFile] &&
                 pastBuildInfoMap[lambdaID]
               ) {
                 console.log(
                   `\x1b[2m[${~~index + 1}/${manifest.lambdas.length}] Skipping`,
-                  endpointData[0] || "/",
+                  endpointData.path || "/",
                   `\x1b[0m`
                 );
                 bundleInfoMap[lambdaID] = pastBuildInfoMap[lambdaID];
@@ -235,7 +212,7 @@ function builder(sourcePath) {
 
               console.log(
                 `[${~~index + 1}/${manifest.lambdas.length}] Building`,
-                endpointData[0] || "/"
+                endpointData.path || "/"
               );
               var info = await getBundleInfo(endpointData);
               bundleInfoMap[lambdaID] = { info }; //the router needs the data at .info of each key

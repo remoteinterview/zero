@@ -1,7 +1,7 @@
 const localRequire = lib => {
   return require(require("path").join(
     process.env.SOURCEPATH,
-    "/node_modules/",
+    "node_modules",
     lib
   ));
 };
@@ -24,17 +24,10 @@ const requireUncached = module => {
     delete require.cache[require.resolve(module)];
   return require(module);
 };
-async function generateComponent(
-  req,
-  res,
-  componentPath,
-  bundlePath,
-  basePath,
-  bundleInfo
-) {
+async function generateComponent(req, res, endpointData, buildInfo) {
   try {
     var App = requireUncached(
-      path.join(process.env.SOURCEPATH, bundleInfo.jsNode)
+      path.join(process.env.SOURCEPATH, buildInfo.jsNode)
     );
   } catch (e) {
     if (!ssrCrashWarned) console.log(e);
@@ -42,7 +35,7 @@ async function generateComponent(
   App = App && App.default ? App.default : App; // cater export default class...
   if (!App) {
     // component failed to load or was not exported.
-    clientOnlyRender(req, res, bundleInfo, basePath);
+    clientOnlyRender(req, res, buildInfo, endpointData.path);
   } else {
     // load asyncData if function exposed
     var asyncData = {};
@@ -88,8 +81,8 @@ async function generateComponent(
     ${link.text()}
     ${style.text()}
     ${
-      bundleInfo && bundleInfo.css
-        ? `<link rel="stylesheet" href="/${bundleInfo.css}">`
+      buildInfo && buildInfo.css
+        ? `<link rel="stylesheet" href="/${buildInfo.css}">`
         : ""
     }
     ${script.text()}
@@ -100,9 +93,9 @@ async function generateComponent(
     
     ${script.text({ body: true })}
     ${
-      bundleInfo && bundleInfo.js
+      buildInfo && buildInfo.js
         ? `<script>window.__ZERO_ASYNCDATA=${json}</script><script src="/${
-            bundleInfo.js
+            buildInfo.js
           }"></script>`
         : ""
     }
@@ -117,13 +110,13 @@ async function generateComponent(
       if (!ssrCrashWarned) {
         console.log(e);
       }
-      clientOnlyRender(req, res, bundleInfo, basePath);
+      clientOnlyRender(req, res, buildInfo, endpointData.path);
     }
   }
 }
 
-function clientOnlyRender(req, res, bundleInfo, basePath) {
-  if (bundleInfo && bundleInfo.js) {
+function clientOnlyRender(req, res, buildInfo, basePath) {
+  if (buildInfo && buildInfo.js) {
     // atleast we have a bundle. Disable SSR for this endpoint.
     if (!ssrCrashWarned)
       console.warn(
@@ -134,16 +127,16 @@ function clientOnlyRender(req, res, bundleInfo, basePath) {
 <html>
 <head>
   ${
-    bundleInfo && bundleInfo.css
-      ? `<link rel="stylesheet" href="/${bundleInfo.css}">`
+    buildInfo && buildInfo.css
+      ? `<link rel="stylesheet" href="/${buildInfo.css}">`
       : ""
   }
 </head>
 <body>
   <div id="__ZERO"></div>
   ${
-    bundleInfo && bundleInfo.js
-      ? `<script src="/${bundleInfo.js}"></script>
+    buildInfo && buildInfo.js
+      ? `<script src="/${buildInfo.js}"></script>
           <script>window.__ZEROAPP.$mount('#__ZERO')</script>`
       : ""
   }

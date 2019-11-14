@@ -98,7 +98,7 @@ async function updateManifest(buildPath, currentManifest, updatedFiles) {
 
   var forbiddenFiles = [];
   manifest.lambdas.forEach(endpoint => {
-    forbiddenFiles.push(endpoint[1]);
+    forbiddenFiles.push(endpoint.entryFile);
     // TODO: see if dependancy tree files are also to be added here or not.
   });
   debug("manifest", manifest);
