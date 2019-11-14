@@ -3,7 +3,7 @@ const debug = require("debug")("core");
 const fs = require("fs");
 const buildManifest = require("./buildManifest");
 const installPackages = require("./installPackages");
-const watch = require("./watcher");
+const Watcher = require("../watcher");
 const ora = require("ora");
 const ISDEV = process.env.NODE_ENV !== "production";
 const slash = require("../utils/fixPathSlashes");
@@ -13,8 +13,6 @@ const spinner = ora({
   text: "Starting..."
 });
 
-var watchDeferTimeoutID = false;
-var pendingFilesChanged = [];
 module.exports = async function build(
   sourcePath,
   buildPath,
@@ -24,66 +22,48 @@ module.exports = async function build(
   var currentManifest = false;
 
   debug("buildPath", buildPath);
-
-  watch(
-    {
-      sources: [path.join(sourcePath, "/**/*")],
-      target: buildPath,
-      buildPath,
+  var fileWatch = new Watcher(sourcePath, isBuilder || !ISDEV ? false : true);
+  fileWatch.on("ready", async () => {
+    const { manifest, forbiddenFiles, dependencies } = await updateManifest(
       sourcePath,
-      watch: isBuilder || !ISDEV ? false : true,
-      clean: true,
-      cleanModules: isBuilder
-    },
-    async (event, file) => {
-      debug("CHANGE", event, file);
+      currentManifest
+    );
+    currentManifest = manifest;
+    var serverAddress =
+      process.env.SERVERADDRESS || "http://localhost:" + process.env.PORT;
 
-      if (file) pendingFilesChanged.push(file);
-      // recreate manifest
-      // wait until files have 'settled'.
-      if (watchDeferTimeoutID) {
-        clearTimeout(watchDeferTimeoutID);
-      }
-      watchDeferTimeoutID = setTimeout(async () => {
-        var filesArr = pendingFilesChanged.slice(0);
-        pendingFilesChanged = [];
-        var filesUpdated = filesArr.length > 0 ? [] : false;
-        filesArr &&
-          filesArr.forEach(f => {
-            // check if we have lambdas that depend on this file
-            if (currentManifest && currentManifest.fileToLambdas[f]) {
-              filesUpdated = filesUpdated.concat(
-                currentManifest.fileToLambdas[f]
-              );
-            } else {
-              // otherwise just add the file itself.
-              filesUpdated.push(f);
-            }
-          });
-
-        debug("filesUpdated", filesUpdated);
-        const { manifest, forbiddenFiles, dependencies } = await updateManifest(
-          sourcePath,
-          currentManifest,
-          filesUpdated
-        );
-        currentManifest = manifest;
-        var serverAddress =
-          process.env.SERVERADDRESS || "http://localhost:" + process.env.PORT;
-
-        // check if directory is empty on first run
-        if (!isBuilder && event === "ready") {
-          spinner.succeed("Server running on " + serverAddress);
-        } else if (!isBuilder) {
-          spinner.stop(); //("Server running on " + serverAddress);
-        } else {
-          spinner.stop();
-        }
-
-        onManifest(manifest, forbiddenFiles, filesUpdated, dependencies);
-      }, 1000);
+    if (!isBuilder) {
+      spinner.succeed("Server running on " + serverAddress);
+    } else {
+      spinner.stop();
     }
-  );
+
+    onManifest(manifest, forbiddenFiles, false, dependencies);
+  });
+
+  fileWatch.on("change", async files => {
+    var filesUpdated = [];
+    files.forEach(f => {
+      // check if we have pages that depend on this file
+      if (currentManifest && currentManifest.fileToLambdas[f]) {
+        filesUpdated = filesUpdated.concat(currentManifest.fileToLambdas[f]);
+      } else {
+        // otherwise just add the file itself.
+        filesUpdated.push(f);
+      }
+    });
+
+    debug("filesUpdated", filesUpdated);
+    const { manifest, forbiddenFiles, dependencies } = await updateManifest(
+      sourcePath,
+      currentManifest,
+      filesUpdated
+    );
+    currentManifest = manifest;
+
+    spinner.stop();
+    onManifest(manifest, forbiddenFiles, filesUpdated, dependencies);
+  });
 };
 
 async function updateManifest(buildPath, currentManifest, updatedFiles) {

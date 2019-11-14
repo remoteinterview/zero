@@ -15,9 +15,7 @@ module.exports = async function server(sourcePath) {
   mkdirp.sync(process.env.BUILDPATH);
 
   console.log(`\x1b[2m⚡️ Zero ${pkg.version ? `v${pkg.version}` : ""}\x1b[0m`);
-  var updateManifestFn = startRouter(
-    /*manifest, forbiddenFiles,*/ process.env.SOURCEPATH
-  );
+  var updateManifestFn = startRouter(process.env.SOURCEPATH);
 
   // clear any `zero build` configs to avoid confusion
   var buildConfigPath = path.join(
