@@ -137,7 +137,7 @@ function waitForManifest() {
   });
 }
 
-module.exports = buildPath => {
+module.exports = (buildPath, manifestEvents) => {
   const app = express();
 
   // compress all responses
@@ -184,10 +184,10 @@ module.exports = buildPath => {
     debug("Running on port", listener.address().port);
   });
 
-  return (newManifest, newForbiddenFiles, filesUpdated) => {
+  manifestEvents.on("change", changedData => {
     debug("updating manifest in server");
-    manifest = newManifest;
-    forbiddenStaticFiles = newForbiddenFiles;
+    manifest = changedData.manifest;
+    forbiddenStaticFiles = changedData.forbiddenFiles;
 
     if (!updatedManifest) {
       // this is first update of manifest
@@ -206,10 +206,10 @@ module.exports = buildPath => {
     }
 
     // kill and restart servers
-    if (filesUpdated) {
+    if (changedData.filesUpdated) {
       // find out which lambdas need updating due to this change
       var lambdasUpdated = {};
-      filesUpdated.forEach(file => {
+      changedData.filesUpdated.forEach(file => {
         var lambdaEntryFiles = manifest.fileToLambdas[file];
         if (!lambdaEntryFiles) return;
         lambdaEntryFiles.forEach(file => (lambdasUpdated[file] = true));
@@ -217,7 +217,7 @@ module.exports = buildPath => {
 
       // update each lambda
       Object.keys(lambdasUpdated).forEach(async lambdaEntryFile => {
-        var endpointData = newManifest.lambdas.find(lambda => {
+        var endpointData = changedData.manifest.lambdas.find(lambda => {
           return lambda.entryFile === lambdaEntryFile;
         });
         var lambdaID = endpointData.id;
@@ -227,5 +227,5 @@ module.exports = buildPath => {
         }
       });
     }
-  };
+  });
 };

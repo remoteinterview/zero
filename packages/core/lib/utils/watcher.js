@@ -1,13 +1,13 @@
 /*
 This module wraps around a file watcher and emits events when files change
- */
+*/
 
 const path = require("path");
 const chokidar = require("chokidar");
 require("colors");
 const debug = require("debug")("core");
 const ISDEV = process.env.NODE_ENV !== "production";
-const slash = require("../utils/fixPathSlashes");
+const slash = require("./fixPathSlashes");
 
 const EventEmitter = require("events");
 
@@ -20,6 +20,7 @@ class FileWatcher extends EventEmitter {
 
     this.watchDeferTimeoutID = false;
     this.pendingFilesChanged = [];
+    this.isReady = false;
 
     // start watching files
     if (this.toWatch) {
@@ -42,7 +43,15 @@ class FileWatcher extends EventEmitter {
         .on("error", e => debug("[ERROR]".red, e));
     } else {
       this.emit("ready");
+      this.isReady = true;
     }
+  }
+
+  on(event, callback) {
+    if (event === "ready" && this.isReady) {
+      callback();
+    }
+    super.on(event, callback);
   }
 
   _onAdd(filePath) {

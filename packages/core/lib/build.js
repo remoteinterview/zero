@@ -1,4 +1,5 @@
-const build = require("./builder");
+const Watcher = require("./utils/watcher");
+const Manifest = require("./manifest");
 const Queue = require("p-queue").default;
 const path = require("path");
 const fs = require("fs");
@@ -25,11 +26,13 @@ function builder(sourcePath) {
   // create the build folder if not present already
   mkdirp.sync(process.env.BUILDPATH);
 
+  var fileWatch = new Watcher(sourcePath, false);
+  var manifest = new Manifest(sourcePath, fileWatch);
+
   return new Promise((resolve, reject) => {
-    build(
-      sourcePath,
-      process.env.BUILDPATH,
-      async (manifest, forbiddenFiles, filesUpdated, dependencies) => {
+    manifest.on(
+      "change",
+      async ({ manifest, forbiddenFiles, filesUpdated, dependencies }) => {
         // generate hashes of all files related to lambda
         var fileHashes = {};
         for (var file in manifest.fileToLambdas) {
@@ -191,8 +194,7 @@ function builder(sourcePath) {
 
         // resolve with manifest
         resolve({ manifest, forbiddenFiles, dependencies });
-      },
-      true
+      }
     );
   });
 }
