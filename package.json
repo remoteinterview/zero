@@ -5,8 +5,8 @@
     "lerna": "lerna",
     "jest": "jest",
     "bootstrap": "cd packages/core && npm link && cd ../.. && lerna bootstrap",
-    "example": "zero example",
-    "exampletest": "zero test/www",
+    "publish-beta": "lerna publish --dist-tag beta",
+    "publish-stable": "lerna publish --force-publish *",
     "test": "jest --verbose false --runInBand"
   },
   "devDependencies": {
