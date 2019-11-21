@@ -5,12 +5,12 @@ const debug = require("debug")("core");
 const slash = require("../utils/fixPathSlashes");
 const builders = require("zero-builders-map");
 const nodeignore = require("../utils/zeroignore");
-const fileToLambda = require("../utils/fileToLambda");
-const pythonFirstRun = require("zero-handlers-map").handlers["lambda:python"]
+const fileToPageType = require("../utils/fileToPageType");
+const pythonFirstRun = require("zero-handlers-map").handlers["page:python"]
   .firstrun;
 var pythonFirstRunCompleted = false;
 
-var getLambdaID = function(path) {
+var getPageID = function(path) {
   return require("crypto")
     .createHash("sha1")
     .update(path)
@@ -50,11 +50,11 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
       // if old manifest is given and a file filter is given, we skip those not in filter
       if (oldManifest && fileFilter && fileFilter.length) {
         if (fileFilter.indexOf(file) === -1) {
-          var endpoint = oldManifest.lambdas.find(lambda => {
-            return lambda.entryFile === file;
+          var page = oldManifest.pages.find(page => {
+            return page.entryFile === file;
           });
-          debug("skipping", file, !!endpoint);
-          if (endpoint) return { entryFile: file, type: endpoint.type };
+          debug("skipping", file, !!page);
+          if (page) return { entryFile: file, type: page.type };
           else return false;
         }
       }
@@ -63,7 +63,7 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
       if (zeroignore.ignores(fileRelative)) return false;
 
       switch (extension) {
-        // for all these extensions just return lambda type
+        // for all these extensions just return page type
         case ".js":
         case ".ts":
         case ".jsx":
@@ -73,16 +73,16 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
         case ".vue":
         case ".html":
         case ".htm":
-          return { entryFile: file, type: fileToLambda(file) };
+          return { entryFile: file, type: fileToPageType(file) };
 
-        // Python Lambda needs to run this additional step once
+        // Python page needs to run this additional step once
         case ".py":
           // also run python first run if not run already
           if (!pythonFirstRunCompleted) {
             pythonFirstRun(buildPath).catch(e => console.error(e));
             pythonFirstRunCompleted = true;
           }
-          return { entryFile: file, type: fileToLambda(file) };
+          return { entryFile: file, type: fileToPageType(file) };
 
         // .json can be a proxy path.
         case ".json":
@@ -92,7 +92,7 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
             try {
               var json = JSON.parse(fs.readFileSync(file, "utf8"));
               if (json && json.type && json.type === "proxy") {
-                return { entryFile: file, type: fileToLambda(file) };
+                return { entryFile: file, type: fileToPageType(file) };
               }
             } catch (e) {} // bad json probably, skip
           }
@@ -106,16 +106,15 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
 
   debug("elaps", (Date.now() - date) / 1000);
 
-  var lambdas = json
+  var pages = json
     // remove empty elements
-    .filter(endpoint => {
-      return endpoint !== false;
+    .filter(page => {
+      return page !== false;
     })
 
-    // add endpoint path at 0 position for each lambda
-    .map(endpoint => {
-      var trimmedPath =
-        "/" + slash(path.relative(buildPath, endpoint.entryFile));
+    // add page path at 0 position for each page
+    .map(page => {
+      var trimmedPath = "/" + slash(path.relative(buildPath, page.entryFile));
       trimmedPath = trimmedPath
         .split(".")
         .slice(0, -1) // remove extension
@@ -135,31 +134,31 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
           .join("/index"); // remove extension
       }
 
-      endpoint["path"] = trimmedPath;
-      endpoint["id"] = getLambdaID(trimmedPath);
-      return endpoint;
+      page["path"] = trimmedPath;
+      page["id"] = getPageID(trimmedPath);
+      return page;
     });
 
-  // get all related files (imports/requires) of this lambda
-  lambdas = lambdas.map(endpoint => {
-    endpoint["relatedFiles"] = [endpoint.entryFile].concat(
-      dependencyTree(endpoint.type, endpoint.entryFile)
+  // get all related files (imports/requires) of this page
+  pages = pages.map(page => {
+    page["relatedFiles"] = [page.entryFile].concat(
+      dependencyTree(page.type, page.entryFile)
     );
-    return endpoint;
+    return page;
   });
 
-  // generate a (file -> lambda) index ie. all the lambdas that use that file.
+  // generate a (file -> page) index ie. all the pages that use that file.
   // this is useful when a file is changed and we need to rebuild all the
-  // lambdas depending on that file.
-  var fileToLambdas = {};
-  lambdas.forEach(endpoint => {
-    endpoint.relatedFiles.forEach(file => {
-      fileToLambdas[file] = fileToLambdas[file] || [];
-      fileToLambdas[file].push(endpoint.entryFile);
+  // pages depending on that file.
+  var fileToPages = {};
+  pages.forEach(page => {
+    page.relatedFiles.forEach(file => {
+      fileToPages[file] = fileToPages[file] || [];
+      fileToPages[file].push(page.entryFile);
     });
   });
 
-  return { lambdas, fileToLambdas };
+  return { pages, fileToPages };
 }
 
 // get all relative files imported by this entryFile
@@ -169,7 +168,7 @@ function dependencyTree(type, entryFile) {
   if (buildersType && buildersType.getRelatedFiles) {
     return buildersType.getRelatedFiles(entryFile);
   } else {
-    return []; //no tree walker found for this lambda type
+    return []; //no tree walker found for this page type
   }
 }
 

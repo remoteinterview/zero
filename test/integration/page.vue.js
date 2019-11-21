@@ -1,7 +1,7 @@
 const { get } = require("../request");
 const cheerio = require("cheerio");
 
-// Vue Lambda
+// Vue Page
 test("Vue Simple", () => {
   //expect.assertions(1);
   return get("/vue/hello").then(data => {

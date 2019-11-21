@@ -26,7 +26,7 @@ const requireUncached = module => {
     delete require.cache[require.resolve(module)];
   return require(module);
 };
-async function generateComponent(req, res, endpointData, buildInfo) {
+async function generateComponent(req, res, pageData, buildInfo) {
   try {
     var appPath = path.join(process.env.SOURCEPATH, buildInfo.jsNode);
     var App = requireUncached(appPath);
@@ -47,11 +47,11 @@ async function generateComponent(req, res, endpointData, buildInfo) {
     // component failed to load or was not exported.
 
     if (buildInfo && buildInfo.js) {
-      // atleast we have a bundle. Disable SSR for this endpoint.
+      // atleast we have a bundle. Disable SSR for this page.
       if (!ssrCrashWarned)
         console.warn(
           `\n\n⚠️ SSR didn't work for ${
-            endpointData.path
+            pageData.path
           }. Some component might not be SSR compatible.`
         );
       ssrCrashWarned = true;

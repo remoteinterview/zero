@@ -4,10 +4,10 @@ const path = require("path");
 const expressWrap = require("./expressWrap");
 const waitPort = require("wait-port");
 
-module.exports = async (endpointData, buildInfo) => {
+module.exports = async (pageData, buildInfo) => {
   return new Promise((resolve, reject) => {
     // change basePath $params format to flask's format: <param>
-    var basePath = endpointData.path
+    var basePath = pageData.path
       .split("/")
       .map(p => {
         if (p.startsWith("$")) return "<" + p.slice(1) + ">";
@@ -16,9 +16,9 @@ module.exports = async (endpointData, buildInfo) => {
       .join("/");
     var child = spawn(
       pythonExe,
-      [path.join(__dirname, "entryfile.py"), basePath, endpointData.entryFile],
+      [path.join(__dirname, "entryfile.py"), basePath, pageData.entryFile],
       {
-        cwd: path.dirname(endpointData.entryFile),
+        cwd: path.dirname(pageData.entryFile),
         stdio: [0, 1, 2, "ipc", "pipe"]
       }
     );

@@ -1,11 +1,11 @@
 const handlers = {
   static: require("zero-static"),
-  "lambda:html": require("zero-handler-html"),
-  "lambda:js": require("zero-handler-js"),
-  "lambda:react": require("zero-handler-react"),
-  "lambda:vue": require("zero-handler-vue"),
-  "lambda:python": require("zero-handler-python"),
-  "lambda:proxy": require("zero-handler-proxy")
+  "page:html": require("zero-handler-html"),
+  "page:js": require("zero-handler-js"),
+  "page:react": require("zero-handler-react"),
+  "page:vue": require("zero-handler-vue"),
+  "page:python": require("zero-handler-python"),
+  "page:proxy": require("zero-handler-proxy")
 };
 module.exports = {
   handlers,

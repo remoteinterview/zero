@@ -11,16 +11,16 @@ const debug = require("debug")("core");
 const fork = require("child_process").fork;
 const bundlerProgram = require.resolve("zero-builder-process");
 
-function getBuildInfo(endpointData, onClose) {
+function getBuildInfo(pageData, onClose) {
   return new Promise(async (resolve, reject) => {
-    const lambdaID = endpointData.id;
+    const pageId = pageData.id;
 
     if (!bundlerProgram) return resolve({ info: false });
     const parameters = [
-      endpointData.path,
-      endpointData.entryFile,
-      endpointData.type,
-      ".zero/zero-builds/" + lambdaID
+      pageData.path,
+      pageData.entryFile,
+      pageData.type,
+      ".zero/zero-builds/" + pageId
     ];
     const options = {
       stdio: [0, 1, 2, "ipc"]
@@ -32,7 +32,7 @@ function getBuildInfo(endpointData, onClose) {
     });
 
     child.on("close", () => {
-      debug("bundler process closed", lambdaID);
+      debug("bundler process closed", pageId);
       if (onClose) onClose();
     });
   });

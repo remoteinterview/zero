@@ -1,7 +1,7 @@
 const { get } = require("../request");
 const cheerio = require("cheerio");
 
-// React Lambda
+// React Page
 test("React Stateless", () => {
   //expect.assertions(1);
   return get("/react/stateless").then(data => {

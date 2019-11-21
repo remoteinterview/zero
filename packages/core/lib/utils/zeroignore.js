@@ -1,11 +1,11 @@
 /*
 a wrapper around node-ignore with default ignores added.
 zeroignore works on file-level and restricts exposing ignored files
-from becoming lambdas/handlers or even static public files.
+from becoming pages/handlers or even static public files.
 
 It works in two steps:
 - When generating manifest, we ignore any source code that is ignored
-from becoming a lambda
+from becoming a page
 - When matching path, we prevent serving an ignored from as static.
 */
 
