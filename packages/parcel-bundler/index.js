@@ -1,5 +1,3 @@
-// process.env.ZERO_COMMON_DEPS_PATH = require.resolve("zero-common-deps");
-
 // require("./applyMods")();
 var Bundler = require("parcel-bundler");
 var localRequire = require("parcel-bundler/src/utils/localRequire");
