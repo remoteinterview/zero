@@ -1,0 +1,4 @@
+{
+  "sandboxes": ["node"], 
+  "buildCommand": false
+}
