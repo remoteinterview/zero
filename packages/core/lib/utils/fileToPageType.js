@@ -2,32 +2,32 @@ const path = require("path");
 
 module.exports = file => {
   switch (path.extname(file)) {
-    // check if js file is a js lambda function
+    // check if js file is a js page function
     case ".js":
     case ".ts":
-      return "lambda:js";
+      return "page:js";
 
     // check if a react component
-    // md/mdx is also rendered by react lambda
+    // md/mdx is also rendered by react page
     case ".jsx":
     case ".tsx":
     case ".mdx":
     case ".md":
-      return "lambda:react";
+      return "page:react";
 
     case ".vue":
-      return "lambda:vue";
+      return "page:vue";
 
-    // Python Lambda
+    // Python page
     case ".py":
-      return "lambda:python";
+      return "page:python";
 
     case ".html":
     case ".htm":
-      return "lambda:html";
+      return "page:html";
 
     case ".json":
-      return "lambda:proxy";
+      return "page:proxy";
 
     // catch all, static / cdn hosting
     default:

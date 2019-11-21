@@ -57,7 +57,7 @@ test("Static file sibling to non-index files", () => {
   });
 });
 
-test("path which is similar to a valid lambda but not really", () => {
+test("path which is similar to a valid page but not really", () => {
   // expect.assertions(1);
   return get("/api/fetcho", { json: true }).then(data => {
     expect(data[404]).toBe(true);
@@ -88,7 +88,7 @@ test("404 page works", () => {
   });
 });
 
-// test("child path to a valid lambda", () => {
+// test("child path to a valid page", () => {
 //   // expect.assertions(1);
 //   return get("/react/stateless/doesntexist").then(data => {
 //     const $ = cheerio.load(data);

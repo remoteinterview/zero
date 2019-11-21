@@ -1,5 +1,5 @@
 /*
- When a user hits a url which is a lambda, the router starts a new 
+ When a user hits a url which is a page (not static file), the router starts a new 
  http server in a separate child process. The child process returns the port.
  The router then proxies the request to that server.
  The router also maintains a map {} to avoid creating new processes for
@@ -21,11 +21,11 @@ const debug = require("debug")("core");
 const ora = require("ora");
 const getBuildInfo = require("../utils/getBuildInfo");
 
-var lambdaIdToHandler = {}; // for proxy paths, this holds their handler(req, res)
-var lambdaIdToBundleInfo = {}; // holds bundle info for each lambda if generated or it generates one
+var pageIdToHandler = {}; // for proxy paths, this holds their handler(req, res)
+var pageIdToBundleInfo = {}; // holds bundle info for each page if generated or it generates one
 var updatedManifest = false;
 
-async function proxyLambdaRequest(req, res, endpointData) {
+async function handlePageRequest(req, res, pageData) {
   const spinner = ora({
     color: "green",
     spinner: "star"
@@ -33,31 +33,31 @@ async function proxyLambdaRequest(req, res, endpointData) {
   if (!process.env.SERVERADDRESS) {
     process.env.SERVERADDRESS = "http://" + req.headers.host;
   }
-  var lambdaID = endpointData.id;
+  var pageId = pageData.id;
 
   if (
-    !lambdaIdToBundleInfo[lambdaID] &&
-    builders[endpointData.type] &&
-    builders[endpointData.type].bundler
+    !pageIdToBundleInfo[pageId] &&
+    builders[pageData.type] &&
+    builders[pageData.type].bundler
   ) {
-    //debug("build not found", lambdaID, endpointData.path)
-    spinner.start("Building " + url.resolve("/", endpointData.path));
-    await getBuildInfoCached(endpointData);
-    spinner.start("Serving " + url.resolve("/", endpointData.path));
+    //debug("build not found", pageId, pageData.path)
+    spinner.start("Building " + url.resolve("/", pageData.path));
+    await getBuildInfoCached(pageData);
+    spinner.start("Serving " + url.resolve("/", pageData.path));
   }
 
   // generate a handler if not generated previously
-  if (!lambdaIdToHandler[lambdaID]) {
-    const handlerApp = await getHandler(endpointData.type);
-    lambdaIdToHandler[lambdaID] = await handlerApp(
-      endpointData,
-      lambdaIdToBundleInfo[lambdaID] ? lambdaIdToBundleInfo[lambdaID].info : ""
+  if (!pageIdToHandler[pageId]) {
+    const handlerApp = await getHandler(pageData.type);
+    pageIdToHandler[pageId] = await handlerApp(
+      pageData,
+      pageIdToBundleInfo[pageId] ? pageIdToBundleInfo[pageId].info : ""
     );
   }
   if (spinner.isSpinning) {
-    spinner.succeed(url.resolve("/", endpointData.path) + " ready");
+    spinner.succeed(url.resolve("/", pageData.path) + " ready");
   }
-  return lambdaIdToHandler[lambdaID](req, res);
+  return pageIdToHandler[pageId](req, res);
 }
 
 // if server exits, kill the child processes too.
@@ -65,28 +65,27 @@ process.on("SIGTERM", cleanProcess);
 process.on("exit", cleanProcess);
 
 function cleanProcess() {
-  for (var id in lambdaIdToBundleInfo) {
-    if (lambdaIdToBundleInfo[id].process)
-      lambdaIdToBundleInfo[id].process.kill();
+  for (var id in pageIdToBundleInfo) {
+    if (pageIdToBundleInfo[id].process) pageIdToBundleInfo[id].process.kill();
   }
 }
-async function getBuildInfoCached(endpointData) {
-  const lambdaID = endpointData.id;
-  if (lambdaIdToBundleInfo[lambdaID]) return lambdaIdToBundleInfo[lambdaID];
+async function getBuildInfoCached(pageData) {
+  const pageId = pageData.id;
+  if (pageIdToBundleInfo[pageId]) return pageIdToBundleInfo[pageId];
 
-  var { child, info } = await getBuildInfo(endpointData, () => {
-    delete lambdaIdToBundleInfo[lambdaID];
+  var { child, info } = await getBuildInfo(pageData, () => {
+    delete pageIdToBundleInfo[pageId];
   });
 
   if (!info) return false;
-  lambdaIdToBundleInfo[lambdaID] = {
+  pageIdToBundleInfo[pageId] = {
     info: info,
     process: child,
     created: Date.now(),
-    path: endpointData.path
+    path: pageData.path
   };
   checkForBundlerCleanup();
-  return lambdaIdToBundleInfo[lambdaID];
+  return pageIdToBundleInfo[pageId];
 }
 
 // shutdown older than N bundlers.
@@ -98,9 +97,9 @@ function checkForBundlerCleanup() {
   if (process.env.ZERO_LIMIT_BUNDLERS) {
     var lastN = parseInt(process.env.ZERO_LIMIT_BUNDLERS);
     if (lastN <= 0) lastN = 10;
-    var arr = Object.keys(lambdaIdToBundleInfo)
-      .map(lambdaID => {
-        return { ...lambdaIdToBundleInfo[lambdaID], id: lambdaID };
+    var arr = Object.keys(pageIdToBundleInfo)
+      .map(pageId => {
+        return { ...pageIdToBundleInfo[pageId], id: pageId };
       })
       .sort((a, b) => {
         return a.created > b.created;
@@ -114,11 +113,11 @@ function checkForBundlerCleanup() {
           debug(
             "killing bundler",
             data.path,
-            lambdaIdToBundleInfo[data.id].process.pid
+            pageIdToBundleInfo[data.id].process.pid
           );
-          lambdaIdToBundleInfo[data.id].process.kill();
-          delete lambdaIdToBundleInfo[data.id];
-          delete lambdaIdToHandler[data.id]; // handler will need new bundleInfo too
+          pageIdToBundleInfo[data.id].process.kill();
+          delete pageIdToBundleInfo[data.id];
+          delete pageIdToHandler[data.id]; // handler will need new bundleInfo too
         }
       });
     }
@@ -150,20 +149,20 @@ module.exports = (buildPath, manifestEvents) => {
     next();
   });
 
-  var manifest = { lambdas: [], fileToLambdas: {} };
+  var manifest = { pages: [], fileToPages: {} };
   var forbiddenStaticFiles = [];
   app.all("*", async (request, response) => {
     // don't serve requests until first manifest is available
     if (!updatedManifest) await waitForManifest();
 
-    var endpointData = matchPath(
+    var pageData = matchPath(
       manifest,
       forbiddenStaticFiles,
       buildPath,
       request.url
     );
-    debug("match", request.url, endpointData);
-    if (endpointData === "404") {
+    debug("match", request.url, pageData);
+    if (pageData === "404") {
       return response
         .status(404)
         .send(
@@ -172,9 +171,9 @@ module.exports = (buildPath, manifestEvents) => {
             : "<center style='font-family: monospace;'><h1>Nothing Here</h1><br/>Did you forget to add the file for this path?</center>"
         );
     }
-    if (endpointData) {
+    if (pageData) {
       // call relevant handler as defined in manifest
-      return proxyLambdaRequest(request, response, endpointData);
+      return handlePageRequest(request, response, pageData);
     }
     // catch all handler
     return staticHandler(request, response);
@@ -199,7 +198,7 @@ module.exports = (buildPath, manifestEvents) => {
           path.join(process.env.BUILDPATH, "zero-builds", "build-info.json"),
           "utf8"
         );
-        lambdaIdToBundleInfo = JSON.parse(file);
+        pageIdToBundleInfo = JSON.parse(file);
       } catch (e) {
         // file is probably not present, ignore
       }
@@ -207,23 +206,23 @@ module.exports = (buildPath, manifestEvents) => {
 
     // kill and restart servers
     if (changedData.filesUpdated) {
-      // find out which lambdas need updating due to this change
-      var lambdasUpdated = {};
+      // find out which pages need updating due to this change
+      var pagesUpdated = {};
       changedData.filesUpdated.forEach(file => {
-        var lambdaEntryFiles = manifest.fileToLambdas[file];
-        if (!lambdaEntryFiles) return;
-        lambdaEntryFiles.forEach(file => (lambdasUpdated[file] = true));
+        var pageEntryFiles = manifest.fileToPages[file];
+        if (!pageEntryFiles) return;
+        pageEntryFiles.forEach(file => (pagesUpdated[file] = true));
       });
 
-      // update each lambda
-      Object.keys(lambdasUpdated).forEach(async lambdaEntryFile => {
-        var endpointData = changedData.manifest.lambdas.find(lambda => {
-          return lambda.entryFile === lambdaEntryFile;
+      // update each page
+      Object.keys(pagesUpdated).forEach(async pageEntryfile => {
+        var pageData = changedData.manifest.pages.find(page => {
+          return page.entryFile === pageEntryfile;
         });
-        var lambdaID = endpointData.id;
+        var pageId = pageData.id;
 
-        if (lambdaIdToHandler[lambdaID]) {
-          delete lambdaIdToHandler[lambdaID];
+        if (pageIdToHandler[pageId]) {
+          delete pageIdToHandler[pageId];
         }
       });
     }

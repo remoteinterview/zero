@@ -1,8 +1,8 @@
 const { get } = require("../request");
 const cheerio = require("cheerio");
 
-// JS Lambda
-test("JS Lambda in root folder", () => {
+// JS Page
+test("JS Page in root folder", () => {
   // expect.assertions(1);
   return get("/").then(data => {
     expect(data).toBe("Hello");

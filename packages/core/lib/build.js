@@ -33,16 +33,16 @@ function builder(sourcePath) {
     manifest.on(
       "change",
       async ({ manifest, forbiddenFiles, filesUpdated, dependencies }) => {
-        // generate hashes of all files related to lambda
+        // generate hashes of all files related to page
         var fileHashes = {};
-        for (var file in manifest.fileToLambdas) {
+        for (var file in manifest.fileToPages) {
           fileHashes[file] = [
             await FileHash(file),
-            manifest.fileToLambdas[file].map(entryFile => {
-              var endpointData = manifest.lambdas.find(lambda => {
-                return lambda.entryFile === entryFile;
+            manifest.fileToPages[file].map(entryFile => {
+              var pageData = manifest.pages.find(page => {
+                return page.entryFile === entryFile;
               });
-              return endpointData.id;
+              return pageData.id;
             })
           ];
         }
@@ -77,36 +77,36 @@ function builder(sourcePath) {
         });
 
         // see if we can use past zero-build to only build diff
-        var filterLambdas = false;
+        var filterPages = false;
         if (pastFileHashes) {
-          filterLambdas = {};
+          filterPages = {};
           Object.keys(fileHashes).forEach(file => {
             if (
-              !pastFileHashes[file] || // a new lambda that didn't exist before
-              fileHashes[file][0] !== pastFileHashes[file][0] // lambda changed
+              !pastFileHashes[file] || // a new page that didn't exist before
+              fileHashes[file][0] !== pastFileHashes[file][0] // page changed
             ) {
-              // mark this lambda to be dirty
-              manifest.fileToLambdas[file].forEach(lambda => {
-                filterLambdas[lambda] = true;
+              // mark this page to be dirty
+              manifest.fileToPages[file].forEach(page => {
+                filterPages[page] = true;
               });
             }
           });
 
-          // check if any of the lambda was removed in new build
-          // lambda builds that don't exist in new build should be deleted.
+          // check if any of the page was removed in new build
+          // page builds that don't exist in new build should be deleted.
           for (var file in pastFileHashes) {
             if (!fileHashes[file]) {
               for (var index in pastFileHashes[file][1]) {
                 try {
-                  var lambdaID = pastFileHashes[file][1][index];
-                  debug("deleting", file, pastFileHashes[file][1], lambdaID);
+                  var pageId = pastFileHashes[file][1][index];
+                  debug("deleting", file, pastFileHashes[file][1], pageId);
                   await del(
                     [
                       slash(
                         path.join(
                           process.env.BUILDPATH,
                           "zero-builds",
-                          lambdaID,
+                          pageId,
                           "/**"
                         )
                       )
@@ -121,31 +121,31 @@ function builder(sourcePath) {
           }
         }
 
-        for (var i in manifest.lambdas) {
+        for (var i in manifest.pages) {
           queue.add(
             async function(index) {
-              var endpointData = manifest.lambdas[index];
-              var lambdaID = endpointData.id;
+              var pageData = manifest.pages[index];
+              var pageId = pageData.id;
               if (
-                filterLambdas &&
-                !filterLambdas[endpointData.enryFile] &&
-                pastBuildInfoMap[lambdaID]
+                filterPages &&
+                !filterPages[pageData.entryFile] &&
+                pastBuildInfoMap[pageId]
               ) {
                 console.log(
-                  `\x1b[2m[${~~index + 1}/${manifest.lambdas.length}] Skipping`,
-                  endpointData.path || "/",
+                  `\x1b[2m[${~~index + 1}/${manifest.pages.length}] Skipping`,
+                  pageData.path || "/",
                   `\x1b[0m`
                 );
-                bundleInfoMap[lambdaID] = pastBuildInfoMap[lambdaID];
+                bundleInfoMap[pageId] = pastBuildInfoMap[pageId];
                 return;
               }
 
               console.log(
-                `[${~~index + 1}/${manifest.lambdas.length}] Building`,
-                endpointData.path || "/"
+                `[${~~index + 1}/${manifest.pages.length}] Building`,
+                pageData.path || "/"
               );
-              var { info } = await getBuildInfo(endpointData);
-              bundleInfoMap[lambdaID] = { info }; //the router needs the data at .info of each key
+              var { info } = await getBuildInfo(pageData);
+              bundleInfoMap[pageId] = { info }; //the router needs the data at .info of each key
             }.bind(this, i)
           );
         }

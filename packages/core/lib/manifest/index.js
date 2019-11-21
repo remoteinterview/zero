@@ -37,8 +37,8 @@ class Manifest extends EventEmitter {
       var filesUpdated = [];
       files.forEach(f => {
         // check if we have pages that depend on this file
-        if (currentManifest && currentManifest.fileToLambdas[f]) {
-          filesUpdated = filesUpdated.concat(currentManifest.fileToLambdas[f]);
+        if (currentManifest && currentManifest.fileToPages[f]) {
+          filesUpdated = filesUpdated.concat(currentManifest.fileToPages[f]);
         } else {
           // otherwise just add the file itself.
           filesUpdated.push(f);
@@ -60,8 +60,8 @@ class Manifest extends EventEmitter {
     );
 
     var forbiddenFiles = [];
-    manifest.lambdas.forEach(endpoint => {
-      forbiddenFiles.push(endpoint.entryFile);
+    manifest.pages.forEach(page => {
+      forbiddenFiles.push(page.entryFile);
       // TODO: see if dependancy tree files are also to be added here or not.
     });
     debug("manifest", manifest);

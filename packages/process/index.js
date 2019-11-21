@@ -16,12 +16,12 @@ process.on("unhandledRejection", (reason, p) => {
   console.log(reason);
 });
 
-module.exports = async (handler, endpointData, buildInfo) => {
+module.exports = async (handler, pageData, buildInfo) => {
   try {
     buildInfo = JSON.parse(buildInfo);
   } catch (e) {}
 
-  var app = await startServer(handler, endpointData, buildInfo);
+  var app = await startServer(handler, pageData, buildInfo);
   return app;
 };
 
@@ -45,9 +45,9 @@ function generateFetch(req) {
   };
 }
 
-function startServer(handler, endpointData, buildInfo) {
+function startServer(handler, pageData, buildInfo) {
   return new Promise((resolve, reject) => {
-    const file = path.resolve(endpointData.entryFile);
+    const file = path.resolve(pageData.entryFile);
     const app = express();
 
     app.disable("x-powered-by");
@@ -58,7 +58,7 @@ function startServer(handler, endpointData, buildInfo) {
     app.use(require("body-parser").urlencoded({ extended: true }));
     app.use(require("body-parser").json());
     // change $path into express-style :path/
-    const pathPattern = endpointData.path
+    const pathPattern = pageData.path
       .split("/")
       .map(p => {
         if (p.startsWith("$")) return ":" + p.slice(1);
@@ -73,7 +73,7 @@ function startServer(handler, endpointData, buildInfo) {
             __Zero: {
               app,
               handler,
-              endpointData,
+              pageData,
               buildInfo,
               req,
               res,
@@ -90,13 +90,13 @@ function startServer(handler, endpointData, buildInfo) {
 
         vm.runInNewContext(
           `
-          const { app, handler, endpointData, buildInfo, req, res, fetch, renderError, __DIRNAME, __FILENAME } = __Zero;
+          const { app, handler, pageData, buildInfo, req, res, fetch, renderError, __DIRNAME, __FILENAME } = __Zero;
           global.fetch = fetch
           global.app = app
           global.__DIRNAME = __DIRNAME
           global.__FILENAME = __FILENAME
 
-          handler(req, res, endpointData, buildInfo)
+          handler(req, res, pageData, buildInfo)
           
         `,
           globals

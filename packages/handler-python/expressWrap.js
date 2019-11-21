@@ -2,7 +2,7 @@ const express = require("express");
 const fetch = require("node-fetch");
 
 async function proxyRequest(port, req, res) {
-  var lambdaAddress = "http://127.0.0.1:" + port;
+  var pageAddress = "http://127.0.0.1:" + port;
   var options = {
     method: req.method,
     headers: Object.assign(
@@ -21,7 +21,7 @@ async function proxyRequest(port, req, res) {
   }
   var proxyRes;
   try {
-    proxyRes = await fetch(lambdaAddress + req.url, options);
+    proxyRes = await fetch(pageAddress + req.url, options);
   } catch (e) {
     console.error(e);
     res.end();
@@ -35,7 +35,7 @@ async function proxyRequest(port, req, res) {
   const headers = proxyRes.headers.raw();
   for (const key of Object.keys(headers)) {
     // if (key.toLowerCase() === "location" && headers[key]) {
-    //   headers[key] = headers[key][0].replace(lambdaAddress, serverAddress);
+    //   headers[key] = headers[key][0].replace(pageAddress, serverAddress);
     // }
     res.setHeader(key, headers[key]);
   }

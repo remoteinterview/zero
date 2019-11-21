@@ -8,7 +8,7 @@ const stripTrailingSlash = str => {
   return str.replace(/^(.+?)\/*?$/, "$1");
 };
 
-var getLambdaID = function(path) {
+var getPageID = function(path) {
   return require("crypto")
     .createHash("sha1")
     .update(path)
@@ -28,14 +28,14 @@ function matchPathWithDictionary(
   var staticFile = path.split("/").find(dirname => dirname.endsWith(".static"));
   if (staticFile) return false;
 
-  var match = Manifest.lambdas.find(endpoint => {
-    debug("matching", path, endpoint.path);
+  var match = Manifest.pages.find(page => {
+    debug("matching", path, page.path);
 
     // check for exact match
-    return endpoint.path === path || endpoint.path === path + "/index";
+    return page.path === path || page.path === path + "/index";
   });
 
-  // didn't match any lambda.
+  // didn't match any page.
   if (!match) {
     // check if it's a static file and it's not in the forbidden/ignored files
     var staticPath = PATH.join(buildPath, path);
@@ -65,12 +65,12 @@ function matchPathWithDictionary(
       return false; // it is a valid public static file
     }
 
-    // check for partial match now ie. query is: /login/username and endpoint will be /login
+    // check for partial match now ie. query is: /login/username and page will be /login
     // reverse sort to have closest/deepest match at [0] ie. [ "/login/abc/def", "/login/abc", "/login" ]
     var matches = [];
-    Manifest.lambdas.forEach(endpoint => {
-      const matchedParams = matchPath(endpoint.path, path);
-      if (matchedParams) matches.push(endpoint);
+    Manifest.pages.forEach(page => {
+      const matchedParams = matchPath(page.path, path);
+      if (matchedParams) matches.push(page);
     });
     if (matches.length > 0) {
       return getPreferredPath(matches, path);
@@ -81,10 +81,10 @@ function matchPathWithDictionary(
 
   // see if a /404 path exists on manifest
   var forOFor;
-  Manifest.lambdas.forEach(endpoint => {
-    if (endpoint.path === "/404") {
-      var newEndpoint = { ...endpoint, path, id: getLambdaID(path) };
-      forOFor = newEndpoint;
+  Manifest.pages.forEach(page => {
+    if (page.path === "/404") {
+      var newPage = { ...page, path, id: getPageID(path) };
+      forOFor = newPage;
     }
   });
   return forOFor || "404"; // not found
@@ -120,10 +120,10 @@ function getPreferredPath(matches, givenPath) {
   var chosen = matches[0];
 
   if (matches.length > 1) {
-    matches.forEach(endpointData => {
-      const patternPath = endpointData.path.split("/").filter(a => !!a);
+    matches.forEach(pageData => {
+      const patternPath = pageData.path.split("/").filter(a => !!a);
       if (patternPath && !patternPath[patternPath.length - 1].startsWith("$")) {
-        chosen = endpointData;
+        chosen = pageData;
       }
     });
   }

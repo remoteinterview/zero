@@ -6,7 +6,7 @@ const getCommonDeps = require("../utils/commonDependencies");
 var path = require("path");
 const debug = require("debug")("core");
 
-const fileToLambda = require("../utils/fileToLambda");
+const fileToPageType = require("../utils/fileToPageType");
 const builders = require("zero-builders-map");
 
 var firstRun = true;
@@ -28,7 +28,7 @@ const baseBabelConfig = {
 
 // see if the builder wants to update the babel config
 function updateBabelConfig(currentBabelConfig, file) {
-  var builderType = fileToLambda(file);
+  var builderType = fileToPageType(file);
   if (
     builderType &&
     builders[builderType] &&
@@ -42,7 +42,7 @@ function updateBabelConfig(currentBabelConfig, file) {
 }
 
 function getBuilderDeps(file) {
-  var builderType = fileToLambda(file);
+  var builderType = fileToPageType(file);
   if (
     builderType &&
     builders[builderType] &&

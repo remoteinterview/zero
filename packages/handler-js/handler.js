@@ -6,14 +6,14 @@ const requireUncached = module => {
   return require(module);
 };
 
-module.exports = (req, res, endpointData, buildInfo) => {
+module.exports = (req, res, pageData, buildInfo) => {
   if (!buildInfo || !buildInfo.js) return res.sendStatus(500);
   var func = requireUncached(path.join(process.env.SOURCEPATH, buildInfo.js));
   func = func && func.default ? func.default : func; // cater export default function...
   if (!func || typeof func !== "function") {
     console.log(
       `❓ Did you forget to export handler in ${path.basename(
-        endpointData.entryFile
+        pageData.entryFile
       )}?`
     );
     return res.sendStatus(500);

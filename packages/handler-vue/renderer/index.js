@@ -24,7 +24,7 @@ const requireUncached = module => {
     delete require.cache[require.resolve(module)];
   return require(module);
 };
-async function generateComponent(req, res, endpointData, buildInfo) {
+async function generateComponent(req, res, pageData, buildInfo) {
   try {
     var App = requireUncached(
       path.join(process.env.SOURCEPATH, buildInfo.jsNode)
@@ -35,7 +35,7 @@ async function generateComponent(req, res, endpointData, buildInfo) {
   App = App && App.default ? App.default : App; // cater export default class...
   if (!App) {
     // component failed to load or was not exported.
-    clientOnlyRender(req, res, buildInfo, endpointData.path);
+    clientOnlyRender(req, res, buildInfo, pageData.path);
   } else {
     // load asyncData if function exposed
     var asyncData = {};
@@ -110,14 +110,14 @@ async function generateComponent(req, res, endpointData, buildInfo) {
       if (!ssrCrashWarned) {
         console.log(e);
       }
-      clientOnlyRender(req, res, buildInfo, endpointData.path);
+      clientOnlyRender(req, res, buildInfo, pageData.path);
     }
   }
 }
 
 function clientOnlyRender(req, res, buildInfo, basePath) {
   if (buildInfo && buildInfo.js) {
-    // atleast we have a bundle. Disable SSR for this endpoint.
+    // atleast we have a bundle. Disable SSR for this page.
     if (!ssrCrashWarned)
       console.warn(
         `\n\n⚠️ SSR didn't work for ${basePath}. Some component might not be SSR compatible.`
