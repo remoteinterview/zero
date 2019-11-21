@@ -35,6 +35,14 @@ module.exports = async function server(sourcePath) {
     });
   }
 
+  // clean any `node_modules` INSIDE .zero folder if it exists.
+  var dupNodeModules = path.join(process.env.BUILDPATH, "node_modules");
+  if (fs.existsSync(dupNodeModules)) {
+    await del([slash(path.join(dupNodeModules, "/**"))], {
+      force: true
+    });
+  }
+
   return new Promise((resolve, reject) => {
     var hasResolved = false;
     manifest.on("change", () => {
