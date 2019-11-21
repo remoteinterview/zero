@@ -234,6 +234,16 @@ async function writePackageJSON(buildPath, deps, commonDepsNeeded) {
     pkg.alias["react-dom"] = "@hot-loader/react-dom";
   }
 
+  // some config for svelte pages
+  if (Object.keys(pkg.dependencies).indexOf("svelte") !== -1) {
+    // https://github.com/DeMoorJasper/parcel-plugin-svelte/issues/44
+    pkg["browserslist"] = ["last 1 chrome versions"];
+
+    // some compiler flags for svelte.compile()
+    pkg.svelte = pkg.svelte || { compiler: {} };
+    pkg.svelte["compiler"] = { hydratable: true };
+  }
+
   // write a pkg.json into tmp buildpath
   fs.writeFileSync(
     path.join(buildPath, "package.json"),

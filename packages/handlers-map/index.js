@@ -5,7 +5,8 @@ const handlers = {
   "page:react": require("zero-handler-react"),
   "page:vue": require("zero-handler-vue"),
   "page:python": require("zero-handler-python"),
-  "page:proxy": require("zero-handler-proxy")
+  "page:proxy": require("zero-handler-proxy"),
+  "page:svelte": require("zero-handler-svelte")
 };
 module.exports = {
   handlers,
