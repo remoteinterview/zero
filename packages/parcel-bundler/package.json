@@ -4,7 +4,7 @@
   "version": "1.1.6",
   "license": "Apache-2.0",
   "dependencies": {
-    "@mdx-js/parcel-plugin-mdx": "^0.17.4",
+    "@mdx-js/parcel-plugin-mdx": "^1.5.1",
     "parcel-bundler": "^1.12.3",
     "parcel-plugin-svelte": "^4.0.4"
   },
