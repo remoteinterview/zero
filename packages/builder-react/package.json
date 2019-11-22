@@ -1,13 +1,13 @@
 {
   "name": "zero-builder-react",
   "main": "index.js",
-  "version": "1.1.6",
+  "version": "1.1.7",
   "license": "Apache-2.0",
   "dependencies": {
     "@mdx-js/mdx": "^1.5.1",
     "mkdirp": "^0.5.1",
     "zero-dep-tree-js": "^1.1.6",
-    "zero-parcel-bundler": "^1.1.6"
+    "zero-parcel-bundler": "^1.1.7"
   },
   "gitHead": "9e577043290b2ad1205a24f14c4edf7329c6073d"
 }

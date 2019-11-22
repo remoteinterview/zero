@@ -1,6 +1,6 @@
 {
   "name": "zero",
-  "version": "1.1.6",
+  "version": "1.1.7",
   "description": "",
   "main": "lib/index.js",
   "scripts": {
@@ -25,8 +25,8 @@
     "ora": "^3.0.0",
     "p-queue": "^6.0.2",
     "yarn": ">=1.17.3",
-    "zero-builder-process": "^1.1.6",
-    "zero-builders-map": "^1.1.6",
+    "zero-builder-process": "^1.1.7",
+    "zero-builders-map": "^1.1.7",
     "zero-dep-tree-js": "^1.1.6",
     "zero-handlers-map": "^1.1.6"
   },
