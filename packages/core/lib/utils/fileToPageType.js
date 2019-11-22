@@ -18,6 +18,9 @@ module.exports = file => {
     case ".vue":
       return "page:vue";
 
+    case ".svelte":
+      return "page:svelte";
+
     // Python page
     case ".py":
       return "page:python";

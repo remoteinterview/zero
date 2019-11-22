@@ -73,6 +73,7 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
         case ".vue":
         case ".html":
         case ".htm":
+        case ".svelte":
           return { entryFile: file, type: fileToPageType(file) };
 
         // Python page needs to run this additional step once

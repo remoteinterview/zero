@@ -10,6 +10,7 @@
     "zero-handler-python": "^1.1.5",
     "zero-handler-react": "^1.1.5",
     "zero-handler-vue": "^1.1.5",
+    "zero-handler-svelte": "^1.1.5",
     "zero-static": "^1.1.5"
   }
 }
