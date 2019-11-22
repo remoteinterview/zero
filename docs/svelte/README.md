@@ -23,7 +23,7 @@ For each Svelte page, zero does the following for you:
 
 - Transpilation and bundling (with Parcel).
 - Server rendering, so you don't see blank page until JS loads.
-- Automatic code splitting
+- Automatic code splitting.
 
 ## Props
 
@@ -73,7 +73,7 @@ project/
 
 ## Fetching API Data
 
-You can have API routes alongside your Svelte pages (likely in `.js` or `.py` files). You can then _fetch_ those API endpoinds from your Svelte page. To do this, your Svelte page can optionally export a `preload()` function that will load any data that the page depends on, before rendering the page. Zero will first resolve `preload()` and pass the response to Svelte renderer along with other props. This means that the page will be rendered with data on server.
+You can have API routes alongside your Svelte pages (likely in `.js` or `.py` files). You can then _fetch_ those API endpoints from your Svelte page. To do this, your Svelte page can optionally export a `preload()` function that will load any data that the page depends on, before rendering the page. Zero will first resolve `preload()` and pass the response to Svelte renderer along with other props. This means that the page will be rendered with data on server.
 
 ```html
 <script context="module">
