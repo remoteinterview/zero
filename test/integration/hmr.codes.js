@@ -44,4 +44,7 @@ codes["proxy"] = `
   "url": "http://127.0.0.1:3123/path1"
 }
 `;
+codes["svelte"] = `
+<h1>Hello Svelte</h1>
+`;
 module.exports = codes;

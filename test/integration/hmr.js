@@ -105,3 +105,15 @@ test("Proxy HMR (add a new handler and modify it)", async () => {
     });
   });
 });
+
+test("Svelte HMR (add a new handler and modify it)", async () => {
+  expect.assertions(2);
+  await writeFile("svelte.svelte", CODES["svelte"]);
+  return get("/hmr/svelte").then(async data => {
+    expect(data).toContain("Hello Svelte");
+    await writeFile("svelte.svelte", CODES["svelte"].replace("Hello", "Hey"));
+    return get("/hmr/svelte").then(data => {
+      expect(data).toContain("Hey Svelte");
+    });
+  });
+});
