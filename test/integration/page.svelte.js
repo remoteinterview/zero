@@ -37,6 +37,18 @@ test("Svelte With Head", () => {
   });
 });
 
+test("Svelte With Preloading", () => {
+  //expect.assertions(1);
+  return get("/svelte/withpreloading").then(data => {
+    const $ = cheerio.load(data);
+    expect(
+      $("body p")
+        .text()
+        .trim()
+    ).toBe("2,4,6");
+  });
+});
+
 // test("Svelte With SCSS Style", () => {
 //   //expect.assertions(1);
 //   return get("/react/withStyle").then(data => {

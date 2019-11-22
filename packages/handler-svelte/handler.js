@@ -1,3 +1,5 @@
+const debug = require("debug")("svelte");
+
 const requireUncached = module => {
   // invalidate cache for HMR to work in dev mode
   if (process.env.NODE_ENV !== "production")
@@ -6,17 +8,31 @@ const requireUncached = module => {
 };
 function loadSvelteApp(entryfile) {
   const unregisterSvelte = require("svelte/register");
-  const App = requireUncached(entryfile).default;
+  const Component = requireUncached(entryfile);
   unregisterSvelte();
-  return App;
+  return { App: Component.default, preload: Component.preload };
 }
 
-module.exports = (req, res, pageData, buildInfo) => {
-  const App = loadSvelteApp(pageData.entryFile);
+module.exports = async (req, res, pageData, buildInfo) => {
+  const { App, preload } = loadSvelteApp(pageData.entryFile);
+
+  // load preload data if a function exposed
+  var preloadData = {};
   let props = {
     user: req.user,
     url: { query: req.query, params: req.params }
   };
+
+  // call preload() function if this page exposes one,
+  // merge the returned object with props and pass merged props to svelte renderer
+  if (preload && typeof preload === "function") {
+    try {
+      preloadData = (await preload({ req, ...props })) || {};
+      props = { ...props, ...preloadData };
+    } catch (e) {
+      debug("ERROR::preload", e);
+    }
+  }
   const { head, html, css } = App.render(props);
 
   props = JSON.stringify(props);
