@@ -6,7 +6,7 @@
   "dependencies": {
     "@mdx-js/parcel-plugin-mdx": "^1.5.1",
     "parcel-bundler": "^1.12.3",
-    "parcel-plugin-svelte": "^4.0.4"
+    "parcel-plugin-svelte": "^4.0.5"
   },
   "gitHead": "9e577043290b2ad1205a24f14c4edf7329c6073d"
 }
