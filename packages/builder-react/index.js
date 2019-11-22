@@ -32,8 +32,7 @@ module.exports = {
     if (ext === ".md" || ext === ".mdx") {
       var depsMdx = {
         "@mdx-js/react": "^1.5.1",
-        "@mdx-js/tag": "^0.20.3",
-        "@mdx-js/parcel-plugin-mdx": "^0.17.4"
+        "@mdx-js/tag": "^0.20.3"
       };
       return { ...deps, ...depsMdx };
     }
