@@ -110,4 +110,12 @@ test("React With No Bundling", () => {
   });
 });
 
+test("React With CSS import from node_modules", () => {
+  //expect.assertions(1);
+  return get("/react/withnpmstyle").then(data => {
+    const $ = cheerio.load(data);
+    expect($("button").text()).toBe("Button");
+  });
+});
+
 // TODO: test parcel output

@@ -1,3 +1,5 @@
+require("ignore-styles");
+
 const localRequire = lib => {
   return require(require("path").join(
     process.env.SOURCEPATH,
@@ -50,9 +52,7 @@ async function generateComponent(req, res, pageData, buildInfo) {
       // atleast we have a bundle. Disable SSR for this page.
       if (!ssrCrashWarned)
         console.warn(
-          `\n\n⚠️ SSR didn't work for ${
-            pageData.path
-          }. Some component might not be SSR compatible.`
+          `\n\n⚠️ SSR didn't work for ${pageData.path}. Some component might not be SSR compatible.`
         );
       ssrCrashWarned = true;
       var markup = `<!DOCTYPE html>
