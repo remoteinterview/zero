@@ -32,7 +32,8 @@ module.exports = {
     if (ext === ".md" || ext === ".mdx") {
       var depsMdx = {
         "@mdx-js/react": "^1.5.1",
-        "@mdx-js/tag": "^0.20.3"
+        "@mdx-js/tag": "^0.20.3",
+        "prism-react-renderer": "^1.0.2"
       };
       return { ...deps, ...depsMdx };
     }

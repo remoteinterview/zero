@@ -36,3 +36,11 @@ test(".MDX File (With .JSX Import)", () => {
     ).toBe("react-stateless");
   });
 });
+
+test(".MDX File (With Syntax Highlight)", () => {
+  //expect.assertions(1);
+  return get("/mdx/syntaxhighlight").then(data => {
+    const $ = cheerio.load(data);
+    expect($("pre").attr("class")).toBe("prism-code language-js");
+  });
+});
