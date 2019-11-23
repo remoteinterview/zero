@@ -9,7 +9,7 @@ If your svelte component resides in `./about.svelte` file, it's exposed at `http
 Create a file `index.svelte` in an empty folder and add the following code to it:
 
 ```html
-// index.svelte
+<!-- index.svelte -->
 <script>
   let name = "World";
 </script>
@@ -43,19 +43,18 @@ Zero decides routes based on file structure. Most projects also require dynamic 
 
 So if you create `./user/$username.svelte` and then from browser visit `/user/luke`, Zero will send that request to `$username.svelte` file and set `url.params` prop to `{username: 'luke'}`. Code for this:
 
-```js
-/*
+```html
+<!--
 project/
 └── user/
     └── $username.svelte <- this file
-*/
+-->
 <script>
   export let url; // { query, params }
   // also any preload data returned from preload()
 </script>
 
 <h1>Hello, {url.params.username}</h1>
-
 ```
 
 Parameters apply to folder-names too. Another example: if you want to cater `/user/luke/messages` route, you can handle this with following directory structure:
