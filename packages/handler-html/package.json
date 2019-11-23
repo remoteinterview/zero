@@ -1,10 +1,10 @@
 {
   "name": "zero-handler-html",
   "main": "index.js",
-  "version": "1.1.9",
+  "version": "1.1.10",
   "license": "Apache-2.0",
   "dependencies": {
-    "zero-process": "^1.1.9"
+    "zero-process": "^1.1.10"
   },
   "gitHead": "9e577043290b2ad1205a24f14c4edf7329c6073d"
 }
