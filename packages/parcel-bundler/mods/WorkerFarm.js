@@ -73,15 +73,7 @@ class WorkerFarm extends EventEmitter {
       // Child process workers are slow to start (~600ms).
       // While we're waiting, just run on the main thread.
       // This significantly speeds up startup time.
-      if (this.shouldUseRemoteWorkers()) {
-        return this.addCall(method, [...args, false]);
-      } else {
-        if (this.options.warmWorkers && this.shouldStartRemoteWorkers()) {
-          this.warmupWorker(method, args);
-        }
-
-        return this.localWorker[method](...args, false);
-      }
+      return this.localWorker[method](...args, false);
     };
   }
 
@@ -248,7 +240,8 @@ class WorkerFarm extends EventEmitter {
   shouldUseRemoteWorkers() {
     return (
       !this.options.useLocalWorker ||
-      this.warmWorkers >= this.workers.size || !this.options.warmWorkers
+      this.warmWorkers >= this.workers.size ||
+      !this.options.warmWorkers
     );
   }
 
