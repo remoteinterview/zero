@@ -1,11 +1,11 @@
 {
   "name": "zero-builder-js",
   "main": "index.js",
-  "version": "1.1.16-alpha.0",
+  "version": "1.1.16-alpha.1",
   "license": "Apache-2.0",
   "dependencies": {
-    "zero-dep-tree-js": "^1.1.16-alpha.0",
-    "zero-parcel-bundler": "^1.1.16-alpha.0"
+    "zero-dep-tree-js": "^1.1.16-alpha.1",
+    "zero-parcel-bundler": "^1.1.16-alpha.1"
   },
   "gitHead": "635813d499f76edaa3f101fb91278d79df65fb8a"
 }
