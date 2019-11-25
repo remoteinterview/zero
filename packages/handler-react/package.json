@@ -1,7 +1,7 @@
 {
   "name": "zero-handler-react",
   "main": "index.js",
-  "version": "1.1.16-alpha.6",
+  "version": "1.1.16",
   "license": "Apache-2.0",
   "dependencies": {
     "debug": "^4.1.1",
@@ -9,7 +9,7 @@
     "json-stringify-safe": "^5.0.1",
     "react": "^16.11.0",
     "react-dom": "^16.11.0",
-    "zero-process": "^1.1.16-alpha.6"
+    "zero-process": "^1.1.16"
   },
   "gitHead": "c7ea222855aef2ca7a011e96171011bbc5a7c92c"
 }

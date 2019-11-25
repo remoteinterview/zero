@@ -1,6 +1,6 @@
 {
   "name": "babel-plugin-transform-zero-dirname-filename",
-  "version": "1.1.16-alpha.6",
+  "version": "1.1.16",
   "main": "index.js",
   "license": "Apache-2.0",
   "scripts": {
