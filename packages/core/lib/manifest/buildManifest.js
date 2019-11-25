@@ -166,8 +166,8 @@ async function buildManifest(buildPath, oldManifest, fileFilter) {
 function dependencyTree(type, entryFile) {
   const buildersType = builders[type];
 
-  if (buildersType && buildersType.getRelatedFiles) {
-    return buildersType.getRelatedFiles(entryFile);
+  if (buildersType && require(buildersType).getRelatedFiles) {
+    return require(buildersType).getRelatedFiles(entryFile);
   } else {
     return []; //no tree walker found for this page type
   }

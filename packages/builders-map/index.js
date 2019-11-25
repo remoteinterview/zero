@@ -1,7 +1,7 @@
 module.exports = {
-  "page:html": require("zero-builder-html"),
-  "page:js": require("zero-builder-js"),
-  "page:react": require("zero-builder-react"),
-  "page:vue": require("zero-builder-vue"),
-  "page:svelte": require("zero-builder-svelte")
+  "page:html": require.resolve("zero-builder-html"),
+  "page:js": require.resolve("zero-builder-js"),
+  "page:react": require.resolve("zero-builder-react"),
+  "page:vue": require.resolve("zero-builder-vue"),
+  "page:svelte": require.resolve("zero-builder-svelte")
 };

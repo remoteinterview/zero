@@ -38,7 +38,7 @@ async function handlePageRequest(req, res, pageData) {
   if (
     !pageIdToBundleInfo[pageId] &&
     builders[pageData.type] &&
-    builders[pageData.type].bundler
+    require(builders[pageData.type]).bundler
   ) {
     //debug("build not found", pageId, pageData.path)
     spinner.start("Building " + url.resolve("/", pageData.path));

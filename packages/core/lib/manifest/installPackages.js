@@ -32,9 +32,9 @@ function updateBabelConfig(currentBabelConfig, file) {
   if (
     builderType &&
     builders[builderType] &&
-    builders[builderType].updateBabelConfig
+    require(builders[builderType]).updateBabelConfig
   ) {
-    return builders[builderType].updateBabelConfig(currentBabelConfig);
+    return require(builders[builderType]).updateBabelConfig(currentBabelConfig);
   }
 
   // no change
@@ -46,15 +46,15 @@ function getBuilderDeps(file) {
   if (
     builderType &&
     builders[builderType] &&
-    builders[builderType].dependencies
+    require(builders[builderType]).dependencies
   ) {
     // check if it's a function
-    if (typeof builders[builderType].dependencies === "function") {
-      return builders[builderType].dependencies(file);
+    if (typeof require(builders[builderType]).dependencies === "function") {
+      return require(builders[builderType]).dependencies(file);
     }
 
     // just an object
-    return builders[builderType].dependencies;
+    return require(builders[builderType]).dependencies;
   }
   return false;
 }
