@@ -1,12 +1,12 @@
 {
   "name": "zero-builder-svelte",
   "main": "index.js",
-  "version": "1.1.13",
+  "version": "1.1.15",
   "license": "Apache-2.0",
   "dependencies": {
     "mkdirp": "^0.5.1",
     "svelte": "^3.15.0",
-    "zero-parcel-bundler": "^1.1.13"
+    "zero-parcel-bundler": "^1.1.15"
   },
   "gitHead": "635813d499f76edaa3f101fb91278d79df65fb8a"
 }

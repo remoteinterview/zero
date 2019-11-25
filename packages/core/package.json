@@ -1,6 +1,6 @@
 {
   "name": "zero",
-  "version": "1.1.14",
+  "version": "1.1.15",
   "description": "",
   "main": "lib/index.js",
   "scripts": {
@@ -25,10 +25,10 @@
     "ora": "^3.0.0",
     "p-queue": "^6.0.2",
     "yarn": ">=1.17.3",
-    "zero-builder-process": "^1.1.13",
-    "zero-builders-map": "^1.1.13",
-    "zero-dep-tree-js": "^1.1.13",
-    "zero-handlers-map": "^1.1.14"
+    "zero-builder-process": "^1.1.15",
+    "zero-builders-map": "^1.1.15",
+    "zero-dep-tree-js": "^1.1.15",
+    "zero-handlers-map": "^1.1.15"
   },
   "bundledDependencies": [],
   "repository": {

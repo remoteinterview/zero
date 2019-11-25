@@ -1,11 +1,11 @@
 {
   "name": "zero-handler-svelte",
   "main": "index.js",
-  "version": "1.1.13",
+  "version": "1.1.15",
   "license": "Apache-2.0",
   "dependencies": {
     "svelte": "^3.15.0",
-    "zero-process": "^1.1.13"
+    "zero-process": "^1.1.15"
   },
   "gitHead": "9e577043290b2ad1205a24f14c4edf7329c6073d"
 }
