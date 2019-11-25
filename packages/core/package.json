@@ -1,6 +1,6 @@
 {
   "name": "zero",
-  "version": "1.1.16-alpha.2",
+  "version": "1.1.16-alpha.3",
   "description": "",
   "main": "lib/index.js",
   "scripts": {
@@ -25,15 +25,15 @@
     "ora": "^3.0.0",
     "p-queue": "^6.0.2",
     "yarn": ">=1.17.3",
-    "zero-builder-process": "^1.1.16-alpha.2",
-    "zero-builders-map": "^1.1.16-alpha.2",
-    "zero-dep-tree-js": "^1.1.16-alpha.2",
-    "zero-handlers-map": "^1.1.16-alpha.2"
+    "zero-builder-process": "^1.1.16-alpha.3",
+    "zero-builders-map": "^1.1.16-alpha.3",
+    "zero-dep-tree-js": "^1.1.16-alpha.3",
+    "zero-handlers-map": "^1.1.16-alpha.3"
   },
   "bundledDependencies": [],
   "repository": {
     "type": "git",
     "url": "https://github.com/remoteinterview/zero.git"
   },
-  "gitHead": "635813d499f76edaa3f101fb91278d79df65fb8a"
+  "gitHead": "c7ea222855aef2ca7a011e96171011bbc5a7c92c"
 }

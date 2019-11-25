@@ -1,7 +1,7 @@
 {
   "name": "zero-dep-tree-js",
   "main": "index.js",
-  "version": "1.1.16-alpha.2",
+  "version": "1.1.16-alpha.3",
   "license": "Apache-2.0",
   "dependencies": {
     "@mdx-js/mdx": "^1.5.1",
@@ -9,5 +9,6 @@
     "konan": "^1.2.1",
     "typescript": "^3.7.2",
     "vue-template-compiler": "^2.6.10"
-  }
+  },
+  "gitHead": "c7ea222855aef2ca7a011e96171011bbc5a7c92c"
 }

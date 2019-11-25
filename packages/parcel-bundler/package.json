@@ -1,7 +1,7 @@
 {
   "name": "zero-parcel-bundler",
   "main": "index.js",
-  "version": "1.1.16-alpha.2",
+  "version": "1.1.16-alpha.3",
   "license": "Apache-2.0",
   "dependencies": {
     "@mdx-js/parcel-plugin-mdx": "^1.5.1",
@@ -9,5 +9,5 @@
     "parcel-plugin-svelte": "^4.0.5",
     "svelte": "^3.15.0"
   },
-  "gitHead": "635813d499f76edaa3f101fb91278d79df65fb8a"
+  "gitHead": "c7ea222855aef2ca7a011e96171011bbc5a7c92c"
 }
