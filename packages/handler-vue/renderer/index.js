@@ -1,6 +1,6 @@
 const localRequire = lib => {
   return require(require("path").join(
-    process.env.SOURCEPATH,
+    process.env.PROJECTPATH,
     "node_modules",
     lib
   ));
@@ -94,9 +94,7 @@ async function generateComponent(req, res, pageData, buildInfo) {
     ${script.text({ body: true })}
     ${
       buildInfo && buildInfo.js
-        ? `<script>window.__ZERO_ASYNCDATA=${json}</script><script src="/${
-            buildInfo.js
-          }"></script>`
+        ? `<script>window.__ZERO_ASYNCDATA=${json}</script><script src="/${buildInfo.js}"></script>`
         : ""
     }
   </body>

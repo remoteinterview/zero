@@ -2,7 +2,7 @@ require("ignore-styles");
 
 const localRequire = lib => {
   return require(require("path").join(
-    process.env.SOURCEPATH,
+    process.env.PROJECTPATH,
     "node_modules",
     lib
   ));

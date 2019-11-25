@@ -2,11 +2,27 @@ const path = require("path");
 const { resolveYarn } = require("./yarn");
 const slash = require("./fixPathSlashes");
 const debug = require("debug")("core");
+const fs = require("fs");
 
 module.exports = function setupEnvVariables(sourcePath) {
   // Load environment variables from .env file if present
   debug("sourcePath", sourcePath);
-  require("dotenv").config({ path: path.resolve(sourcePath, ".env") });
+
+  // check if cwd is not sourcePath AND sourcePath is <cwd>/<sourcePath>
+  // in that special case:
+  // all config files (.babelrc, package.json, .env) might be in cwd instead of
+  // sourcePath (<cwd>/www)
+  var projectPath = slash(path.resolve(sourcePath));
+  var relativeTest = path.relative(process.cwd(), sourcePath);
+  if (relativeTest && !relativeTest.startsWith(".")) {
+    if (fs.existsSync(path.join(process.cwd(), "package.json"))) {
+      projectPath = process.cwd();
+      debug("projectPath", projectPath);
+    }
+  }
+  process.env.PROJECTPATH = slash(projectPath);
+
+  require("dotenv").config({ path: path.resolve(projectPath, ".env") });
   // Default env variables.
   process.env.PATH += ":" + resolveYarn();
   // we resolve the absolute path of source directory to avoid confusion in bundlers and handlers

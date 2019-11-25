@@ -169,7 +169,7 @@ function builder(sourcePath) {
             "_config",
             "package.json"
           ),
-          fs.readFileSync(path.join(process.env.SOURCEPATH, "package.json"))
+          fs.readFileSync(path.join(process.env.PROJECTPATH, "package.json"))
         );
 
         // copy .babelrc
@@ -180,7 +180,7 @@ function builder(sourcePath) {
             "_config",
             ".babelrc"
           ),
-          fs.readFileSync(path.join(process.env.SOURCEPATH, ".babelrc"))
+          fs.readFileSync(path.join(process.env.PROJECTPATH, ".babelrc"))
         );
 
         // save a file hash map

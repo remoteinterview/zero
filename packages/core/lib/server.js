@@ -43,6 +43,17 @@ module.exports = async function server(sourcePath) {
     });
   }
 
+  // clean any `node_modules` INSIDE `public or www` folder
+  // (only if cwd and www are different (when running like: `zero www`))
+  if (process.env.SOURCEPATH !== process.env.PROJECTPATH) {
+    dupNodeModules = path.join(process.env.SOURCEPATH, "node_modules");
+    if (fs.existsSync(dupNodeModules)) {
+      await del([slash(path.join(dupNodeModules, "/**"))], {
+        force: true
+      });
+    }
+  }
+
   return new Promise((resolve, reject) => {
     var hasResolved = false;
     manifest.on("change", () => {

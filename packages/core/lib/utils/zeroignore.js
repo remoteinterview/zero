@@ -37,7 +37,7 @@ module.exports = () => {
     zeroignore.add(DEFAULTIGNORES);
 
     // read .zeroignore file if present
-    var zeroignorePath = path.join(process.env.SOURCEPATH, ".zeroignore");
+    var zeroignorePath = path.join(process.env.PROJECTPATH, ".zeroignore");
     if (fs.existsSync(zeroignorePath)) {
       zeroignore.add(fs.readFileSync(zeroignorePath, "utf8"));
     }

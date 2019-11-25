@@ -62,7 +62,7 @@ function getBuilderDeps(file) {
 async function getNPMVersion(pkgName) {
   try {
     var json = await runYarn(
-      process.env.BUILDPATH,
+      process.env.PROJECTPATH,
       ["info", pkgName, "version", "--json"],
       true
     );
@@ -84,8 +84,7 @@ async function getFiles(baseSrc) {
   });
 }
 
-function installPackages(buildPath, filterFiles, pkgPath) {
-  if (!pkgPath) pkgPath = buildPath;
+function installPackages(buildPath, filterFiles) {
   return new Promise(async (resolve, reject) => {
     var files = await getFiles(buildPath);
     files = files.filter(f => {
@@ -98,7 +97,7 @@ function installPackages(buildPath, filterFiles, pkgPath) {
     var deps = [];
     var commonDepsNeeded = {};
     var babelConfig = baseBabelConfig;
-    var babelSrcPath = path.join(process.env.SOURCEPATH, "/.babelrc");
+    var babelSrcPath = path.join(process.env.PROJECTPATH, "/.babelrc");
     if (fs.existsSync(babelSrcPath)) {
       try {
         babelConfig = JSON.parse(fs.readFileSync(babelSrcPath, "utf8"));
@@ -118,7 +117,10 @@ function installPackages(buildPath, filterFiles, pkgPath) {
       }
 
       // if pkg.json is changed
-      if (path.relative(buildPath, file).toLowerCase() === "package.json") {
+      if (
+        path.relative(process.env.PROJECTPATH, file).toLowerCase() ===
+        "package.json"
+      ) {
         pkgJsonChanged = true;
       }
 
@@ -145,7 +147,7 @@ function installPackages(buildPath, filterFiles, pkgPath) {
     });
 
     // check if these deps are already installed
-    var pkgjsonPath = path.join(pkgPath, "/package.json");
+    var pkgjsonPath = path.join(process.env.PROJECTPATH, "package.json");
     var allInstalled = false;
     if (fs.existsSync(pkgjsonPath)) {
       try {
@@ -182,7 +184,7 @@ function installPackages(buildPath, filterFiles, pkgPath) {
       await writePackageJSON(buildPath, deps, commonDepsNeeded);
       debug("installing", deps, commonDepsNeeded);
 
-      runYarn(pkgPath, ["install"]).then(() => {
+      runYarn(process.env.PROJECTPATH, ["install"]).then(() => {
         // installed
         debug("Pkgs installed successfully.");
         resolve(deps);
@@ -195,7 +197,7 @@ function installPackages(buildPath, filterFiles, pkgPath) {
 
 async function writePackageJSON(buildPath, deps, commonDepsNeeded) {
   // first load current package.json if present
-  var pkgjsonPath = path.join(buildPath, "/package.json");
+  var pkgjsonPath = path.join(process.env.PROJECTPATH, "package.json");
   var pkg = {
     name: "zero-app",
     private: true,
@@ -244,15 +246,15 @@ async function writePackageJSON(buildPath, deps, commonDepsNeeded) {
     pkg.svelte["compiler"] = { hydratable: true };
   }
 
-  // write a pkg.json into tmp buildpath
+  // write a pkg.json
   fs.writeFileSync(
-    path.join(buildPath, "package.json"),
+    path.join(process.env.PROJECTPATH, "package.json"),
     JSON.stringify(pkg, null, 2),
     "utf8"
   );
 
   // add a .gitignore if not added by user
-  var gitignorePath = path.join(buildPath, "/.gitignore");
+  var gitignorePath = path.join(process.env.PROJECTPATH, "/.gitignore");
   if (!fs.existsSync(gitignorePath)) {
     fs.writeFileSync(
       gitignorePath,
