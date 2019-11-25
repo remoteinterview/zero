@@ -1,14 +1,14 @@
 {
   "name": "zero-builders-map",
   "main": "index.js",
-  "version": "1.1.16-alpha.5",
+  "version": "1.1.16-alpha.6",
   "license": "Apache-2.0",
   "dependencies": {
-    "zero-builder-html": "^1.1.16-alpha.5",
-    "zero-builder-js": "^1.1.16-alpha.5",
-    "zero-builder-react": "^1.1.16-alpha.5",
-    "zero-builder-svelte": "^1.1.16-alpha.5",
-    "zero-builder-vue": "^1.1.16-alpha.5"
+    "zero-builder-html": "^1.1.16-alpha.6",
+    "zero-builder-js": "^1.1.16-alpha.6",
+    "zero-builder-react": "^1.1.16-alpha.6",
+    "zero-builder-svelte": "^1.1.16-alpha.6",
+    "zero-builder-vue": "^1.1.16-alpha.6"
   },
   "gitHead": "c7ea222855aef2ca7a011e96171011bbc5a7c92c"
 }
