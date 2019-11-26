@@ -27,8 +27,10 @@ module.exports = async (
   const Bundler = require("zero-parcel-bundler");
   mkdirp.sync(bundlePath);
 
-  const isMDX =
-    path.extname(filename) === ".md" || path.extname(filename) === ".mdx";
+  // enable mdx wrap for all react files because jsx can also
+  // import an mdx file as a component.
+  const isMDX = true;
+  // path.extname(filename) === ".md" || path.extname(filename) === ".mdx";
   if (isMDX) {
     var mdxEntryFileName = path.join(
       process.env.BUILDPATH,
