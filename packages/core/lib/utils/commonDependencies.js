@@ -26,5 +26,13 @@ module.exports = file => {
     deps = { ...deps, ...depsTs };
   }
 
+  // install dynamodb connector for sessions middleware only when needed
+  if (process.env.SESSION_DYNAMODB_TABLE) {
+    var dynamoDb = {
+      "connect-dynamodb": "^2.0.3"
+    };
+    deps = { ...deps, ...dynamoDb };
+  }
+
   return deps;
 };

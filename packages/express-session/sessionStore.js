@@ -1,5 +1,12 @@
-const path = require("path");
 const SESSION_TTL = parseInt(process.env.SESSION_TTL);
+
+const localRequire = lib => {
+  return require(require("path").join(
+    process.env.PROJECTPATH,
+    "node_modules",
+    lib
+  ));
+};
 
 module.exports = session => {
   // check if redis creds are provided.
@@ -30,7 +37,11 @@ module.exports = session => {
   }
   // check if AWS+Dynamodb creds are provided
   else if (process.env.SESSION_DYNAMODB_TABLE) {
-    const DynamoDBStore = require("connect-dynamodb")({ session: session });
+    // we install connect-dynamodb in user's project (see core/installPkg)
+    // as it includes the heavy aws-sdk package (~50mb)
+    const DynamoDBStore = localRequire("connect-dynamodb")({
+      session: session
+    });
     var config = {
       table: process.env.SESSION_DYNAMODB_TABLE,
       AWSConfigJSON: {
