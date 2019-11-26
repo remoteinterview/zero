@@ -3,7 +3,15 @@ const path = require("path");
 const fs = require("fs");
 const builtInPackages = require("module").builtinModules || [];
 
-const availableExtensions = [".js", ".jsx", ".md", ".mdx", ".ts", ".tsx", ".vue"];
+const availableExtensions = [
+  ".js",
+  ".jsx",
+  ".md",
+  ".mdx",
+  ".ts",
+  ".tsx",
+  ".vue"
+];
 
 // recursively generate list of (relative) files imported by given file
 function getRelativeFiles(file) {
@@ -16,7 +24,13 @@ function getRelativeFiles(file) {
 
   // js based files
   if (availableExtensions.includes(extension)) {
-    var imports = konan(file, fs.readFileSync(file, "utf8"));
+    var imports;
+    try {
+      // will throw if compiler deps (typescript, mdx, vue) are not installed yet
+      imports = konan(file, fs.readFileSync(file, "utf8"));
+    } catch (e) {
+      return [];
+    }
     // only strings for now.
     imports.strings.forEach(imp => {
       // skip package imports
@@ -33,7 +47,6 @@ function getRelativeFiles(file) {
               deps.push(currentFile);
             }
           });
-
         }
       }
     });
