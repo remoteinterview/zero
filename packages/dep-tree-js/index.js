@@ -61,7 +61,13 @@ function getPackages(file) {
   var deps = [];
   const extension = path.extname(file);
   if (availableExtensions.includes(extension)) {
-    var imports = konan(file, fs.readFileSync(file, "utf8"));
+    var imports;
+    try {
+      // will throw if compiler deps (typescript, mdx, vue) are not installed yet
+      imports = konan(file, fs.readFileSync(file, "utf8"));
+    } catch (e) {
+      return [];
+    }
     // only strings for now.
     imports.strings.forEach(imp => {
       imp = trimPackageName(imp);
