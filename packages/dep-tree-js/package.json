@@ -4,11 +4,7 @@
   "version": "1.1.16",
   "license": "Apache-2.0",
   "dependencies": {
-    "@mdx-js/mdx": "^1.5.1",
-    "@vue/component-compiler-utils": "^2.6.0",
-    "konan": "^1.2.1",
-    "typescript": "^3.7.2",
-    "vue-template-compiler": "^2.6.10"
+    "konan": "^1.2.1"
   },
   "gitHead": "c7ea222855aef2ca7a011e96171011bbc5a7c92c"
 }
