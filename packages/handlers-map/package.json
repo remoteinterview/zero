@@ -1,16 +1,16 @@
 {
   "name": "zero-handlers-map",
   "main": "index.js",
-  "version": "1.1.16",
+  "version": "1.1.17-alpha.0",
   "license": "Apache-2.0",
   "dependencies": {
-    "zero-handler-html": "^1.1.16",
-    "zero-handler-js": "^1.1.16",
+    "zero-handler-html": "^1.1.17-alpha.0",
+    "zero-handler-js": "^1.1.17-alpha.0",
     "zero-handler-proxy": "^1.1.16",
     "zero-handler-python": "^1.1.16",
-    "zero-handler-react": "^1.1.16",
-    "zero-handler-svelte": "^1.1.16",
-    "zero-handler-vue": "^1.1.16",
+    "zero-handler-react": "^1.1.17-alpha.0",
+    "zero-handler-svelte": "^1.1.17-alpha.0",
+    "zero-handler-vue": "^1.1.17-alpha.0",
     "zero-static": "^1.1.16"
   },
   "gitHead": "c7ea222855aef2ca7a011e96171011bbc5a7c92c"
