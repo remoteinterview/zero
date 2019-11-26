@@ -61,3 +61,7 @@ export const config = {
   noBundling: true
 }
 ```
+
+## Syntax Highlighting
+
+Zero uses [PrismJS](https://github.com/PrismJS/prism) for syntax highlighting `<code>` blocks. You can enable syntax highlighting simply by importing one of the theme css files into your MDX. Here is a [list of themes](https://github.com/PrismJS/prism-themes).
