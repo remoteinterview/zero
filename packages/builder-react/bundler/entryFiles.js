@@ -58,7 +58,7 @@ var AppAndExports = require('${componentPath}')
 var App = (AppAndExports && AppAndExports.default)?AppAndExports.default : AppAndExports;
 
 const CodeBlock = ({children, className}) => {
-  const language = className.replace(/language-/, '')
+  const language = className?className.replace(/language-/, '') : false
   return (
     <Highlight {...defaultProps} code={children.trim()} language={language}>
       {({className, style, tokens, getLineProps, getTokenProps}) => (
