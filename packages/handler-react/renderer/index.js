@@ -32,6 +32,7 @@ async function generateComponent(req, res, pageData, buildInfo) {
   try {
     var appPath = path.join(process.env.SOURCEPATH, buildInfo.jsNode);
     var App = requireUncached(appPath);
+    var originalApp = App.originalApp;
   } catch (e) {
     if (!ssrCrashWarned) console.log(e);
   }
@@ -39,12 +40,14 @@ async function generateComponent(req, res, pageData, buildInfo) {
 
   var meta = {},
     config = {};
-  if (App) {
-    meta = App.meta || {};
-    config = App.config || {};
+  if (originalApp) {
+    meta = originalApp.meta || {};
+    config = originalApp.config || {};
   }
 
   App = App && App.default ? App.default : App; // cater export default class...
+  originalApp =
+    originalApp && originalApp.default ? originalApp.default : originalApp; // cater export default class...
   if (!App) {
     // component failed to load or was not exported.
 
@@ -84,14 +87,15 @@ async function generateComponent(req, res, pageData, buildInfo) {
       user: req.user,
       url: { query: req.query, params: req.params }
     };
-    debug("App", typeof App.getInitialProps === "function");
+    debug("App", typeof originalApp.getInitialProps === "function");
     if (
-      App &&
-      App.getInitialProps &&
-      typeof App.getInitialProps === "function"
+      originalApp &&
+      originalApp.getInitialProps &&
+      typeof originalApp.getInitialProps === "function"
     ) {
       try {
-        var newProps = (await App.getInitialProps({ req, ...props })) || {};
+        var newProps =
+          (await originalApp.getInitialProps({ req, ...props })) || {};
         props = { ...props, ...newProps };
       } catch (e) {
         debug("ERROR::getInitialProps", e);

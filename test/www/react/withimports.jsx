@@ -1,5 +1,5 @@
 const React = require('react')
-
+import moment from 'moment';
 var _ = require('underscore');
 var Component = require("./stateless")
 

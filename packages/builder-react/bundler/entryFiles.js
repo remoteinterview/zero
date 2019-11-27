@@ -54,8 +54,8 @@ const createMDXWrap = componentPath => {
 import Highlight, {defaultProps} from 'prism-react-renderer'
 import {mdx} from '@mdx-js/react'
 import {MDXProvider} from '@mdx-js/react'
-var App = require('${componentPath}')
-App = (App && App.default)?App.default : App;
+var AppAndExports = require('${componentPath}')
+var App = (AppAndExports && AppAndExports.default)?AppAndExports.default : AppAndExports;
 
 const CodeBlock = ({children, className}) => {
   const language = className.replace(/language-/, '')
@@ -81,12 +81,18 @@ const components = {
   pre: props => <div {...props} />
 }
 
-
-export default (props)=>(
+const WrappedApp = (props)=>(
   <MDXProvider components={components}>
     <App {...props} />
   </MDXProvider>
 )
+
+
+module.exports = {
+  originalApp: AppAndExports,
+  default: WrappedApp
+}
+
 `;
 };
 
