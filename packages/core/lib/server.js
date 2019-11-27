@@ -10,8 +10,8 @@ const pkg = require("../package");
 const setupEnvVariables = require("./utils/setupEnvVars");
 const ISDEV = process.env.NODE_ENV !== "production";
 
-module.exports = async function server(sourcePath) {
-  setupEnvVariables(sourcePath);
+module.exports = async function server(sourcePath, cwd) {
+  setupEnvVariables(sourcePath, cwd);
 
   // create the build folder if not present already
   mkdirp.sync(process.env.BUILDPATH);

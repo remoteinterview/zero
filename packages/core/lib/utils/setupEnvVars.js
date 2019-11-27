@@ -4,8 +4,9 @@ const slash = require("./fixPathSlashes");
 const debug = require("debug")("core");
 const fs = require("fs");
 
-module.exports = function setupEnvVariables(sourcePath) {
+module.exports = function setupEnvVariables(sourcePath, cwd) {
   // Load environment variables from .env file if present
+  if (!cwd) cwd = sourcePath;
   debug("sourcePath", sourcePath);
 
   // check if cwd is not sourcePath AND sourcePath is <cwd>/<sourcePath>
@@ -13,10 +14,10 @@ module.exports = function setupEnvVariables(sourcePath) {
   // all config files (.babelrc, package.json, .env) might be in cwd instead of
   // sourcePath (<cwd>/www)
   var projectPath = slash(path.resolve(sourcePath));
-  var relativeTest = path.relative(process.cwd(), sourcePath);
+  var relativeTest = path.relative(cwd, sourcePath);
   if (relativeTest && !relativeTest.startsWith(".")) {
-    if (fs.existsSync(path.join(process.cwd(), "package.json"))) {
-      projectPath = process.cwd();
+    if (fs.existsSync(path.join(cwd, "package.json"))) {
+      projectPath = cwd;
       debug("projectPath", projectPath);
     }
   }

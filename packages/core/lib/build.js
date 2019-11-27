@@ -12,7 +12,7 @@ const FileHash = require("./utils/fileHash");
 const setupEnvVariables = require("./utils/setupEnvVars");
 const getBuildInfo = require("./utils/getBuildInfo");
 
-function builder(sourcePath) {
+function builder(sourcePath, cwd) {
   const buildStartTime = Date.now();
 
   // `zero build` is always run in production mode.
@@ -21,7 +21,7 @@ function builder(sourcePath) {
 
   console.log(`\x1b[2m⚡️ Zero ${pkg.version ? `v${pkg.version}` : ""}\x1b[0m`);
   var bundleInfoMap = {};
-  setupEnvVariables(sourcePath);
+  setupEnvVariables(sourcePath, cwd);
 
   // create the build folder if not present already
   mkdirp.sync(process.env.BUILDPATH);

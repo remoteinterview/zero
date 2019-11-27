@@ -4,8 +4,8 @@ var build = require('../lib').build;
 const path = require('path');
 
 if (process.argv[2] ==="build"){
-  build(path.resolve(process.argv[3] || process.cwd()))
+  build(path.resolve(process.argv[3] || process.cwd()), process.cwd())
 }
 else{
-  startServer(path.resolve(process.argv[2] || process.cwd()))
+  startServer(path.resolve(process.argv[2] || process.cwd()), process.cwd())
 }

@@ -64,4 +64,4 @@ export const config = {
 
 ## Syntax Highlighting
 
-Zero uses [PrismJS](https://github.com/PrismJS/prism) for syntax highlighting `<code>` blocks. You can enable syntax highlighting simply by importing one of the theme css files into your MDX. Here is a [list of themes](https://github.com/PrismJS/prism-themes).
+Zero uses [PrismJS](https://github.com/PrismJS/prism) for syntax highlighting `<code>` blocks. To avoid being opinionated about something so controversial (editor theme), Zero doesn't enforce a theme. You can enable syntax highlighting simply by importing one of the theme css files into your MDX. Here is a [list of themes](https://github.com/PrismJS/prism-themes).
