@@ -9,8 +9,7 @@
   <a href="#installation">Installation</a> |
   <a href="#getting-started">Getting Started</a> |
   <a href="examples/">Examples</a> |
-  <a href="#running-on-cloud">Running on Cloud</a> |
-  <a href="docs/">Docs</a>
+  <a href="https://zeroserver.io/docs">Docs</a>
 </p>
 
 <p align="center">
