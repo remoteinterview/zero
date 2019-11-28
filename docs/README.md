@@ -4,7 +4,7 @@
 
 ## Try Online
 
-You can try with Zero without installing it locally, thanks to Glitch. Click the button below:
+You can try Zero without installing it locally, thanks to Glitch. Click the button below:
 
 <!-- Remix Button -->
 <a href="https://glitch.com/edit/#!/remix/zero-starter">
