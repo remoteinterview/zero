@@ -102,7 +102,7 @@ This method runs on server-end. Data returned from `preload()` is serialized whe
   - **query**: Query parameters passed to the request. Like if you URL called was `/post?id=1`, `url.query` will be `{id: 1}`.
   - **params**: An object of URL parameters, available when the page is part of a [dynamic route](https://github.com/remoteinterview/zero#dynamic-routes-pretty-url-slugs). Like: `/post/19/details` (handled by file `./post/$postId/details.svelte`), `url.params` in this case will be object `{postId: 19}`.
 
-## Fetch API
+## fetch() API
 
 [`fetch()`](https://developers.google.com/web/updates/2015/03/introduction-to-fetch) allows you to do network requests both in server-side code (like `preload()`) and on client-side. `fetch()` works the same on both the server and client.
 
@@ -114,7 +114,7 @@ fetch(url, {
 });
 ```
 
-## Populating `<head>`
+## Populating Page's Head
 
 You should set the page's head tags (`<title>`, `<meta>`, etc.) for improved SEO. Svelte has [<svelte:head>](https://svelte.dev/docs#svelte_head) set up for you to use in your Svelte pages like below:
 

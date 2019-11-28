@@ -69,7 +69,7 @@ fetch(url, {
 });
 ```
 
-## Populating Page's \<head\>
+## Populating Page's Head
 
 You should set the page's head tags (`<title>`, `<meta>`, etc.) for improved SEO. Zero has [React Helmet Async](https://github.com/staylor/react-helmet-async) set up for you to use in your React components like below:
 

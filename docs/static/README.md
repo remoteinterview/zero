@@ -4,8 +4,10 @@ Zero transpiles and bundles all the code files (`.js`, `.html`, `.jsx`, `.md`, e
 
 Your static files (images, documents, etc) can reside alongside your code files. It won't affect your code.
 
-## Example
+### Example
+
 If you project is structured like this:
+
 ```
 - project/
   - index.jsx
