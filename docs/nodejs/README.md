@@ -68,7 +68,7 @@ project/
 
 **Tip:** `$` is used by Bash for variables. So it might be confusing when you do `cd $username` or `mkdir $username` and nothing happens. The right way to do this is escaping the `$` ie. `cd \$username` or `mkdir \$username`.
 
-## Fetch API
+## fetch() API
 
 [`fetch()`](https://developers.google.com/web/updates/2015/03/introduction-to-fetch) allows you to do network requests from your API code.
 
