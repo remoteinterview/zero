@@ -27,21 +27,27 @@ module.exports = async (
   const Bundler = require("zero-parcel-bundler");
   mkdirp.sync(bundlePath);
 
-  // enable mdx wrap for all react files because jsx can also
-  // import an mdx file as a component.
-  const isMDX = true;
+  // enable mdx wrap only if pkg.json has mdx deps
+  var isMDX;
   // path.extname(filename) === ".md" || path.extname(filename) === ".mdx";
-  if (isMDX) {
-    var mdxEntryFileName = path.join(
-      process.env.BUILDPATH,
-      "/mdx." + sha1(filename) + ".js"
-    );
+  try {
+    var pkg = require(path.join(process.env.PROJECTPATH, "package.json"));
 
-    const mdxEntry = createMDXWrap(
-      path.relative(path.dirname(mdxEntryFileName), filename)
-    );
-    fs.writeFileSync(mdxEntryFileName, mdxEntry, "utf8");
-  }
+    if (pkg && pkg.dependencies && pkg.dependencies["@mdx-js/mdx"]) {
+      isMDX = true;
+    }
+  } catch (e) {}
+
+  var mdxEntryFileName = path.join(
+    process.env.BUILDPATH,
+    "/mdx." + sha1(filename) + ".js"
+  );
+
+  const mdxEntry = createMDXWrap(
+    path.relative(path.dirname(mdxEntryFileName), filename),
+    isMDX
+  );
+  fs.writeFileSync(mdxEntryFileName, mdxEntry, "utf8");
 
   // browser bundle needs and entry code
   if (!targetNode) {
@@ -53,10 +59,7 @@ module.exports = async (
     );
 
     const hotWrap = createHotReloadWrap(
-      path.relative(
-        path.dirname(hotWrapFileName),
-        isMDX ? mdxEntryFileName : filename
-      )
+      path.relative(path.dirname(hotWrapFileName), mdxEntryFileName)
     );
     fs.writeFileSync(hotWrapFileName, hotWrap, "utf8");
 
@@ -69,9 +72,8 @@ module.exports = async (
     const entry = createEntry(
       path.relative(
         path.dirname(entryFileName),
-        hmr ? hotWrapFileName : isMDX ? mdxEntryFileName : filename
-      ),
-      isMDX
+        hmr ? hotWrapFileName : mdxEntryFileName
+      )
     );
 
     // save entry code in a file and feed it to parcel
@@ -79,24 +81,21 @@ module.exports = async (
   }
 
   // Bundler options
-  const bundler = new Bundler(
-    targetNode ? (isMDX ? mdxEntryFileName : filename) : entryFileName,
-    {
-      outDir: bundlePath,
-      outFile: targetNode ? "bundle.node.js" : "bundle.js",
-      publicUrl: publicBundlePath,
-      watch: !process.env.ISBUILDER,
-      hmr: ISDEV && !process.env.ISBUILDER && !targetNode,
-      logLevel: 2,
-      rootDir: process.env.SOURCEPATH,
-      target: targetNode ? "node" : "browser",
-      cacheDir: path.join(require("os").tmpdir(), "zero", "cache"),
-      cache: !process.env.ISBUILDER,
-      minify: !ISDEV,
-      autoinstall: false,
-      sourceMaps: false //!ISDEV
-    }
-  );
+  const bundler = new Bundler(targetNode ? mdxEntryFileName : entryFileName, {
+    outDir: bundlePath,
+    outFile: targetNode ? "bundle.node.js" : "bundle.js",
+    publicUrl: publicBundlePath,
+    watch: !process.env.ISBUILDER,
+    hmr: ISDEV && !process.env.ISBUILDER && !targetNode,
+    logLevel: 2,
+    rootDir: process.env.SOURCEPATH,
+    target: targetNode ? "node" : "browser",
+    cacheDir: path.join(require("os").tmpdir(), "zero", "cache"),
+    cache: !process.env.ISBUILDER,
+    minify: !ISDEV,
+    autoinstall: false,
+    sourceMaps: false //!ISDEV
+  });
 
   process.on("SIGTERM", code => {
     bundler.stop();

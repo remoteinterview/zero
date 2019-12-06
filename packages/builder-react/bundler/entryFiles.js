@@ -44,11 +44,25 @@ export default hot(module)(App)
 `;
 };
 
-const createMDXWrap = componentPath => {
+// wraps mdx required code if we have MDX files and deps in project
+// otherwise it's just an empty wrap exporting component as-is
+
+const createMDXWrap = (componentPath, isMDX) => {
   componentPath = componentPath.replace(/\\/g, "/"); // fix slashes for fwd on windows
   componentPath = componentPath.startsWith(".")
     ? componentPath
     : "./" + componentPath;
+  // return an empty wrap
+  if (!isMDX) {
+    return `
+var AppAndExports = require('${componentPath}')
+var App = (AppAndExports && AppAndExports.default)?AppAndExports.default : AppAndExports;
+module.exports = {
+  originalApp: AppAndExports,
+  default: App
+}
+`;
+  }
 
   return `
 import Highlight, {defaultProps} from 'prism-react-renderer'
