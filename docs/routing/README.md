@@ -41,25 +41,51 @@ project/
 
 **Tip:** `$` is used by Bash for variables. So it might be confusing when you do `cd $username` or `mkdir $username` and nothing happens. The right way to do this is escaping the `$` ie. `cd \$username` or `mkdir \$username`.
 
+## Entry Point
+
+By default, Zero compiles and serves all files in your project. As your project grows, you may want to organize them in one folder so that they don't mix with other config files. Zero lets you enter a main folder where it should get the routes.
+
+Poject structure example:
+
+```
+project/
+└── docs/
+└── shared/
+└── www/
+    └── about.html
+    └── index.js
+└── data.js
+```
+
+Point the folder you want to expose:
+
+```
+zero www
+```
+
+Now only files inside the `www` folder will be served. Important to note they will be available at the root of the domain, like `http://<SERVER>/about`.
+
+**Tip:** You can point multiple folders.
+
 ## .zeroignore file
 
-By default, Zero compiles and serves all files in your project. But most of the time, you don't want to expose a certain file or folder. You can add `.zeroignore` file to prevent Zero from serving that file as a valid route.
+You can also indicate specific files or folders to prevent them from being exposed.
 
-### Example
-
-In a project with following structure:
+Example, In a project with following structure:
 
 ```
-- project/
--- components/
--- api/
--- index.jsx
+project/
+└── components/
+└── api/
+└── index.js
 ```
 
-You probably don't want to expose `components` directory. To do this, you can create `.zeroignore` file with the following text:
+You probably don't want to expose `components` directory. To do this, create an `.zeroignore` file in the project root with the following text:
 
 ```
 components
 ```
 
 This will prevent your users from accessing `/components` path directly.
+
+**Tip:** This file works just like [`.gitignore`](https://git-scm.com/docs/gitignore).
