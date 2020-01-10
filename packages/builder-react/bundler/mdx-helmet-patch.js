@@ -21,17 +21,18 @@ function applyMod() {
   }
 }
 function applyHelmetMod() {
-  var files = ["lib/index.js"];
+  var files = ["lib/index.js", "lib/index.module.js"];
   files.forEach(file => {
     var fullPath = resolve(`react-helmet-async/${file}`);
     var content = fs.readFileSync(fullPath, "utf8");
     content = content.replace("r.warnOnInvalidChildren(e,i)", "false");
+    content = content.replace("r.warnOnInvalidChildren(t,i)", "false");
     fs.writeFileSync(fullPath, content, "utf8");
   });
 }
 
 function applyMDXMod() {
-  var files = ["dist/index.js"];
+  var files = ["dist/index.js", "dist/index.es.js"];
   files.forEach(file => {
     var fullPath = resolve(`@mdx-js/react/${file}`);
     var content = fs.readFileSync(fullPath, "utf8");
