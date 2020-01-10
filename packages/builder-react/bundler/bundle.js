@@ -35,6 +35,8 @@ module.exports = async (
 
     if (pkg && pkg.dependencies && pkg.dependencies["@mdx-js/mdx"]) {
       isMDX = true;
+      // apply mods to react-helmet-async and mdxjs
+      require("./mdx-helmet-patch")();
     }
   } catch (e) {}
 

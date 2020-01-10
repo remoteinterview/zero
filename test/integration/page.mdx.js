@@ -44,3 +44,15 @@ test(".MDX File (With Syntax Highlight)", () => {
     expect($("pre").attr("class")).toBe("prism-code language-js");
   });
 });
+
+test("MDX With Helmet", () => {
+  //expect.assertions(1);
+  return get("/mdx/withhelmet").then(data => {
+    const $ = cheerio.load(data);
+    expect(
+      $("head title")
+        .text()
+        .trim()
+    ).toBe("Page Title");
+  });
+});
