@@ -17,9 +17,10 @@ function applyMod() {
   if (!global.reactHelmetModApplied) {
     global.reactHelmetModApplied = true;
     applyMDXMod();
+    applyHelmetMod();
   }
 }
-function applyMDXMod() {
+function applyHelmetMod() {
   var files = ["lib/index.js"];
   files.forEach(file => {
     var fullPath = resolve(`react-helmet-async/${file}`);
