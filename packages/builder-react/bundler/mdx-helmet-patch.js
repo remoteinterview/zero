@@ -32,16 +32,23 @@ function applyHelmetMod() {
 }
 
 function applyMDXMod() {
-  var files = ["dist/index.js", "dist/index.es.js"];
+  var files = [
+    "dist/index.js",
+    "dist/index.es.js",
+    "dist/esm.js",
+    "dist/cjs.js"
+  ];
   files.forEach(file => {
-    var fullPath = resolve(`@mdx-js/react/${file}`);
-    var content = fs.readFileSync(fullPath, "utf8");
-    content = content.replace(
-      "if (typeof type === 'string' || mdxType)",
-      `if ((typeof type === 'string' || mdxType) 
-        && ["base", "body", "head", "html", "link", "meta", "noscript", "script", "style", "title", "Symbol(react.fragment)"].indexOf(type)===-1)`
-    );
-    fs.writeFileSync(fullPath, content, "utf8");
+    try {
+      var fullPath = resolve(`@mdx-js/react/${file}`);
+      var content = fs.readFileSync(fullPath, "utf8");
+      content = content.replace(
+        "if (typeof type === 'string' || mdxType)",
+        `if ((typeof type === 'string' || mdxType) 
+          && ["base", "body", "head", "html", "link", "meta", "noscript", "script", "style", "title", "Symbol(react.fragment)"].indexOf(type)===-1)`
+      );
+      fs.writeFileSync(fullPath, content, "utf8");
+    } catch (e) {}
   });
 }
 
