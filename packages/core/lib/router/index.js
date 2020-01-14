@@ -179,10 +179,6 @@ module.exports = (buildPath, manifestEvents) => {
     return staticHandler(request, response);
   });
 
-  var listener = app.listen(process.env.PORT, () => {
-    debug("Running on port", listener.address().port);
-  });
-
   manifestEvents.on("change", changedData => {
     debug("updating manifest in server");
     manifest = changedData.manifest;
@@ -227,4 +223,6 @@ module.exports = (buildPath, manifestEvents) => {
       });
     }
   });
+
+  return app;
 };

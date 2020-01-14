@@ -1,5 +1,5 @@
 const Manifest = require("./manifest");
-const startRouter = require("./router");
+const Router = require("./router");
 const path = require("path");
 const fs = require("fs");
 const del = require("del");
@@ -7,10 +7,11 @@ const mkdirp = require("mkdirp");
 const Watcher = require("./utils/watcher");
 const slash = require("./utils/fixPathSlashes");
 const pkg = require("../package");
+const debug = require("debug")("core");
 const setupEnvVariables = require("./utils/setupEnvVars");
 const ISDEV = process.env.NODE_ENV !== "production";
 
-module.exports = async function server(sourcePath, cwd) {
+module.exports = async function server(sourcePath, cwd, resolveRouter) {
   setupEnvVariables(sourcePath, cwd);
 
   // create the build folder if not present already
@@ -21,7 +22,12 @@ module.exports = async function server(sourcePath, cwd) {
   var fileWatch = new Watcher(sourcePath, ISDEV);
   var manifest = new Manifest(sourcePath, fileWatch);
 
-  startRouter(sourcePath, manifest);
+  var app = Router(sourcePath, manifest);
+  if (!resolveRouter) {
+    var listener = app.listen(process.env.PORT, () => {
+      debug("Running on port", listener.address().port);
+    });
+  }
 
   // clear any `zero build` configs to avoid confusion
   var buildConfigPath = path.join(
@@ -58,7 +64,8 @@ module.exports = async function server(sourcePath, cwd) {
     var hasResolved = false;
     manifest.on("change", () => {
       hasResolved = true;
-      resolve();
+      if (resolveRouter) resolve(app);
+      else resolve();
     });
   });
 };

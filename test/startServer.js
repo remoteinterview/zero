@@ -1,14 +1,15 @@
 const waitPort = require("wait-port");
 const path = require("path");
-const startServer = require("../packages/core/lib").server;
+const server = require("../packages/core/lib").server;
 const fs = require("fs");
 const http = require("http");
 
 async function globalSetup() {
-  const www = path.join(__dirname, "./www");
-  // if (fs.existsSync(path.join(www, "package.json")))
-  //   fs.unlinkSync(path.join(www, "package.json"));
-  await startServer(path.join(__dirname, "./www"));
+  // const www = path.join(__dirname, "./www");
+  // // if (fs.existsSync(path.join(www, "package.json")))
+  // //   fs.unlinkSync(path.join(www, "package.json"));
+  var app = await server(path.join(__dirname, "./www"), false, true);
+  app.listen(process.env.PORT);
   startProxyServer();
   await waitPort({
     //host: "http://localhost",
