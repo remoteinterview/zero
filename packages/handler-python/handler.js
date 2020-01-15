@@ -23,7 +23,12 @@ module.exports = async (pageData, buildInfo) => {
         // add our custom pip packages path to PATH so python can find them.
         env: {
           ...process.env,
-          PATH: (process.env.PATH ? ":" : "") + packageFolder
+          PATH:
+            (process.env.PATH ? process.env.PATH + ":" : "") +
+            path.join(packageFolder, "bin"),
+          PYTHONPATH:
+            (process.env.PYTHONPATH ? process.env.PYTHONPATH + ":" : "") +
+            packageFolder
         },
         stdio: [0, 1, 2, "ipc", "pipe"]
       }

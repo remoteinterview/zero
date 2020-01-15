@@ -44,7 +44,16 @@ module.exports = async (buildPath, pipPath) => {
         ? defaultArgs
         : pipPath.slice(1).concat(defaultArgs);
     var child = spawn(processName, args, {
-      env: { ...process.env, PIP_TARGET: packageFolder }
+      env: {
+        ...process.env,
+        PIP_TARGET: packageFolder,
+        PATH:
+          (process.env.PATH ? process.env.PATH + ":" : "") +
+          path.join(packageFolder, "bin"),
+        PYTHONPATH:
+          (process.env.PYTHONPATH ? process.env.PYTHONPATH + ":" : "") +
+          packageFolder
+      }
     });
     child.stderr.on("data", msg => {
       process.stdout.write(filterStdout(msg.toString()));
