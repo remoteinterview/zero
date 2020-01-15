@@ -14,11 +14,17 @@ module.exports = async (pageData, buildInfo) => {
         return p;
       })
       .join("/");
+    const packageFolder = path.join(process.env.BUILDPATH, "python_modules");
     var child = spawn(
       pythonExe,
       [path.join(__dirname, "entryfile.py"), basePath, pageData.entryFile],
       {
         cwd: path.dirname(pageData.entryFile),
+        // add our custom pip packages path to PATH so python can find them.
+        env: {
+          ...process.env,
+          PATH: (process.env.PATH ? ":" : "") + packageFolder
+        },
         stdio: [0, 1, 2, "ipc", "pipe"]
       }
     );
