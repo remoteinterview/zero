@@ -1,0 +1,43 @@
+{
+  "name": "zero-app",
+  "private": true,
+  "scripts": {
+    "start": "zero"
+  },
+  "dependencies": {
+    "autoprefixer": "^9.7.4",
+    "postcss-modules": "^1.5.0",
+    "tailwindcss": "^1.2.0",
+    "@babel/core": "^7.2.2",
+    "@babel/runtime": "^7.3.1",
+    "regenerator-runtime": "^0.12.0",
+    "@babel/plugin-proposal-class-properties": "^7.3.4",
+    "babel-plugin-transform-zero-dirname-filename": "^1.1.1-alpha.0",
+    "@babel/plugin-transform-runtime": "^7.2.0",
+    "cssnano": "^4.1.10",
+    "svelte": "^3.15.0",
+    "@hot-loader/react-dom": "^16.8.1",
+    "babel-plugin-react-require": "^3.1.1",
+    "react": "^16.11.0",
+    "react-dom": "^16.11.0",
+    "react-helmet-async": "^1.0.4",
+    "react-hot-loader": "^4.12.15",
+    "sass": "^1.17.2",
+    "vue": "^2.6.10",
+    "vue-hot-reload-api": "^2.3.3",
+    "vue-meta": "^1.6.0",
+    "vue-template-compiler": "^2.6.10",
+    "@vue/component-compiler-utils": "^3.0.2"
+  },
+  "browserslist": [
+    "last 1 chrome versions"
+  ],
+  "svelte": {
+    "compiler": {
+      "hydratable": true
+    }
+  },
+  "alias": {
+    "react-dom": "@hot-loader/react-dom"
+  }
+}
