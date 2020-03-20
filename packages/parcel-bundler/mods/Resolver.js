@@ -129,13 +129,13 @@ class Resolver {
         // Tilde path. Resolve relative to nearest node_modules directory,
         // or the project root - whichever comes first.
         while (
-          dir !== this.options.rootDir &&
+          dir !== process.env.SOURCEPATH &&
           path.basename(path.dirname(dir)) !== "node_modules"
         ) {
           dir = path.dirname(dir);
 
           if (dir === path.dirname(dir)) {
-            dir = this.options.rootDir;
+            dir = process.env.SOURCEPATH;
             break;
           }
         }

@@ -3,7 +3,8 @@ const fs = require("fs"),
   path = require("path");
 const mods = [
   // modify farm to never spawn a new process and just use localWorker
-  ["@parcel/workers/src/WorkerFarm.js", "WorkerFarm.js"]
+  ["@parcel/workers/src/WorkerFarm.js", "WorkerFarm.js"],
+  ["parcel-bundler/src/Resolver.js", "Resolver.js"]
 ];
 
 module.exports = () => {
