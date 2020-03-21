@@ -9,7 +9,7 @@ module.exports = async (buildPath, pipPath) => {
   // make pip available (if not present)
   if (!pipPath) pipPath = await installPip();
   // fix requirements.txt
-  var reqFile = ["flask==0.12.2", "waitress==1.3.0"].join("\n");
+  var reqFile = ["flask==1.1.1", "waitress==1.4.3"].join("\n");
   var reqFilePath = path.join(buildPath, "requirements.txt");
   var reqCombinedFilePath = path.join(
     process.env.BUILDPATH,

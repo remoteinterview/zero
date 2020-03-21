@@ -72,7 +72,11 @@ function getPackages(file) {
     imports.strings.forEach(imp => {
       imp = trimPackageName(imp);
       // skip relative imports and built-in imports (on newer node versions only)
-      if (!imp.startsWith(".") && !builtInPackages.includes(imp)) {
+      if (
+        !imp.startsWith("~") &&
+        !imp.startsWith(".") &&
+        !builtInPackages.includes(imp)
+      ) {
         deps.push(imp);
       }
     });

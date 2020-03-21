@@ -65,3 +65,10 @@ test("__filename correctly set", () => {
     expect(data.filename.endsWith("dirname.js")).toBe(true);
   });
 });
+
+test("Import a module with ~ (tilde)", () => {
+  // expect.assertions(1);
+  return get("/api/tildeimport", { jar: true, json: true }).then(data => {
+    expect(data.evens[0]).toBe(2);
+  });
+});
