@@ -9,7 +9,7 @@ const localRequire = lib => {
 };
 
 module.exports = (file, code) => {
-  var extname = path.extname(file).toLowerCase();
+  const extname = path.extname(file).toLowerCase();
   if (extname === ".mdx" || extname === ".md") {
     const mdxTransform = localRequire("@mdx-js/mdx").sync;
     code = mdxTransform(code);
@@ -17,12 +17,16 @@ module.exports = (file, code) => {
 
   if (extname === ".ts" || extname === ".tsx") {
     const ts = localRequire("typescript");
-    var result = ts.transpileModule(code, {
+    const config = {
       compilerOptions: {
-        module: ts.ModuleKind.CommonJS,
-        jsx: ts.JsxEmit.Preserve
+        module: ts.ModuleKind.CommonJS
       }
-    });
+    };
+
+    if (extname === ".tsx") {
+      config.compilerOptions.jsx = ts.JsxEmit.Preserve;
+    }
+    const result = ts.transpileModule(code, config);
 
     code = result.outputText;
   }
@@ -30,7 +34,7 @@ module.exports = (file, code) => {
   if (extname === ".vue") {
     const vue = localRequire("@vue/component-compiler-utils");
     const vueTemplateCompiler = localRequire("vue-template-compiler");
-    var p = vue.parse({
+    const p = vue.parse({
       source: code,
       needMap: false,
       compiler: vueTemplateCompiler
