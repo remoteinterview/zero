@@ -31,26 +31,52 @@ module.exports = async (buildPath, pipPath) => {
   // install using pip
   return new Promise((resolve, reject) => {
     const processName = typeof pipPath === "string" ? pipPath : pipPath[0];
-    const defaultArgs = ["install", "-r", reqCombinedFilePath];
+    const packageFolder = path.join(process.env.BUILDPATH, "python_modules");
+    const defaultArgs = [
+      "install",
+      "--exists-action",
+      "i",
+      "-r",
+      reqCombinedFilePath
+    ];
     const args =
       typeof pipPath === "string"
         ? defaultArgs
         : pipPath.slice(1).concat(defaultArgs);
-    var child = spawn(processName, args);
-    child.stdout.on("data", msg => {
-      msg = msg
-        .toString()
-        .split("\n")
-        .filter(m => {
-          return m.indexOf("already satisfied") === -1;
-        })
-        .join("\n");
-      process.stdout.write(msg);
+    var child = spawn(processName, args, {
+      env: {
+        ...process.env,
+        PIP_TARGET: packageFolder,
+        PATH:
+          (process.env.PATH ? process.env.PATH + ":" : "") +
+          path.join(packageFolder, "bin"),
+        PYTHONPATH:
+          (process.env.PYTHONPATH ? process.env.PYTHONPATH + ":" : "") +
+          packageFolder
+      }
     });
-    child.stderr.on("data", m => process.stderr.write(m));
+    child.stderr.on("data", msg => {
+      process.stdout.write(filterStdout(msg.toString()));
+    });
+    child.stdout.on("data", msg => {
+      process.stdout.write(filterStdout(msg.toString()));
+    });
     child.on("close", () => {
-      // console.log("Requirements install completed.")
       resolve();
     });
   });
 };
+
+function filterStdout(msg) {
+  return msg
+    .split("\n")
+    .filter(m => {
+      return (
+        m.indexOf("already satisfied") === -1 &&
+        m.indexOf("Collecting ") === -1 &&
+        m.indexOf("already exists") === -1 &&
+        m.indexOf("Using cached ") === -1
+      );
+    })
+    .join("\n");
+}
