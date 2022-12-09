@@ -5,6 +5,6 @@
   "license": "Apache-2.0",
   "gitHead": "c7ea222855aef2ca7a011e96171011bbc5a7c92c",
   "dependencies": {
-    "express": "^4.16.4"
+    "express": "^4.17.3"
   }
 }
